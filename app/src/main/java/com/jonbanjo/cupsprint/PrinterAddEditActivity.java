@@ -1,14 +1,21 @@
 package com.jonbanjo.cupsprint;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.http.conn.HttpHostConnectException;
-import org.apache.commons.validator.routines.UrlValidator;
-import org.cups4j.CupsClient;
-import org.cups4j.CupsPrinter;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.jonbanjo.cups.OptionPair;
 import com.jonbanjo.detect.HostScanTask;
@@ -17,21 +24,15 @@ import com.jonbanjo.detect.PrinterRec;
 import com.jonbanjo.detect.PrinterResult;
 import com.jonbanjo.detect.PrinterUpdater;
 
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.Spinner;
+import org.apache.commons.validator.routines.UrlValidator;
+import org.apache.http.conn.HttpHostConnectException;
+import org.cups4j.CupsClient;
+import org.cups4j.CupsPrinter;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /*Copyright (C) 2013 Jon Freeman
 
@@ -237,7 +238,7 @@ public class PrinterAddEditActivity extends Activity implements PrinterUpdater{
 					":" + port.getText().toString();
 			URL clientURL = new URL(url);
 			testStatus = "";
-			testResult = "";	
+			testResult = "";	Log.d("CUPS", "printer tester: "+clientURL+", "+printerURL);
 			String [] results = new PrinterTester().execute(clientURL, printerURL).get(5000, TimeUnit.MILLISECONDS);
 			testStatus = results[0];
 			testResult = results[1];

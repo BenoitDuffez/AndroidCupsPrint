@@ -5,10 +5,6 @@
     android:versionCode="22"
     android:versionName="0.62" >
 
-    <uses-sdk
-        android:minSdkVersion="3"
-        android:targetSdkVersion="19" />
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -100,6 +96,16 @@
 			android:configChanges="orientation|screenSize" 
 			android:windowSoftInputMode="stateHidden" > 
 		</activity>>
+
+         <service android:name=".CupsService"
+              android:permission="android.permission.BIND_PRINT_SERVICE">
+             <intent-filter>
+                 <action android:name="android.printservice.PrintService" />
+             </intent-filter>
+             <meta-data android:name="android.printservice" android:resource="@xml/printservice" />
+         </service>
+
     </application>
 
 </manifest>
+

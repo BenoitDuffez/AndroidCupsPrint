@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<print-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:addPrintersActivity="com.jonbanjo.cupsprint.PrinterAddEditActivity"
+    android:settingsActivity="com.jonbanjo.cupsprint.PrinterMainActivity"
+    android:vendor="CUPS client"/>
