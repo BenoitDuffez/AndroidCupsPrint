@@ -1,7 +1,7 @@
 # JfCupsPrint
 Port of cups4j to Android
 
-Original work can be found here: http://mobd.jonbanjo.com/jfcupsprint/default.php
+Original work can be found here: http://mobd.jonbanjo.com/jfcupsprint/default.php  
 Original work found via: http://android.stackexchange.com/q/43774/63883
 
 # License
