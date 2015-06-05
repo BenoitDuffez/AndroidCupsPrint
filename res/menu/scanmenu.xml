@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/scanhost" android:title="@string/scanhost" android:showAsAction="ifRoom"></item>
+    <item android:id="@+id/scanmdns" android:title="@string/scanmdns" android:showAsAction="ifRoom"></item>
+</menu>

@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="dexedLibs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/android-support-v4-fe0fe9148af64ab98f49d94fdcb13b29.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/httpclient-4.1.3-20d2d19a52085d45734443d704754ae4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/httpcore-4.1.4-c742a0b4960bc93ea7f9689fb7fad971.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/commons-codec-1.4-a6fb2cf3dea6cf705c7d18798deaefd6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/commons-logging-1.1.1-11152542b141ba7190bd2c1d413e3f77.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/httpclient-cache-4.1.3-f6c584b046cbf0490008ae92e233c4f0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/httpmime-4.1.3-aa063a3575ea4e9bff7966f02aa57ac9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/cups4jpatched-1d213faddcf9e317ee3fc960df174bfe.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/dexedLibs/ini4j-0.5.2-SNAPSHOT-07880ca2bb98b5b6df3160ecdda41928.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

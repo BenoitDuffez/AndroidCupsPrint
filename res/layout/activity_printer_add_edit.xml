@@ -1,0 +1,175 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+
+<TableLayout 
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp">
+    
+    <TableRow>
+        <TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/nickname" />
+    	<EditText
+        	android:id="@+id/editNickname"
+        	android:inputType="text"
+			android:layout_weight="1"
+			android:layout_width="wrap_content"
+        	android:layout_height="wrap_content" />
+    </TableRow>
+    
+    <TableRow>
+    	<TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/protocol" />
+
+    	<Spinner
+        	android:id="@+id/editProtocol"
+        	android:inputType="text"
+        	android:maxLines="1"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"/>
+    </TableRow>
+    <TableRow>
+    	<TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/host" />
+
+    	<EditText
+        	android:id="@+id/editHost"
+        	android:inputType="text"
+			android:layout_weight="1"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"/>
+    </TableRow>
+    
+    <TableRow>
+    	<TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/port" />
+
+    	<EditText
+        	android:id="@+id/editPort"
+        	android:inputType="number"
+        	android:maxLines="1"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"/>
+    </TableRow>
+    
+    	
+    <TableRow>
+        <TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/queue" />
+
+    	<EditText
+        	android:id="@+id/editQueue"
+        	android:inputType="text"
+			android:layout_weight="1"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"/>
+    </TableRow>
+    
+    <TableRow>
+        <TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/orientation" />
+
+    	<Spinner
+        	android:id="@+id/editOrientation"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"/>
+    </TableRow>
+    
+    <TableRow>
+        <TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/extensions" />
+
+    	<EditText
+        	android:id="@+id/editExtensions"
+        	android:inputType="text"
+			android:layout_weight="1"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"/>
+    </TableRow>
+    
+    <TableRow>
+        <TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/fittopage" />
+
+    	<CheckBox
+        	android:id="@+id/editFitToPage"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"/>
+    </TableRow>
+    
+    
+    <TableRow>
+        <TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/justprint" />
+
+    	<CheckBox
+        	android:id="@+id/editNoOptions"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"/>
+    </TableRow>
+    
+    <TableRow>
+        <TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/isdefault" />
+
+    	<CheckBox
+        	android:id="@+id/editIsDefault"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"/>
+    </TableRow>
+    <TableRow>
+        <TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/mergeppd" />
+
+    	<CheckBox
+        	android:id="@+id/mergeppd"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"/>
+    </TableRow>
+    <TableRow>
+    	<Button
+        	android:id="@+id/editTest"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/test" 
+     		android:onClick="testPrinter" />
+        	<Button
+        	android:id="@+id/editSave"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/save" 
+     		android:onClick="savePrinter" />
+    </TableRow>
+    <TableRow>
+    	<TextView
+        	android:layout_width="wrap_content"
+        	android:layout_height="20dp" />
+    </TableRow>
+    
+</TableLayout>
+</ScrollView>
