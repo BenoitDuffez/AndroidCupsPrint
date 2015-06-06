@@ -100,6 +100,7 @@ public class CupsService extends PrintService {
 	 * @param printJob The print job
 	 */
 	private void onPrintJobCancelled(PrintJob printJob) {
+		mJobs.remove(printJob.getId());
 		printJob.cancel();
 	}
 
