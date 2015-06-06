@@ -22,6 +22,7 @@
 package com.jonbanjo.cupsprint;
 
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.print.PrintJobId;
 import android.print.PrintJobInfo;
 import android.printservice.PrintJob;
@@ -31,6 +32,8 @@ import android.util.Log;
 
 import org.cups4j.CupsClient;
 import org.cups4j.CupsPrinter;
+import org.cups4j.JobStateEnum;
+import org.cups4j.PrintJobAttributes;
 import org.cups4j.PrintRequestResult;
 
 import java.io.FileDescriptor;
@@ -45,6 +48,8 @@ import java.util.Map;
  * CUPS print service
  */
 public class CupsService extends PrintService {
+	public static final int JOB_CHECK_POLLING_INTERVAL = 1000;
+
 	Map<PrintJobId, Integer> mJobs = new HashMap<>();
 
 	@Override
@@ -106,6 +111,7 @@ public class CupsService extends PrintService {
 
 	@Override
 	protected void onPrintJobQueued(final PrintJob printJob) {
+		startPolling(printJob);
 		final PrintJobInfo jobInfo = printJob.getInfo();
 		String url = jobInfo.getPrinterId().getLocalId();
 		String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
@@ -132,6 +138,105 @@ public class CupsService extends PrintService {
 			}.execute();
 		} catch (MalformedURLException e) {
 			Log.e("CUPS", "Couldn't queue print job: " + printJob + " because: " + e);
+		}
+	}
+
+	private void startPolling(final PrintJob printJob) {
+		Log.d("CUPS", "startPolling(" + printJob + ")");
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if (updateJobStatus(printJob)) {
+					new Handler().postDelayed(this, JOB_CHECK_POLLING_INTERVAL);
+				}
+			}
+		}, JOB_CHECK_POLLING_INTERVAL);
+	}
+
+	/**
+	 * Called in the main thread, will ask the job status and update it in the Android framework
+	 *
+	 * @param printJob The print job
+	 * @return true if this method should be called again, false otherwise (in case the job is still pending or it is complete)
+	 */
+	private boolean updateJobStatus(final PrintJob printJob) {
+		Log.d("CUPS", "updateJobStatus(" + printJob + ")");
+
+		// Check if the job is already gone
+		if (!mJobs.containsKey(printJob.getId())) {
+			Log.d("CUPS", "Job is already removed, stop polling");
+			return false;
+		}
+
+		String url = printJob.getInfo().getPrinterId().getLocalId();
+		String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
+
+		// Prepare job
+		try {
+			final URL clientURL = new URL(clientUrl);
+			final int jobId = mJobs.get(printJob.getId());
+
+			// Send print job
+			new AsyncTask<Void, Void, JobStateEnum>() {
+				@Override
+				protected JobStateEnum doInBackground(Void... params) {
+					return getJobState(jobId, clientURL);
+				}
+
+				@Override
+				protected void onPostExecute(JobStateEnum state) {
+					onJobStateUpdate(printJob, state);
+				}
+			}.execute();
+		} catch (MalformedURLException e) {
+			Log.e("CUPS", "Couldn't get job: " + printJob + " state because: " + e);
+		}
+
+		// We want to be called again if the job is still in this map
+		// Indeed, when the job is complete, the job is removed from this map.
+		return mJobs.containsKey(printJob.getId());
+	}
+
+	/**
+	 * Called in a background thread, in order to check the job status
+	 *
+	 * @param jobId     The printer job ID
+	 * @param clientURL The printer client URL
+	 * @return true if the job is complete/aborted/cancelled, false if it's still processing (printing, paused, etc)
+	 */
+	private JobStateEnum getJobState(int jobId, URL clientURL) {
+		Log.d("CUPS", "getJobState(" + jobId + ", " + clientURL + ")");
+		CupsClient client = new CupsClient(clientURL);
+		try {
+			PrintJobAttributes attr = client.getJobAttributes(jobId);
+			return attr.getJobState();
+		} catch (Exception e) {
+			Log.e("CUPS", "Couldn't get job: " + jobId + " state because: " + e);
+		}
+		return null;
+	}
+
+	/**
+	 * Called on the main thread, when a job status has been checked
+	 *
+	 * @param printJob The print job
+	 * @param state    Print job state
+	 */
+	private void onJobStateUpdate(PrintJob printJob, JobStateEnum state) {
+		Log.d("CUPS", "onJobStateUpdate(" + printJob + ", " + state + ")");
+
+		// Couldn't check state -- don't do anything
+		if (state == null) {
+			mJobs.remove(printJob.getId());
+			printJob.cancel();
+		} else {
+			if (state == JobStateEnum.CANCELED) {
+				mJobs.remove(printJob.getId());
+				printJob.cancel();
+			} else if (state == JobStateEnum.COMPLETED || state == JobStateEnum.ABORTED) {
+				mJobs.remove(printJob.getId());
+				printJob.complete();
+			}
 		}
 	}
 
