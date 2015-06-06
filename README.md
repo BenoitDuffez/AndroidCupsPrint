@@ -16,7 +16,9 @@ This app was modified in several ways:
 ### Print Service
 
 Print service works at the framework level:
-![Android framework Print Services](https://camo.githubusercontent.com/8e75da6c50e90aabd35a31bcc31135f46534102d/687474703a2f2f692e696d6775722e636f6d2f4649426937766c2e706e67)
+
+<img alt="Android framework Print Services" src="http://i.imgur.com/FIBi7vl.png" width="300" />
+
 
 See the [Wiki](https://github.com/BenoitDuffez/JfCupsPrint/wiki) for more information about how to use it.
 
