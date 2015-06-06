@@ -1,15 +1,30 @@
 # JfCupsPrint
 Port of cups4j to Android. Original work was created by Jon Freeman, it included an app that reacts to the SEND intent to print documents.
 
-This app was modified in several ways:
-
-* project structure converted to gradle format
-* added support for Android PrintService so that it can print documents straight from almost all apps
-
 ## Original work
 
 Original work can be found here: http://mobd.jonbanjo.com/jfcupsprint/default.php  
 Original work found via: http://android.stackexchange.com/q/43774/63883
+
+## Modifications
+
+This app was modified in several ways:
+
+* project structure converted to gradle format
+* added support for Android PrintService so that it can print documents straight from almost all apps
+ 
+### Print Service
+
+Print service works at the framework level:
+![Android framework Print Services](https://camo.githubusercontent.com/8e75da6c50e90aabd35a31bcc31135f46534102d/687474703a2f2f692e696d6775722e636f6d2f4649426937766c2e706e67)
+
+See the [Wiki](https://github.com/BenoitDuffez/JfCupsPrint/wiki) for more information about how to use it.
+
+As per the code, the following has been added:
+
+* a service in the AndroidManifest.xml file that registers the app as a PrintService
+* `CupsPrinterDiscoverySession.java`: handles printer discovery and printer management
+* `CupsService.java`: handles Android framework connectivity and print jobs management
 
 # License
 
