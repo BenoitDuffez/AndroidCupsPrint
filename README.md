@@ -33,7 +33,17 @@ MA 02110-1301  USA
 Original license information by Jon Freeman:
 
 ```
-Redistribution and use of JfCupsPrint in source and binary forms, with or without modification, is permitted provided this notice is retained in source code redistributions and that recipients agree that JfCupsPrint is provided "as is", without warranty of any kind, express or " implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, title and non-infringement. In no event shall the copyright holders or anyone distributing the software be liable for any damages or other liability, whether in contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
+Redistribution and use of JfCupsPrint in source and binary forms,
+with or without modification, is permitted provided this notice
+is retained in source code redistributions and that recipients
+agree that JfCupsPrint is provided "as is", without warranty of
+any kind, express or " implied, including but not limited to the
+warranties of merchantability, fitness for a particular purpose,
+title and non-infringement. In no event shall the copyright holders
+or anyone distributing the software be liable for any damages or
+other liability, whether in contract, tort or otherwise, arising
+from, out of or in connection with the software or the use or
+other dealings in the software.
 ```
 
 ## External libraries
