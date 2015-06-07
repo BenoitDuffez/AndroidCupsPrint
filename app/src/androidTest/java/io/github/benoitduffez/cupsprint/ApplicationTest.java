@@ -1,4 +1,4 @@
-package com.jonbanjo.cupsprint;
+package io.github.benoitduffez.cupsprint;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

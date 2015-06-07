@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.jonbanjo.cupsprint"
+        applicationId "io.github.benoitduffez.cupsprint"
         minSdkVersion 19
         targetSdkVersion 22
         versionCode 1

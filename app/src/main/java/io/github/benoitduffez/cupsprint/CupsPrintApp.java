@@ -1,4 +1,4 @@
-package com.jonbanjo.cupsprint;
+package io.github.benoitduffez.cupsprint;
 
 /*Copyright (C) 2013 Jon Freeman
 

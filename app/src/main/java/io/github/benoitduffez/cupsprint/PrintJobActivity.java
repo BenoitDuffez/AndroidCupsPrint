@@ -1,4 +1,4 @@
-package com.jonbanjo.cupsprint;
+package io.github.benoitduffez.cupsprint;
 
 /*Copyright (C) 2013 Jon Freeman
 
@@ -16,6 +16,28 @@ received a copy of the GNU Lesser General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
+import android.widget.Button;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.Toast;
+
+import org.cups4j.CupsPrinter;
+import org.cups4j.PrintJob;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
@@ -26,33 +48,11 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.cups4j.CupsPrinter;
-import org.cups4j.PrintJob;
-
 import com.jonbanjo.cups.CupsPpd;
 import com.jonbanjo.cups.CupsPrinterExt;
 import com.jonbanjo.cups.PpdItemList;
 import com.jonbanjo.cups.PpdSectionList;
 import com.jonbanjo.cupscontrols.CupsTableLayout;
-
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.database.Cursor;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
-import android.widget.Button;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.Toast;
 
 public class PrintJobActivity extends Activity{
 

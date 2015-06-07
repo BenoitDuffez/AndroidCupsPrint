@@ -1,4 +1,4 @@
-package com.jonbanjo.cupsprint;
+package io.github.benoitduffez.cupsprint;
 
 import android.os.Bundle;
 import android.app.Activity;

@@ -1,4 +1,4 @@
-package com.jonbanjo.cupsprint;
+package io.github.benoitduffez.cupsprint;
 
 import java.io.File;
 import java.io.IOException;

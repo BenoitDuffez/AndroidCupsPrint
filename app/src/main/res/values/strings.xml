@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">JfCupsPrint</string>
-    <string name="title_activity_printer_list">JfCupsPrint</string>
+    <string name="app_name">Android CUPS Print</string>
+    <string name="title_activity_printer_list">CUPS Printers</string>
     <string name="about">About</string>
     <string name="addprinter">Add Printer</string>
- 	<string name="certificates">Certificates</string>
+    <string name="certificates">Certificates</string>
     <string name="default_port">631</string>
     <string name="title_activity_printer_add_edit">Edit Printer</string>
     <string name="nickname">Nickname</string>
@@ -27,8 +27,8 @@
     <string name="test">Test</string>
     <string name="title_activity_ppd_groups">Ppd Groups</string>
     <string name="title_activity_ppd_sections">Ppd Items</string>
-    <string name="title_activity_printer_print_to">JfCupsPrint&#8230;</string>
-    <string name="title_activity_printer_print_default">JfCupsPrint default</string>
+    <string name="title_activity_printer_print_to">CUPS Print&#8230;</string>
+    <string name="title_activity_printer_print_default">CUPS Print default</string>
     <string name="title_activity_about">About</string>
     <string name="title_activity_mime_types">Mime types</string>
     <string name="title_activity_certificate">Certificates</string>

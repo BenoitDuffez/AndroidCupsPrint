@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jonbanjo.cupsprint"
-    android:installLocation="auto"
-    android:versionCode="22"
-    android:versionName="0.62" >
+    package="io.github.benoitduffez.cupsprint"
+    android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name="com.jonbanjo.cupsprint.CupsPrintApp"
+        android:name="io.github.benoitduffez.cupsprint.CupsPrintApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppBaseTheme" >
         <activity
-            android:name="com.jonbanjo.cupsprint.PrinterMainActivity"
+            android:name="io.github.benoitduffez.cupsprint.PrinterMainActivity"
             android:label="@string/title_activity_printer_list" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +22,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.jonbanjo.cupsprint.PrinterPrintToActivity"
+            android:name="io.github.benoitduffez.cupsprint.PrinterPrintToActivity"
             android:label="@string/title_activity_printer_print_to"
             android:configChanges="orientation|screenSize" > 
              
@@ -42,7 +40,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.jonbanjo.cupsprint.PrinterPrintDefaultActivity"
+            android:name="io.github.benoitduffez.cupsprint.PrinterPrintDefaultActivity"
             android:label="@string/title_activity_printer_print_default"
 			android:configChanges="orientation|screenSize" 
              >
@@ -59,39 +57,39 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.jonbanjo.cupsprint.PrinterAddEditActivity"
+            android:name="io.github.benoitduffez.cupsprint.PrinterAddEditActivity"
             android:label="@string/title_activity_printer_add_edit"
 			android:configChanges="orientation|screenSize" 
 			android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
-            android:name="com.jonbanjo.cupsprint.PrintJobActivity"
+            android:name="io.github.benoitduffez.cupsprint.PrintJobActivity"
             android:label="@string/title_activity_print_job"
 			android:configChanges="orientation|screenSize"
 			android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
-            android:name="com.jonbanjo.cupsprint.PpdGroupsActivity"
+            android:name="io.github.benoitduffez.cupsprint.PpdGroupsActivity"
             android:label="@string/title_activity_ppd_groups"
 			android:configChanges="orientation|screenSize" >
         </activity>
         <activity
-            android:name="com.jonbanjo.cupsprint.PpdSectionsActivity"
+            android:name="io.github.benoitduffez.cupsprint.PpdSectionsActivity"
             android:label="@string/title_activity_ppd_sections"
 			android:configChanges="orientation|screenSize" >
         </activity>
         <activity
-            android:name="com.jonbanjo.cupsprint.AboutActivity"
+            android:name="io.github.benoitduffez.cupsprint.AboutActivity"
             android:label="@string/title_activity_about"
 			android:configChanges="orientation|screenSize" >
         </activity>
         <activity
-            android:name="com.jonbanjo.cupsprint.MimeTypesActivity"
+            android:name="io.github.benoitduffez.cupsprint.MimeTypesActivity"
             android:label="@string/title_activity_mime_types"
 			android:configChanges="orientation|screenSize" >
         </activity>
         <activity
-            android:name="com.jonbanjo.cupsprint.CertificateActivity"
+            android:name="io.github.benoitduffez.cupsprint.CertificateActivity"
             android:label="@string/title_activity_certificate" 
 			android:configChanges="orientation|screenSize" 
 			android:windowSoftInputMode="stateHidden" > 

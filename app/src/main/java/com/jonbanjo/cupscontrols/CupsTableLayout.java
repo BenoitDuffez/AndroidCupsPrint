@@ -62,12 +62,12 @@ public class CupsTableLayout extends TableLayout{
         wm.getDefaultDisplay().getMetrics(metrics);
         System.out.println(metrics.widthPixels);
         if (metrics.widthPixels > 720){
-            spinnerResId = com.jonbanjo.cupsprint.R.layout.textspinner;
+            spinnerResId = io.github.benoitduffez.cupsprint.R.layout.textspinner;
         	CupsControl.TextSize = 18;
         	CupsControl.TextScale = 0.8f;
         }
         else{
-            spinnerResId = com.jonbanjo.cupsprint.R.layout.textspinnersmall;
+            spinnerResId = io.github.benoitduffez.cupsprint.R.layout.textspinnersmall;
         	CupsControl.TextSize = 14;
         	CupsControl.TextScale = 0.8f;
         }

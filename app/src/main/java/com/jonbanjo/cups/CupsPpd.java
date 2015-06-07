@@ -16,14 +16,14 @@ received a copy of the GNU Lesser General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.
 */
 
+import org.cups4j.CupsPrinter;
+import org.cups4j.operations.cups.CupsGetPPDOperation;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.Iterator;
-
-import org.cups4j.CupsPrinter;
-import org.cups4j.operations.cups.CupsGetPPDOperation;
 
 public class CupsPpd{
     

@@ -22,7 +22,7 @@ import java.security.KeyStore;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 
-import com.jonbanjo.cupsprint.CupsPrintApp;
+import io.github.benoitduffez.cupsprint.CupsPrintApp;
 
 public class JfSSLScheme {
 	

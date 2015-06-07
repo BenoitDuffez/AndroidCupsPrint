@@ -1,4 +1,4 @@
-package com.jonbanjo.cupsprint;
+package io.github.benoitduffez.cupsprint;
 
 import com.jonbanjo.cups.PpdSectionList;
 import com.jonbanjo.cupscontrols.CupsTableLayout;

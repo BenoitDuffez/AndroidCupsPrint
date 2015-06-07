@@ -19,7 +19,7 @@
  * MA 02110-1301  USA
  */
 
-package com.jonbanjo.cupsprint;
+package io.github.benoitduffez.cupsprint;
 
 import android.os.AsyncTask;
 import android.os.Handler;
