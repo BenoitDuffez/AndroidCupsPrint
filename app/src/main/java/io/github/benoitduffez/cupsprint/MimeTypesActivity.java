@@ -16,28 +16,30 @@ program; if not, see <http://www.gnu.org/licenses/>.
 
 package io.github.benoitduffez.cupsprint;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.widget.TextView;
+
+import com.jonbanjo.cups.CupsPrinterExt;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import com.jonbanjo.cups.CupsPrinterExt;
-
-import android.os.Bundle;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.view.Menu;
-import android.widget.TextView;
-
 public class MimeTypesActivity extends Activity {
 
 	private CupsPrinterExt printer;
+
 	private PrintConfig printConfig;
+
 	private String message = "";
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,57 +47,60 @@ public class MimeTypesActivity extends Activity {
 		Intent intent = getIntent();
 		String sPrinter = intent.getStringExtra("printer");
 		IniHandler ini = new IniHandler(getBaseContext());
-	    printConfig = ini.getPrinter(sPrinter);
-	    if (printConfig == null){
+		printConfig = ini.getPrinter(sPrinter);
+		if (printConfig == null) {
 			new AlertDialog.Builder(this)
-			.setTitle("Error")
-			.setMessage("Config for " + sPrinter + " not found")
-			.setIcon(android.R.drawable.ic_dialog_alert)
-			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					.setTitle("Error")
+					.setMessage("Config for " + sPrinter + " not found")
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
-			    public void onClick(DialogInterface dialog, int whichButton) {
-			    	finish();
-			    }})
-			 .show();	
-	    	return;
-	    }
-	    
-	    getPrinter();
-	    
-	    if (printer == null){
+						public void onClick(DialogInterface dialog, int whichButton) {
+							finish();
+						}
+					})
+					.show();
+			return;
+		}
+
+		getPrinter();
+
+		if (printer == null) {
 			new AlertDialog.Builder(this)
-			.setTitle("Error")
-			.setMessage(message)
-			.setIcon(android.R.drawable.ic_dialog_alert)
-			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					.setTitle("Error")
+					.setMessage(message)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
-			    public void onClick(DialogInterface dialog, int whichButton) {
-			    	finish();
-			    }})
-			 .show();	
-	    	return;
-	    }
-	    
-	    ArrayList<String> mimeTypes = printer.getSupportedMimeTypes();
-	    if (mimeTypes.size() == 0){
+						public void onClick(DialogInterface dialog, int whichButton) {
+							finish();
+						}
+					})
+					.show();
+			return;
+		}
+
+		ArrayList<String> mimeTypes = printer.getSupportedMimeTypes();
+		if (mimeTypes.size() == 0) {
 			new AlertDialog.Builder(this)
-			.setTitle("Error")
-			.setMessage("Unable to get mime types for " + sPrinter)
-			.setIcon(android.R.drawable.ic_dialog_alert)
-			.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					.setTitle("Error")
+					.setMessage("Unable to get mime types for " + sPrinter)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
-			    public void onClick(DialogInterface dialog, int whichButton) {
-			    	finish();
-			    }})
-			 .show();	
-	    	return;
-	    }
-	    
+						public void onClick(DialogInterface dialog, int whichButton) {
+							finish();
+						}
+					})
+					.show();
+			return;
+		}
+
 		TextView mimeList = (TextView) findViewById(R.id.mimeList);
-		String S = sPrinter + "\n\n"; 
-	    for(String type: mimeTypes){
-	    	S = S + type + "\n";
-	    }
+		String S = sPrinter + "\n\n";
+		for (String type : mimeTypes) {
+			S = S + type + "\n";
+		}
 		mimeList.setText(S);
 	}
 
@@ -106,33 +111,31 @@ public class MimeTypesActivity extends Activity {
 		return true;
 	}
 
-	private URL getPrinterUrl() throws MalformedURLException{
-        String sUrl = printConfig.protocol + "://" + printConfig.host + ":" + printConfig.port + 
-        		"/printers/" + printConfig.queue;
-        	return new URL(sUrl);
- 	}
-	
-	private void getPrinter(){
-		
+	private URL getPrinterUrl() throws MalformedURLException {
+		String sUrl = printConfig.protocol + "://" + printConfig.host + ":" + printConfig.port +
+				"/printers/" + printConfig.queue;
+		return new URL(sUrl);
+	}
+
+	private void getPrinter() {
+
 		final CountDownLatch latch = new CountDownLatch(1);
-		Thread thread = new Thread(){
-		
+		Thread thread = new Thread() {
+
 			@Override
-			public void run(){
-				try{
-					printer = new CupsPrinterExt(getPrinterUrl(),null, false);
-				}
-				catch (Exception e){
+			public void run() {
+				try {
+					printer = new CupsPrinterExt(getPrinterUrl(), null, false);
+				} catch (Exception e) {
 					message = e.toString();
 				}
 				latch.countDown();
 			}
 		};
 		thread.start();
-		try{
+		try {
 			latch.await(5L, TimeUnit.SECONDS);
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			message = (e.toString());
 		}
 	}

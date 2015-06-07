@@ -1,13 +1,13 @@
 package io.github.benoitduffez.cupsprint;
 
+import android.content.Context;
+
+import org.ini4j.Ini;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import org.ini4j.Ini;
-
-import android.content.Context;
 
 /*Copyright (C) 2013 Jon Freeman
 
@@ -25,47 +25,47 @@ received a copy of the GNU Lesser General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-public class IniHandler extends Ini{
+public class IniHandler extends Ini {
 
 	private static final long serialVersionUID = 1L;
-	private static final String defaultPrinter = "jfcupsprintdefault"; 
-	
-	public IniHandler(Context context){
-    	super();
-    	try {
-    		String filePath = context.getFilesDir().getPath().toString() + "/printers.conf";
-    		File file = new File(filePath);
-    		file.createNewFile();
-    		setFile(file);
-    		load();
-    	}
-    	catch (Exception e){
-    		System.out.println(e.toString());
-        return;
-    	}
-    }
-	
-	public String getDefaultPrinter(){
+
+	private static final String defaultPrinter = "jfcupsprintdefault";
+
+	public IniHandler(Context context) {
+		super();
+		try {
+			String filePath = context.getFilesDir().getPath().toString() + "/printers.conf";
+			File file = new File(filePath);
+			file.createNewFile();
+			setFile(file);
+			load();
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			return;
+		}
+	}
+
+	public String getDefaultPrinter() {
 		return getString(IniHandler.defaultPrinter, "default");
 	}
-	
-	public void setDefaultPrinter(String printer){
-		put (IniHandler.defaultPrinter, "default", printer);
+
+	public void setDefaultPrinter(String printer) {
+		put(IniHandler.defaultPrinter, "default", printer);
 		try {
 			this.store();
 		} catch (IOException e) {
 			System.out.println(e.toString());
 		}
 	}
-	
-	public boolean printerExists(String name){
+
+	public boolean printerExists(String name) {
 		Section section = this.get(name);
 		return !(section == null);
 	}
-	
-	public void removePrinter(String printer){
+
+	public void removePrinter(String printer) {
 		Section section = this.get(printer);
-		if (section != null){
+		if (section != null) {
 			remove(section);
 			String currDefault = getDefaultPrinter();
 			if (currDefault.equals(printer))
@@ -76,11 +76,12 @@ public class IniHandler extends Ini{
 				System.out.println(e.toString());
 			}
 		}
-		
+
 	}
-	public void addPrinter(PrintConfig printer, String oldPrinter){
+
+	public void addPrinter(PrintConfig printer, String oldPrinter) {
 		Section section = this.get(oldPrinter);
-		if (section != null){
+		if (section != null) {
 			remove(section);
 		}
 		add(printer.nickname);
@@ -94,10 +95,10 @@ public class IniHandler extends Ini{
 		putBoolean(printer.nickname, "merge", printer.merge);
 		put(printer.nickname, "extensions", printer.extensions);
 		if (printer.isDefault)
-			put (IniHandler.defaultPrinter, "default", printer.nickname);
+			put(IniHandler.defaultPrinter, "default", printer.nickname);
 		else {
 			String currDefault = getString(IniHandler.defaultPrinter, "default");
-			if (currDefault != null){
+			if (currDefault != null) {
 				if (currDefault.equals(oldPrinter))
 					put(IniHandler.defaultPrinter, "default", "");
 			}
@@ -108,20 +109,20 @@ public class IniHandler extends Ini{
 			System.out.println(e.toString());
 		}
 	}
-	
-	public ArrayList<String> getPrinters(){
-		
+
+	public ArrayList<String> getPrinters() {
+
 		ArrayList<String> printerList = new ArrayList<String>();
-		for (String name: keySet()){
+		for (String name : keySet()) {
 			if (!name.equals(defaultPrinter))
 				printerList.add(name);
 		}
 		Collections.sort(printerList);
 		return printerList;
-		
+
 	}
-	
-	public PrintConfig getPrinter(String name){
+
+	public PrintConfig getPrinter(String name) {
 		Section section = this.get(name);
 		if (section == null)
 			return null;
@@ -139,25 +140,26 @@ public class IniHandler extends Ini{
 		pc.isDefault = (pc.nickname.equals(currDefault));
 		return pc;
 	}
-	
-	public String getString(String section, String key){
+
+	public String getString(String section, String key) {
 		String val = this.get(section, key);
 		if (val == null)
 			return "";
 		return val;
 	}
-	private Boolean getBoolean(String section, String key){
+
+	private Boolean getBoolean(String section, String key) {
 		String value = get(section, key);
 		if (value == null)
 			return false;
 		return (value.equals("true"));
 	}
-	
-	private void putBoolean(String section, String key, boolean value){
+
+	private void putBoolean(String section, String key, boolean value) {
 		if (value)
 			put(section, key, "true");
 		else
 			put(section, key, "false");
-			
+
 	}
 }

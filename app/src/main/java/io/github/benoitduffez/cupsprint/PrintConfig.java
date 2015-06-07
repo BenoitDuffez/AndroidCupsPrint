@@ -17,21 +17,31 @@ program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 public class PrintConfig {
-	
+
 	String nickname;
+
 	String protocol;
+
 	String host;
+
 	String port;
+
 	String queue;
+
 	String orientation;
+
 	boolean imageFitToPage;
+
 	boolean noOptions;
+
 	boolean isDefault;
+
 	String extensions;
+
 	boolean merge;
-	
-	
-	public PrintConfig(String nickname, String protocol, String host, String port, String queue){
+
+
+	public PrintConfig(String nickname, String protocol, String host, String port, String queue) {
 		this.nickname = nickname;
 		this.protocol = protocol;
 		this.host = host;

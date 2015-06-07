@@ -1,8 +1,8 @@
 package io.github.benoitduffez.cupsprint;
 
-import java.util.ArrayList;
-
 import com.jonbanjo.cups.OptionPair;
+
+import java.util.ArrayList;
 
 /*Copyright (C) 2013 Jon Freeman
 
@@ -21,17 +21,18 @@ program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 public class EditControls {
-	
+
 	public final static ArrayList<OptionPair> orientationOpts;
-	public final static ArrayList<String>protocols;
-	
-	static{
+
+	public final static ArrayList<String> protocols;
+
+	static {
 		orientationOpts = new ArrayList<OptionPair>();
 		orientationOpts.add(new OptionPair("3", "Portrait"));
 		orientationOpts.add(new OptionPair("4", "Landscape"));
 		orientationOpts.add(new OptionPair("5", "Reverse Portrait"));
 		orientationOpts.add(new OptionPair("6", "Reverse Landscape"));
-		
+
 		protocols = new ArrayList<String>();
 		protocols.add("http");
 		protocols.add("https");

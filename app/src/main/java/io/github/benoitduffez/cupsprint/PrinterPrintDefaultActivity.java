@@ -1,11 +1,9 @@
 package io.github.benoitduffez.cupsprint;
 
-import java.util.ArrayList;
-
-import android.net.Uri;
-import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,6 +11,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 /*Copyright (C) 2013 Jon Freeman
 
@@ -33,10 +33,13 @@ program; if not, see <http://www.gnu.org/licenses/>.
 public class PrinterPrintDefaultActivity extends Activity {
 
 	ListView printersListView;
+
 	ArrayList<String> printersArray;
+
 	Uri jobUri;
+
 	String mimeType;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,36 +49,35 @@ public class PrinterPrintDefaultActivity extends Activity {
 		String type = intent.getType();
 
 		if (Intent.ACTION_SEND.equals(action) && type != null) {
-		        jobUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-				mimeType = intent.getType();
-		}
-		else if ("org.androidprinting.intent.action.PRINT".equals(action) && type != null) {
-	        jobUri = (Uri) intent.getData();
-	        if (jobUri == null){
-	        	jobUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-	        }
+			jobUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+			mimeType = intent.getType();
+		} else if ("org.androidprinting.intent.action.PRINT".equals(action) && type != null) {
+			jobUri = (Uri) intent.getData();
+			if (jobUri == null) {
+				jobUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+			}
 			mimeType = intent.getType();
 		}
-		if (jobUri == null){
+		if (jobUri == null) {
 			String toast = "No printable document found";
-            Toast.makeText(PrinterPrintDefaultActivity.this, toast, Toast.LENGTH_LONG).show();
+			Toast.makeText(PrinterPrintDefaultActivity.this, toast, Toast.LENGTH_LONG).show();
 			finish();
 			return;
 		}
 		printersArray = ini.getPrinters();
-		if (printersArray.size() == 0){
-			 Intent noprinterintent = new Intent(this, PrinterMainActivity.class);
-		     startActivity(noprinterintent);
-			 finish();
-			 return;
+		if (printersArray.size() == 0) {
+			Intent noprinterintent = new Intent(this, PrinterMainActivity.class);
+			startActivity(noprinterintent);
+			finish();
+			return;
 		}
 		String printer = ini.getDefaultPrinter();
-		if (!printer.equals("")){
+		if (!printer.equals("")) {
 			doPrintJob(printer);
 			finish();
 			return;
 		}
-		if (printersArray.size() ==1){
+		if (printersArray.size() == 1) {
 			String printername = printersArray.get(0);
 			ini.setDefaultPrinter(printername);
 			doPrintJob(printername);
@@ -83,11 +85,11 @@ public class PrinterPrintDefaultActivity extends Activity {
 			return;
 		}
 		setContentView(R.layout.activity_printer_print_default);
-		printersListView=(ListView) findViewById(R.id.printersPrintDefaultView);
+		printersListView = (ListView) findViewById(R.id.printersPrintDefaultView);
 		registerForContextMenu(printersListView);
-		ArrayAdapter<String> aa = new ArrayAdapter<String>(this, 
+		ArrayAdapter<String> aa = new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1, printersArray);
-			printersListView.setAdapter(aa);
+		printersListView.setAdapter(aa);
 		printersListView.setClickable(true);
 		printersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -107,34 +109,34 @@ public class PrinterPrintDefaultActivity extends Activity {
 		getMenuInflater().inflate(R.menu.aboutmenu, menu);
 		return true;
 	}
-	
-	@Override
-	  public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
-	    	case R.id.about:
-	    		Intent intent = new Intent(this, AboutActivity.class);
-	    		intent.putExtra("printer", "");
-	    		startActivity(intent);
-	    		break;
-	    }
-	    return super.onContextItemSelected(item);
-	 }
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data){
-		if (resultCode == 500){
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.about:
+				Intent intent = new Intent(this, AboutActivity.class);
+				intent.putExtra("printer", "");
+				startActivity(intent);
+				break;
+		}
+		return super.onContextItemSelected(item);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == 500) {
 			finish();
 		}
 	}
-	
-	private void doPrintJob(String printer){
+
+	private void doPrintJob(String printer) {
 		Intent sendIntent = new Intent(this, PrintJobActivity.class);
 		sendIntent.putExtra("type", "static");
 		sendIntent.putExtra("printer", printer);
 		sendIntent.putExtra("mimeType", mimeType);
 		sendIntent.setData(jobUri);
 		this.startActivityForResult(sendIntent, 500);
-		}
-	
+	}
+
 
 }

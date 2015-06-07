@@ -1,21 +1,12 @@
 package io.github.benoitduffez.cupsprint;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.jonbanjo.detect.HostScanTask;
-import com.jonbanjo.detect.MdnsScanTask;
-import com.jonbanjo.detect.PrinterRec;
-import com.jonbanjo.detect.PrinterResult;
-import com.jonbanjo.detect.PrinterUpdater;
-
-import android.net.Uri;
-import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +14,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.jonbanjo.detect.HostScanTask;
+import com.jonbanjo.detect.MdnsScanTask;
+import com.jonbanjo.detect.PrinterRec;
+import com.jonbanjo.detect.PrinterResult;
+import com.jonbanjo.detect.PrinterUpdater;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /*Copyright (C) 2013 Jon Freeman
 
@@ -40,42 +40,43 @@ received a copy of the GNU Lesser General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-public class PrinterPrintToActivity extends Activity implements PrinterUpdater{
+public class PrinterPrintToActivity extends Activity implements PrinterUpdater {
 
 	ListView printersListView;
+
 	ArrayList<String> printersArray;
+
 	Uri jobUri;
+
 	String mimeType;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_printer_print_to);
-		printersListView=(ListView) findViewById(R.id.printersPrintToView);
+		printersListView = (ListView) findViewById(R.id.printersPrintToView);
 		registerForContextMenu(printersListView);
 		Intent intent = getIntent();
 		String action = intent.getAction();
 		String type = intent.getType();
 
 		if (Intent.ACTION_SEND.equals(action) && type != null) {
-		        jobUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-				mimeType = intent.getType();
-		}
-		else if (Intent.ACTION_VIEW.equals(action) && type != null) {
-	        jobUri = (Uri) intent.getData();
+			jobUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
 			mimeType = intent.getType();
-		}
-		else if ("org.androidprinting.intent.action.PRINT".equals(action) && type != null) {
-	        jobUri = (Uri) intent.getData();
-	        if (jobUri == null){
-	        	jobUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-	        }
+		} else if (Intent.ACTION_VIEW.equals(action) && type != null) {
+			jobUri = (Uri) intent.getData();
+			mimeType = intent.getType();
+		} else if ("org.androidprinting.intent.action.PRINT".equals(action) && type != null) {
+			jobUri = (Uri) intent.getData();
+			if (jobUri == null) {
+				jobUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+			}
 			mimeType = intent.getType();
 		}
 
-		if (jobUri == null){
+		if (jobUri == null) {
 			String toast = "No printable document found";
-            Toast.makeText(PrinterPrintToActivity.this, toast, Toast.LENGTH_LONG).show();
+			Toast.makeText(PrinterPrintToActivity.this, toast, Toast.LENGTH_LONG).show();
 			finish();
 			return;
 		}
@@ -98,27 +99,27 @@ public class PrinterPrintToActivity extends Activity implements PrinterUpdater{
 		getMenuInflater().inflate(R.menu.aboutmenu, menu);
 		return true;
 	}
-	
-	@Override
-	  public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
-	    	case R.id.about:
-	    		Intent intent = new Intent(this, AboutActivity.class);
-	    		intent.putExtra("printer", "");
-	    		startActivity(intent);
-	    		break;
-	    	case R.id.scanhost:
-	    		new HostScanTask(this, this).execute();
-	    		break;
-	    	case R.id.scanmdns:
-	    		new MdnsScanTask(this, this).execute();
-	    		break;
-	    }
-	    return super.onContextItemSelected(item);
-	 }
 
 	@Override
-	public void onStart(){
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.about:
+				Intent intent = new Intent(this, AboutActivity.class);
+				intent.putExtra("printer", "");
+				startActivity(intent);
+				break;
+			case R.id.scanhost:
+				new HostScanTask(this, this).execute();
+				break;
+			case R.id.scanmdns:
+				new MdnsScanTask(this, this).execute();
+				break;
+		}
+		return super.onContextItemSelected(item);
+	}
+
+	@Override
+	public void onStart() {
 		super.onStart();
 		IniHandler ini = new IniHandler(getBaseContext());
 		printersArray = ini.getPrinters();
@@ -127,49 +128,49 @@ public class PrinterPrintToActivity extends Activity implements PrinterUpdater{
 		//     startActivity(intent);
 		//	 finish();
 		//}
-		ArrayAdapter<String> aa = new ArrayAdapter<String>(this, 
-			android.R.layout.simple_list_item_1, printersArray);
+		ArrayAdapter<String> aa = new ArrayAdapter<String>(this,
+				android.R.layout.simple_list_item_1, printersArray);
 		printersListView.setAdapter(aa);
 	}
-	
+
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data){
-		if (resultCode == 500){
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == 500) {
 			finish();
 		}
 	}
-	
-	private void doPrintJob(String printer){
+
+	private void doPrintJob(String printer) {
 		Intent sendIntent = new Intent(this, PrintJobActivity.class);
 		sendIntent.putExtra("type", "static");
 		sendIntent.putExtra("printer", printer);
 		sendIntent.putExtra("mimeType", mimeType);
 		sendIntent.setData(jobUri);
 		this.startActivityForResult(sendIntent, 500);
-		}
-	
+	}
 
-	private void showResult(String title, String message){
+
+	private void showResult(String title, String message) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(message)
-		       .setTitle(title);
-		AlertDialog dialog = builder.create();	
+				.setTitle(title);
+		AlertDialog dialog = builder.create();
 		dialog.show();
 	}
-	
-	public void getDetectedPrinter(PrinterResult results){
-		
+
+	public void getDetectedPrinter(PrinterResult results) {
+
 		List<PrinterRec> printers = results.getPrinters();
-		if (printers.size() < 1){
+		if (printers.size() < 1) {
 			this.showResult("", "No printers found");
 			return;
 		}
 		final ArrayAdapter<PrinterRec> aa = new ArrayAdapter<PrinterRec>(
-				this, android.R.layout.simple_list_item_1,printers); 
+				this, android.R.layout.simple_list_item_1, printers);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Select printer");
 		builder.setAdapter(aa, new OnClickListener() {
-			
+
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				PrinterRec printer = aa.getItem(which);
@@ -179,8 +180,8 @@ public class PrinterPrintToActivity extends Activity implements PrinterUpdater{
 		AlertDialog dialog = builder.create();
 		dialog.show();
 	}
-	
-	private void dynPrint(PrinterRec printer){
+
+	private void dynPrint(PrinterRec printer) {
 		Intent sendIntent = new Intent(this, PrintJobActivity.class);
 		sendIntent.putExtra("type", "dynamic");
 		sendIntent.putExtra("name", printer.getNickname());
@@ -192,5 +193,5 @@ public class PrinterPrintToActivity extends Activity implements PrinterUpdater{
 		sendIntent.setData(jobUri);
 		this.startActivityForResult(sendIntent, 500);
 	}
-	
+
 }

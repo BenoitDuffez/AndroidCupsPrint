@@ -1,16 +1,16 @@
 package io.github.benoitduffez.cupsprint;
 
-import com.jonbanjo.cups.PpdSectionList;
-
-import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.jonbanjo.cups.PpdSectionList;
 
 /*Copyright (C) 2013 Jon Freeman
 
@@ -36,11 +36,11 @@ public class PpdGroupsActivity extends Activity {
 		setContentView(R.layout.activity_ppd_groups);
 		final ListView groupListView = (ListView) findViewById(R.id.groupListView);
 		groupListView.setClickable(true);
-		ArrayAdapter<PpdSectionList> aa = new ArrayAdapter<PpdSectionList>(this, 
+		ArrayAdapter<PpdSectionList> aa = new ArrayAdapter<PpdSectionList>(this,
 				android.R.layout.simple_list_item_1, PrintJobActivity.getPpd().getExtraList());
-			
+
 		groupListView.setAdapter(aa);
-		
+
 		groupListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
@@ -57,18 +57,18 @@ public class PpdGroupsActivity extends Activity {
 	}
 
 	@Override
-	  public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
-	    	case R.id.about:
-	    		Intent intent = new Intent(this, AboutActivity.class);
-	    		intent.putExtra("printer", "");
-	    		startActivity(intent);
-	    		break;
-	    }
-	    return super.onContextItemSelected(item);
-	 }
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.about:
+				Intent intent = new Intent(this, AboutActivity.class);
+				intent.putExtra("printer", "");
+				startActivity(intent);
+				break;
+		}
+		return super.onContextItemSelected(item);
+	}
 
-	private void doSection(int index){
+	private void doSection(int index) {
 		Intent intent = new Intent(this, PpdSectionsActivity.class);
 		intent.putExtra("section", index);
 		startActivity(intent);
