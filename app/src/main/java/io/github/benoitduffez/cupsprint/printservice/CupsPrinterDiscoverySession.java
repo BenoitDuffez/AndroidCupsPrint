@@ -105,7 +105,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 	 * @return The printer capabilities if the printer is available, null otherwise
 	 */
 	private PrinterCapabilitiesInfo checkPrinter(final String url, final PrinterId printerId) throws Exception {
-		if (url == null || !url.startsWith("http://") || !url.startsWith("https://")) {
+		if (url == null || (!url.startsWith("http://") && !url.startsWith("https://"))) {
 			return null;
 		}
 		URL printerURL = new URL(url);
@@ -247,6 +247,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 			@Override
 			protected PrinterCapabilitiesInfo doInBackground(Void... voids) {
 				try {
+					Log.i(CupsPrintApp.LOG_TAG, "Checking printer status: " + printerId);
 					return checkPrinter(printerId.getLocalId(), printerId);
 				} catch (Exception e) {
 					Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
