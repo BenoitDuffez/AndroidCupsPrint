@@ -33,7 +33,6 @@ import android.util.Log;
 import com.jonbanjo.detect.MdnsServices;
 import com.jonbanjo.detect.PrinterRec;
 import com.jonbanjo.detect.PrinterResult;
-import com.jonbanjo.detect.ProgressUpdater;
 
 import org.apache.commons.validator.UrlValidator;
 import org.cups4j.CupsClient;
@@ -223,11 +222,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 	 * @return The list of printers as {@link PrinterRec}
 	 */
 	private List<PrinterRec> scanPrinters() {
-		PrinterResult result = new MdnsServices(new ProgressUpdater() {
-			@Override
-			public void DoUpdate(int Value) {
-			}
-		}).scan();
+		PrinterResult result = new MdnsServices().scan();
 		//TODO: check for errors
 		return result.getPrinters();
 	}

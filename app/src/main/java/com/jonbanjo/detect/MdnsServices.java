@@ -16,6 +16,12 @@ program; if not, see <http://www.gnu.org/licenses/>.
 
 package com.jonbanjo.detect;
 
+import com.jmdns.ServiceInfo;
+import com.jmdns.impl.DNSIncoming;
+import com.jmdns.impl.DNSRecord;
+
+import org.cups4j.CupsClient;
+
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -27,18 +33,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.cups4j.CupsClient;
-
-import com.jmdns.ServiceInfo;
-import com.jmdns.impl.DNSIncoming;
-import com.jmdns.impl.DNSRecord;
-
 public class MdnsServices{
 	
-	ProgressUpdater updater;
-	
-	public MdnsServices(ProgressUpdater updater){
-		this.updater = updater;
+	public MdnsServices(){
 	}
     static final byte[] HEADER = {0,0,0,0,0,1,0,0,0,0,0,0};
     static final byte[] FOOTER =  {0,0,12,0,1};
@@ -198,7 +195,6 @@ public class MdnsServices{
                     recv.setLength(buf.length);
                     passes ++;
                     if (passes > MAX_PASSES){
-                    	updater.DoUpdate(passes + stage);
                         error = true;
                     }
             }
@@ -206,7 +202,6 @@ public class MdnsServices{
                     error = true;
                 }
             }
-            updater.DoUpdate(MAX_PASSES + stage);
             //System.out.println(passes);
             s.leaveGroup(group);
             s.close();
