@@ -19,7 +19,7 @@
  * MA 02110-1301  USA
  */
 
-package io.github.benoitduffez.cupsprint;
+package io.github.benoitduffez.cupsprint.printservice;
 
 import android.os.AsyncTask;
 import android.print.PrintAttributes;

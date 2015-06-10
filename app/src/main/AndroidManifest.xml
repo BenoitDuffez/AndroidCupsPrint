@@ -95,7 +95,7 @@
 			android:windowSoftInputMode="stateHidden" > 
 		</activity>>
 
-         <service android:name=".CupsService"
+         <service android:name=".printservice.CupsService"
               android:permission="android.permission.BIND_PRINT_SERVICE">
              <intent-filter>
                  <action android:name="android.printservice.PrintService" />
