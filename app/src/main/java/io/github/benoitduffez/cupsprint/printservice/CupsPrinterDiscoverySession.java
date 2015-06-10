@@ -34,7 +34,6 @@ import com.jonbanjo.detect.MdnsServices;
 import com.jonbanjo.detect.PrinterRec;
 import com.jonbanjo.detect.PrinterResult;
 
-import org.apache.commons.validator.UrlValidator;
 import org.cups4j.CupsClient;
 import org.cups4j.CupsPrinter;
 import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation;
@@ -106,9 +105,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 	 * @return The printer capabilities if the printer is available, null otherwise
 	 */
 	private PrinterCapabilitiesInfo checkPrinter(final String url, final PrinterId printerId) throws Exception {
-		String[] schemes = {"http", "https"};
-		UrlValidator validator = new UrlValidator(schemes);
-		if (!(validator.isValid(url))) {
+		if (url == null || !url.startsWith("http://") || !url.startsWith("https://")) {
 			return null;
 		}
 		URL printerURL = new URL(url);
