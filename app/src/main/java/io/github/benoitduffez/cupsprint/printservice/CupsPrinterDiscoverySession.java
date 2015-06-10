@@ -48,11 +48,13 @@ import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.schema.ippclient.Attribute;
 import ch.ethz.vppserver.schema.ippclient.AttributeGroup;
 import ch.ethz.vppserver.schema.ippclient.AttributeValue;
+import io.github.benoitduffez.cupsprint.CupsPrintApp;
 
 /**
  * CUPS printer discovery class
  */
 class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
+
 	private static final double MM_IN_MILS = 39.3700787;
 
 	private PrintService mPrintService;
@@ -87,7 +89,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 	 * @param printers The list of printers found using mDNS
 	 */
 	private void onPrintersDiscovered(List<PrinterRec> printers) {
-		Log.d("CUPS", "onPrintersDiscovered(" + printers + ")");
+		Log.i(CupsPrintApp.LOG_TAG, "onPrintersDiscovered(" + printers + ")");
 		List<PrinterInfo> printersInfo = new ArrayList<>(printers.size());
 		for (PrinterRec rec : printers) {
 			final String localId = rec.getProtocol() + "://" + rec.getHost() + ":" + rec.getPort() + "/printers/" + rec.getQueue();
@@ -117,7 +119,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 		CupsClient client = new CupsClient(clientURL);
 		CupsPrinter testPrinter = client.getPrinter(printerURL);
 		if (testPrinter == null) {
-			Log.d("CUPS", "Printer not found");
+			Log.e(CupsPrintApp.LOG_TAG, "Printer not found");
 		} else {
 			IppGetPrinterAttributesOperation op = new IppGetPrinterAttributesOperation();
 			PrinterCapabilitiesInfo.Builder builder = new PrinterCapabilitiesInfo.Builder(printerId);
@@ -250,7 +252,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 				try {
 					return checkPrinter(printerId.getLocalId(), printerId);
 				} catch (Exception e) {
-					Log.d("CUPS", "Failed to check printer " + printerId + ": " + e);
+					Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
 				}
 				return null;
 			}

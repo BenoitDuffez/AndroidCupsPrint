@@ -44,6 +44,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.benoitduffez.cupsprint.CupsPrintApp;
+
 /**
  * CUPS print service
  */
@@ -62,7 +64,6 @@ public class CupsService extends PrintService {
 
 	@Override
 	protected void onRequestCancelPrintJob(final PrintJob printJob) {
-		Log.d("CUPS", "Cancel print job: " + printJob);
 		final PrintJobInfo jobInfo = printJob.getInfo();
 		String url = jobInfo.getPrinterId().getLocalId();
 		String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
@@ -83,7 +84,7 @@ public class CupsService extends PrintService {
 				}
 			}.execute();
 		} catch (MalformedURLException e) {
-			Log.e("CUPS", "Couldn't cancel print job: " + printJob + " because: " + e);
+			Log.e(CupsPrintApp.LOG_TAG, "Couldn't cancel print job: " + printJob + " because: " + e);
 		}
 	}
 
@@ -98,7 +99,7 @@ public class CupsService extends PrintService {
 			CupsClient client = new CupsClient(clientURL);
 			client.cancelJob(jobId);
 		} catch (Exception e) {
-			Log.e("CUPS", "Couldn't cancel job: " + jobId + " because: " + e);
+			Log.e(CupsPrintApp.LOG_TAG, "Couldn't cancel job: " + jobId + " because: " + e);
 		}
 	}
 
@@ -140,12 +141,11 @@ public class CupsService extends PrintService {
 				}
 			}.execute();
 		} catch (MalformedURLException e) {
-			Log.e("CUPS", "Couldn't queue print job: " + printJob + " because: " + e);
+			Log.e(CupsPrintApp.LOG_TAG, "Couldn't queue print job: " + printJob + " because: " + e);
 		}
 	}
 
 	private void startPolling(final PrintJob printJob) {
-		Log.d("CUPS", "startPolling(" + printJob + ")");
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
@@ -163,11 +163,8 @@ public class CupsService extends PrintService {
 	 * @return true if this method should be called again, false otherwise (in case the job is still pending or it is complete)
 	 */
 	private boolean updateJobStatus(final PrintJob printJob) {
-		Log.d("CUPS", "updateJobStatus(" + printJob + ")");
-
 		// Check if the job is already gone
 		if (!mJobs.containsKey(printJob.getId())) {
-			Log.d("CUPS", "Job is already removed, stop polling");
 			return false;
 		}
 
@@ -192,7 +189,7 @@ public class CupsService extends PrintService {
 				}
 			}.execute();
 		} catch (MalformedURLException e) {
-			Log.e("CUPS", "Couldn't get job: " + printJob + " state because: " + e);
+			Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + printJob + " state because: " + e);
 		}
 
 		// We want to be called again if the job is still in this map
@@ -208,13 +205,12 @@ public class CupsService extends PrintService {
 	 * @return true if the job is complete/aborted/cancelled, false if it's still processing (printing, paused, etc)
 	 */
 	private JobStateEnum getJobState(int jobId, URL clientURL) {
-		Log.d("CUPS", "getJobState(" + jobId + ", " + clientURL + ")");
 		CupsClient client = new CupsClient(clientURL);
 		try {
 			PrintJobAttributes attr = client.getJobAttributes(jobId);
 			return attr.getJobState();
 		} catch (Exception e) {
-			Log.e("CUPS", "Couldn't get job: " + jobId + " state because: " + e);
+			Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + jobId + " state because: " + e);
 		}
 		return null;
 	}
@@ -226,8 +222,6 @@ public class CupsService extends PrintService {
 	 * @param state    Print job state
 	 */
 	private void onJobStateUpdate(PrintJob printJob, JobStateEnum state) {
-		Log.d("CUPS", "onJobStateUpdate(" + printJob + ", " + state + ")");
-
 		// Couldn't check state -- don't do anything
 		if (state == null) {
 			mJobs.remove(printJob.getId());
@@ -261,7 +255,7 @@ public class CupsService extends PrintService {
 			PrintRequestResult result = printer.print(job);
 			mJobs.put(jobId, result.getJobId());
 		} catch (Exception e) {
-			Log.e("CUPS", "Couldn't send file descriptor: " + fd + " to printer because: " + e);
+			Log.e(CupsPrintApp.LOG_TAG, "Couldn't send file descriptor: " + fd + " to printer because: " + e);
 		}
 	}
 

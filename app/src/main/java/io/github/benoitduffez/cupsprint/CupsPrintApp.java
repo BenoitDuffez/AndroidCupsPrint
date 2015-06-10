@@ -21,6 +21,8 @@ import android.content.Context;
 
 public class CupsPrintApp extends Application {
 
+	public static final String LOG_TAG = "CUPS";
+
 	private static CupsPrintApp instance;
 
 	public static CupsPrintApp getInstance() {
