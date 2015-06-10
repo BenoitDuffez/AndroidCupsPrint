@@ -48,7 +48,10 @@ import java.util.Map;
  * CUPS print service
  */
 public class CupsService extends PrintService {
-	public static final int JOB_CHECK_POLLING_INTERVAL = 1000;
+	/**
+	 * When a print job is active, the app will poll the printer to retrieve the job status. This is the polling interval.
+	 */
+	public static final int JOB_CHECK_POLLING_INTERVAL = 5000;
 
 	Map<PrintJobId, Integer> mJobs = new HashMap<>();
 
