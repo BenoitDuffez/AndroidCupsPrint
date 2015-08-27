@@ -24,7 +24,8 @@
 
         <activity
             android:name=".AddPrintersActivity"
-            android:exported="true"/>
+            android:exported="true"
+            android:label="@string/activity_add_label"/>
 
     </application>
 
