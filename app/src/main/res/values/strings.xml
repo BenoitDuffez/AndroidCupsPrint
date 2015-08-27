@@ -2,5 +2,8 @@
 <resources>
 
     <string name="app_name">Android CUPS Print</string>
+    <string name="add_url">http://server.tld:631/printers/Printer_Name</string>
+    <string name="add_name">Printer Name</string>
+    <string name="add_button">Add printer</string>
 
 </resources>

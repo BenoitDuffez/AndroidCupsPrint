@@ -52,7 +52,7 @@ import io.github.benoitduffez.cupsprint.CupsPrintApp;
 /**
  * CUPS printer discovery class
  */
-class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
+public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
 	private static final double MM_IN_MILS = 39.3700787;
 
@@ -96,7 +96,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 			printersInfo.add(new PrinterInfo.Builder(printerId, rec.getNickname(), PrinterInfo.STATUS_IDLE).build());
 		}
 
-		addPrinters(printersInfo);
+//		addPrinters(printersInfo);
 	}
 
 	/**

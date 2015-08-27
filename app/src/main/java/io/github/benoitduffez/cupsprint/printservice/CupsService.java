@@ -55,11 +55,52 @@ public class CupsService extends PrintService {
 	 */
 	public static final int JOB_CHECK_POLLING_INTERVAL = 5000;
 
+	/**
+	 * Lock for setting/accessing the static instance
+	 */
+	private static final Object sLock = new Object();
+
+	/**
+	 * Static instance, valid when the service is connected
+	 */
+	private static CupsService sInstance;
+
+	/**
+	 * Current discovery session
+	 */
+	private CupsPrinterDiscoverySession mSession;
+
 	Map<PrintJobId, Integer> mJobs = new HashMap<>();
+
+	public static CupsService peekInstance() {
+		synchronized (sLock) {
+			return sInstance;
+		}
+	}
+
+	@Override
+	protected void onConnected() {
+		synchronized (sLock) {
+			sInstance = this;
+		}
+	}
+
+	@Override
+	protected void onDisconnected() {
+		synchronized (sLock) {
+			sInstance = null;
+			mSession = null;
+		}
+	}
+
+	public PrinterDiscoverySession getSession() {
+		return mSession;
+	}
 
 	@Override
 	protected PrinterDiscoverySession onCreatePrinterDiscoverySession() {
-		return new CupsPrinterDiscoverySession(this);
+		mSession = new CupsPrinterDiscoverySession(this);
+		return mSession;
 	}
 
 	@Override
@@ -268,3 +309,4 @@ public class CupsService extends PrintService {
 		printJob.start();
 	}
 }
+

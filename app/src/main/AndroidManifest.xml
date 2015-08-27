@@ -22,6 +22,10 @@
                 android:resource="@xml/printservice"/>
         </service>
 
+        <activity
+            android:name=".AddPrintersActivity"
+            android:exported="true"/>
+
     </application>
 
 </manifest>
