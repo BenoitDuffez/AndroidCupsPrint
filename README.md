@@ -1,6 +1,8 @@
 # AndroidCupsPrint
 Port of cups4j to Android. Original work was created by Jon Freeman, it included an app that reacts to the SEND intent to print documents.
 
+See it live on the Play Store: https://play.google.com/store/apps/details?id=io.github.benoitduffez.cupsprint
+
 ## Original work
 
 Original work can be found here: http://mobd.jonbanjo.com/jfcupsprint/default.php  
@@ -75,15 +77,6 @@ other dealings in the software.
 
 ## External libraries
 
-From the Apache Commons Project
-
-* commons-codec
-* commons-logging
-* commons-validator
-
-These are licensed under the Apache licence:
-
-* A modified version of cups4j 0.63. The original source code and further details about cups4j may be found at http://www.cups4j.org/ 
-* ini4j This is licensed under the Apache Licence
+* A modified version of cups4j 0.63. The original source code and further details about cups4j may be found at http://www.cups4j.org/ (licensed under the LGPL license)
 * JmDNS This is licensed under the Apache Licence
 
