@@ -96,7 +96,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 			printersInfo.add(new PrinterInfo.Builder(printerId, rec.getNickname(), PrinterInfo.STATUS_IDLE).build());
 		}
 
-//		addPrinters(printersInfo);
+		addPrinters(printersInfo);
 	}
 
 	/**
