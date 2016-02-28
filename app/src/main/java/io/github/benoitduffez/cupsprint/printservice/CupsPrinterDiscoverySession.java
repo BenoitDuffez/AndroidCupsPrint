@@ -22,6 +22,7 @@
 package io.github.benoitduffez.cupsprint.printservice;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.print.PrintAttributes;
 import android.print.PrinterCapabilitiesInfo;
 import android.print.PrinterId;
@@ -116,12 +117,12 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 		CupsClient client = new CupsClient(clientURL);
 		CupsPrinter testPrinter = client.getPrinter(printerURL);
 		if (testPrinter == null) {
-			Log.e(CupsPrintApp.LOG_TAG, "Printer not found");
+			Log.e(CupsPrintApp.LOG_TAG, "Printer not responding. Printer on fire?");
 		} else {
 			IppGetPrinterAttributesOperation op = new IppGetPrinterAttributesOperation();
 			PrinterCapabilitiesInfo.Builder builder = new PrinterCapabilitiesInfo.Builder(printerId);
 			IppResult ippAttributes = op.request(printerURL, new HashMap<String, String>());
-			boolean colorDefault = false;
+			int colorDefault = 0;
 			int colorMode = 0;
 			int marginMilsTop = 0, marginMilsRight = 0, marginMilsBottom = 0, marginMilsLeft = 0;
 			for (AttributeGroup attributeGroup : ippAttributes.getAttributeGroupList()) {
@@ -153,7 +154,15 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 							}
 						}
 					} else if ("print-color-mode-default".equals(attribute.getName())) {
-						colorDefault = true;
+						AttributeValue attributeValue = null;
+						if (!attribute.getAttributeValue().isEmpty()) {
+							attributeValue = attribute.getAttributeValue().get(0);
+						}
+						if (attributeValue != null && "color".equals(attributeValue.getValue())) {
+							colorDefault = PrintAttributes.COLOR_MODE_COLOR;
+						}  else {
+							colorDefault = PrintAttributes.COLOR_MODE_MONOCHROME;
+						}
 					} else if ("media-left-margin-supported".equals(attribute.getName())) {
 						for (AttributeValue attributeValue : attribute.getAttributeValue()) {
 							if (Integer.parseInt(attributeValue.getValue()) < marginMilsLeft || marginMilsLeft == 0) {
@@ -181,7 +190,13 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 					}
 				}
 			}
-			builder.setColorModes(colorMode, colorDefault ? PrintAttributes.COLOR_MODE_COLOR : PrintAttributes.COLOR_MODE_MONOCHROME);
+			// Workaround for KitKat (SDK 19)
+			// see: https://developer.android.com/reference/android/print/PrinterCapabilitiesInfo.Builder.html
+			if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && colorMode == PrintAttributes.COLOR_MODE_MONOCHROME) {
+				colorMode = PrintAttributes.COLOR_MODE_MONOCHROME | PrintAttributes.COLOR_MODE_COLOR;
+				Log.w(CupsPrintApp.LOG_TAG, "Workaround for Kitkat enabled.");
+			}
+			builder.setColorModes(colorMode, colorDefault);
 			builder.setMinMargins(new PrintAttributes.Margins(marginMilsLeft, marginMilsTop, marginMilsRight, marginMilsBottom));
 			return builder.build();
 		}
