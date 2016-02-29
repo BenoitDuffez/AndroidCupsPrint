@@ -30,6 +30,7 @@ import android.print.PrinterInfo;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.jonbanjo.detect.MdnsServices;
 import com.jonbanjo.detect.PrinterRec;
@@ -266,6 +267,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 					return checkPrinter(printerId.getLocalId(), printerId);
 				} catch (Exception e) {
 					Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
+					Toast.makeText(mPrintService, e.getMessage(), Toast.LENGTH_LONG).show();
 				}
 				return null;
 			}
