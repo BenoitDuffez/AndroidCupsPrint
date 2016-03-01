@@ -50,6 +50,7 @@ import ch.ethz.vppserver.schema.ippclient.Attribute;
 import ch.ethz.vppserver.schema.ippclient.AttributeGroup;
 import ch.ethz.vppserver.schema.ippclient.AttributeValue;
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
+import io.github.benoitduffez.cupsprint.R;
 
 /**
  * CUPS printer discovery class
@@ -90,6 +91,8 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 	 * @param printers The list of printers found using mDNS
 	 */
 	private void onPrintersDiscovered(List<PrinterRec> printers) {
+		final String toast = mPrintService.getString(R.string.printer_discovery_result, printers == null ? 0 : printers.size(), printers == null || printers.size() < 1 ? "" : "s");
+		Toast.makeText(mPrintService, toast, Toast.LENGTH_LONG).show();
 		Log.i(CupsPrintApp.LOG_TAG, "onPrintersDiscovered(" + printers + ")");
 		List<PrinterInfo> printersInfo = new ArrayList<>(printers.size());
 		for (PrinterRec rec : printers) {
