@@ -5,7 +5,11 @@
     <string name="add_url">http://server.tld:631/printers/Printer_Name</string>
     <string name="add_name">Printer Name</string>
     <string name="add_button">Add printer</string>
+    <string name="add_search_button">Search for printers</string>
     <string name="activity_add_label">Add a CUPS printer</string>
+    <string name="add_full_manual">Alternatively, you can enter a complete URI and printer name in the fields below</string>
+    <string name="add_server_ip">Server IP or host name</string>
+    <string name="add_autodetect">You can either auto-detect the printers from your server by entering its IP or host name below</string>
     <string name="printer_discovery_result">Search found %1$s printer%2$s</string>
     <string name="printer_not_responding">Printer is not responding. Please check it is powered on and available at %1$s</string>
 
