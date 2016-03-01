@@ -23,6 +23,7 @@ package io.github.benoitduffez.cupsprint.printservice;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.print.PrintAttributes;
@@ -96,7 +97,8 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 	 * @param printers The list of printers found, as a map of URL=>name
 	 */
 	private void onPrintersDiscovered(@NonNull Map<String, String> printers) {
-		final String toast = mPrintService.getString(R.string.printer_discovery_result, printers.size(), printers.size() < 1 ? "" : "s");
+		final Resources res = CupsPrintApp.getInstance().getResources();
+		final String toast = res.getQuantityString(R.plurals.printer_discovery_result, printers.size(), printers.size());
 		Toast.makeText(mPrintService, toast, Toast.LENGTH_SHORT).show();
 		Log.i(CupsPrintApp.LOG_TAG, "onPrintersDiscovered(" + printers + ")");
 		List<PrinterInfo> printersInfo = new ArrayList<>(printers.size());
