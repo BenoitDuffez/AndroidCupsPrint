@@ -21,6 +21,8 @@
 
 package io.github.benoitduffez.cupsprint.printservice;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.print.PrintAttributes;
@@ -29,6 +31,7 @@ import android.print.PrinterId;
 import android.print.PrinterInfo;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -44,11 +47,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.schema.ippclient.Attribute;
 import ch.ethz.vppserver.schema.ippclient.AttributeGroup;
 import ch.ethz.vppserver.schema.ippclient.AttributeValue;
+import io.github.benoitduffez.cupsprint.AddPrintersActivity;
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
 import io.github.benoitduffez.cupsprint.R;
 
@@ -72,33 +77,32 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 	 */
 	@Override
 	public void onStartPrinterDiscovery(List<PrinterId> priorityList) {
-		new AsyncTask<Void, Void, List<PrinterRec>>() {
+		new AsyncTask<Void, Void, Map<String, String>>() {
 			@Override
-			protected List<PrinterRec> doInBackground(Void... params) {
+			protected Map<String, String> doInBackground(Void... params) {
 				return scanPrinters();
 			}
 
 			@Override
-			protected void onPostExecute(List<PrinterRec> printers) {
+			protected void onPostExecute(Map<String, String> printers) {
 				onPrintersDiscovered(printers);
 			}
 		}.execute();
 	}
 
 	/**
-	 * Called when mDNS printers are found
+	 * Called when mDNS/manual printers are found
 	 *
-	 * @param printers The list of printers found using mDNS
+	 * @param printers The list of printers found, as a map of URL=>name
 	 */
-	private void onPrintersDiscovered(List<PrinterRec> printers) {
-		final String toast = mPrintService.getString(R.string.printer_discovery_result, printers == null ? 0 : printers.size(), printers == null || printers.size() < 1 ? "" : "s");
-		Toast.makeText(mPrintService, toast, Toast.LENGTH_LONG).show();
+	private void onPrintersDiscovered(@NonNull Map<String, String> printers) {
+		final String toast = mPrintService.getString(R.string.printer_discovery_result, printers.size(), printers.size() < 1 ? "" : "s");
+		Toast.makeText(mPrintService, toast, Toast.LENGTH_SHORT).show();
 		Log.i(CupsPrintApp.LOG_TAG, "onPrintersDiscovered(" + printers + ")");
 		List<PrinterInfo> printersInfo = new ArrayList<>(printers.size());
-		for (PrinterRec rec : printers) {
-			final String localId = rec.getProtocol() + "://" + rec.getHost() + ":" + rec.getPort() + "/printers/" + rec.getQueue();
-			final PrinterId printerId = mPrintService.generatePrinterId(localId);
-			printersInfo.add(new PrinterInfo.Builder(printerId, rec.getNickname(), PrinterInfo.STATUS_IDLE).build());
+		for (String url : printers.keySet()) {
+			final PrinterId printerId = mPrintService.generatePrinterId(url);
+			printersInfo.add(new PrinterInfo.Builder(printerId, printers.get(url), PrinterInfo.STATUS_IDLE).build());
 		}
 
 		addPrinters(printersInfo);
@@ -240,10 +244,32 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 	 *
 	 * @return The list of printers as {@link PrinterRec}
 	 */
-	private List<PrinterRec> scanPrinters() {
+	private
+	@NonNull
+	Map<String, String> scanPrinters() {
 		PrinterResult result = new MdnsServices().scan();
 		//TODO: check for errors
-		return result.getPrinters();
+		Map<String, String> printers = new HashMap<>();
+		String url, name;
+
+		// Add the printers found by mDNS
+		for (PrinterRec rec : result.getPrinters()) {
+			url = rec.getProtocol() + "://" + rec.getHost() + ":" + rec.getPort() + "/printers/" + rec.getQueue();
+			printers.put(url, rec.getNickname());
+		}
+
+		// Add the printers manually added
+		final SharedPreferences prefs = mPrintService.getSharedPreferences(AddPrintersActivity.SHARED_PREFS_MANUAL_PRINTERS, Context.MODE_PRIVATE);
+		final int numPrinters = prefs.getInt(AddPrintersActivity.PREF_NUM_PRINTERS, 0);
+		for (int i = 0; i < numPrinters; i++) {
+			url = prefs.getString(AddPrintersActivity.PREF_URL + i, null);
+			name = prefs.getString(AddPrintersActivity.PREF_NAME + i, null);
+			if (url != null && name != null && url.trim().length() > 0 && name.trim().length() > 0) {
+				printers.put(url, name);
+			}
+		}
+
+		return printers;
 	}
 
 	@Override

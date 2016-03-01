@@ -1,23 +1,36 @@
 package io.github.benoitduffez.cupsprint;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.print.PrinterId;
-import android.print.PrinterInfo;
-import android.printservice.PrinterDiscoverySession;
 import android.view.View;
 import android.widget.EditText;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import io.github.benoitduffez.cupsprint.printservice.CupsService;
 
 /**
  * Called when the system needs to manually add a printer
  */
 public class AddPrintersActivity extends Activity {
+	/**
+	 * Shared preferences file name
+	 */
+	public static final String SHARED_PREFS_MANUAL_PRINTERS = "printers";
+
+	/**
+	 * Will store the number of printers manually added
+	 */
+	public static final String PREF_NUM_PRINTERS = "num";
+
+	/**
+	 * Will be suffixed by the printer ID. Contains the URL.
+	 */
+	public static final String PREF_URL = "url";
+
+	/**
+	 * Will be suffixed by the printer ID. Contains the name.
+	 */
+	public static final String PREF_NAME = "name";
+
 	EditText mUrl, mName;
 
 	@Override
@@ -34,23 +47,16 @@ public class AddPrintersActivity extends Activity {
 	 * @param button The add button
 	 */
 	public void addPrinter(View button) {
-		CupsService service = CupsService.peekInstance();
-		if (service != null) {
-			final PrinterDiscoverySession session = service.getSession();
-			if (session != null) {
-				// Get info
-				String url = mUrl.getText().toString();
-				String name = mName.getText().toString();
+		String url = mUrl.getText().toString();
+		String name = mName.getText().toString();
 
-				// Build a printer list with only one printer
-				List<PrinterInfo> printersInfo = new ArrayList<>();
-				final PrinterId printerId = service.generatePrinterId(url);
-				printersInfo.add(new PrinterInfo.Builder(printerId, name, PrinterInfo.STATUS_IDLE).build());
-
-				// Add it to the current printer discovery session
-				session.addPrinters(printersInfo);
-			}
-		}
+		SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_MANUAL_PRINTERS, MODE_PRIVATE);
+		SharedPreferences.Editor editor = prefs.edit();
+		int id = prefs.getInt(PREF_NUM_PRINTERS, 0);
+		editor.putString(PREF_URL + id, url);
+		editor.putString(PREF_NAME + id, name);
+		editor.putInt(PREF_NUM_PRINTERS, id + 1);
+		editor.apply();
 
 		// TODO: inform user?
 
@@ -60,6 +66,6 @@ public class AddPrintersActivity extends Activity {
 			public void run() {
 				finish();
 			}
-		}, 500);
+		}, 200);
 	}
 }

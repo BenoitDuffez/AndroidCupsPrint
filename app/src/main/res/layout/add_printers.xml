@@ -9,7 +9,8 @@
         android:id="@+id/add_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/add_url"/>
+        android:hint="@string/add_url"
+        android:inputType="textUri"/>
 
     <EditText
         android:id="@+id/add_name"

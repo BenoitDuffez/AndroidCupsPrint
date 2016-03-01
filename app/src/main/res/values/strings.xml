@@ -6,5 +6,7 @@
     <string name="add_name">Printer Name</string>
     <string name="add_button">Add printer</string>
     <string name="activity_add_label">Add a CUPS printer</string>
+    <string name="printer_discovery_result">Search found %1$s printer%2$s</string>
+    <string name="printer_not_responding">Printer is not responding. Please check it is powered on and available at %1$s</string>
 
 </resources>
