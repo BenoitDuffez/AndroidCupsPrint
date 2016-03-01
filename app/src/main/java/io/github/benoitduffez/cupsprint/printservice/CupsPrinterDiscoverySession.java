@@ -122,6 +122,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 		CupsPrinter testPrinter = client.getPrinter(printerURL);
 		if (testPrinter == null) {
 			Log.e(CupsPrintApp.LOG_TAG, "Printer not responding. Printer on fire?");
+			Toast.makeText(mPrintService, mPrintService.getString(R.string.printer_not_responding, url), Toast.LENGTH_LONG).show();
 		} else {
 			IppGetPrinterAttributesOperation op = new IppGetPrinterAttributesOperation();
 			PrinterCapabilitiesInfo.Builder builder = new PrinterCapabilitiesInfo.Builder(printerId);
