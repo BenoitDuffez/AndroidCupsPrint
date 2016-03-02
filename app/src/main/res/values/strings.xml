@@ -10,7 +10,10 @@
     <string name="add_full_manual">Alternatively, you can enter a complete URI and printer name in the fields below</string>
     <string name="add_server_ip">Server IP or host name</string>
     <string name="add_autodetect">You can either auto-detect the printers from your server by entering its IP or host name below</string>
-    <string name="printer_discovery_result">Search found %1$s printer%2$s</string>
+    <plurals name="printer_discovery_result">
+        <item quantity="one">Search found %d printer</item>
+        <item quantity="other">Search found %d printers</item>
+    </plurals>
     <string name="printer_not_responding">Printer is not responding. Please check it is powered on and available at %1$s</string>
 
 </resources>
