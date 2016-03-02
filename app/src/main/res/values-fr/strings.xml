@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Impression Android CUPS </string>
+    <string name="activity_add_label">Ajouter une imprimante CUPS</string>
+    <string name="add_autodetect">Vous pouvez soit détecter automatiquement les imprimantes de votre serveur en entrant son IP ou nom d\'hôte ci-dessous</string>
+    <string name="add_full_manual">Soit, vous pouvez renseigner l\'URI complète de l\'imprimante dans les champs ci-dessous</string>
+    <string name="add_button">Ajouter l\'imprimante</string>
+    <string name="add_name">Nom de l\'imprimante</string>
+    <string name="add_search_button">Rechercher des imprimantes</string>
+    <string name="add_server_ip">Adresse IP ou nom d\'hôte</string>
+    <string name="add_url">http://serveur-cups.domaine:631/printers/Nom_de_limprimante</string>
+    <plurals name="printer_discovery_result">
+        <item quantity="one">La recherche a trouvé %d imprimante</item>
+        <item quantity="other">La recherche a trouvé %d imprimantes</item>
+    </plurals>
+    <string name="printer_not_responding">L\'imprimante ne répond pas. Veuillez vérifier qu\'elle est allumée et disponible à l\'adresse %1$s</string>
+</resources>
