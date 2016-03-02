@@ -65,12 +65,12 @@ public class CupsService extends PrintService {
 	 */
 	private static CupsService sInstance;
 
+	Map<PrintJobId, Integer> mJobs = new HashMap<>();
+
 	/**
 	 * Current discovery session
 	 */
 	private CupsPrinterDiscoverySession mSession;
-
-	Map<PrintJobId, Integer> mJobs = new HashMap<>();
 
 	public static CupsService peekInstance() {
 		synchronized (sLock) {

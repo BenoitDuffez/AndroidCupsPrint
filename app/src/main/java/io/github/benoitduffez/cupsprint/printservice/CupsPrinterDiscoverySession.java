@@ -171,7 +171,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 						}
 						if (attributeValue != null && "color".equals(attributeValue.getValue())) {
 							colorDefault = PrintAttributes.COLOR_MODE_COLOR;
-						}  else {
+						} else {
 							colorDefault = PrintAttributes.COLOR_MODE_MONOCHROME;
 						}
 					} else if ("media-left-margin-supported".equals(attribute.getName())) {
