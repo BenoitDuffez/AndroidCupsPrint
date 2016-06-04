@@ -1,3 +1,7 @@
+THIS IS THE FDROID VERSON OF THE APP
+====================================
+
+
 # AndroidCupsPrint
 Port of cups4j to Android. Original work was created by Jon Freeman, it included an app that reacts to the SEND intent to print documents.
 
