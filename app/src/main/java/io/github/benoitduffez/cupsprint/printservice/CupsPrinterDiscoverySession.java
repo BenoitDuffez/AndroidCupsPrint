@@ -155,29 +155,13 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 					} else if ("print-color-mode-default".equals(attribute.getName())) {
 						colorDefault = true;
 					} else if ("media-left-margin-supported".equals(attribute.getName())) {
-						for (AttributeValue attributeValue : attribute.getAttributeValue()) {
-							if (Integer.parseInt(attributeValue.getValue()) < marginMilsLeft || marginMilsLeft == 0) {
-								marginMilsLeft = (int) (MM_IN_MILS * Integer.parseInt(attributeValue.getValue()));
-							}
-						}
+						marginMilsLeft = determineMarginFromAttribute(attribute);
 					} else if ("media-right-margin-supported".equals(attribute.getName())) {
-						for (AttributeValue attributeValue : attribute.getAttributeValue()) {
-							if (Integer.parseInt(attributeValue.getValue()) < marginMilsRight || marginMilsRight == 0) {
-								marginMilsRight = (int) (MM_IN_MILS * Integer.parseInt(attributeValue.getValue()));
-							}
-						}
+						marginMilsRight = determineMarginFromAttribute(attribute);
 					} else if ("media-top-margin-supported".equals(attribute.getName())) {
-						for (AttributeValue attributeValue : attribute.getAttributeValue()) {
-							if (Integer.parseInt(attributeValue.getValue()) < marginMilsTop || marginMilsTop == 0) {
-								marginMilsTop = (int) (MM_IN_MILS * Integer.parseInt(attributeValue.getValue()));
-							}
-						}
+						marginMilsTop = determineMarginFromAttribute(attribute);
 					} else if ("media-bottom-margin-supported".equals(attribute.getName())) {
-						for (AttributeValue attributeValue : attribute.getAttributeValue()) {
-							if (Integer.parseInt(attributeValue.getValue()) < marginMilsBottom || marginMilsBottom == 0) {
-								marginMilsBottom = (int) (MM_IN_MILS * Integer.parseInt(attributeValue.getValue()));
-							}
-						}
+						marginMilsBottom = determineMarginFromAttribute(attribute);
 					}
 				}
 			}
@@ -186,6 +170,20 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 			return builder.build();
 		}
 		return null;
+	}
+
+	private int determineMarginFromAttribute(Attribute attribute) {
+		List<AttributeValue> values = attribute.getAttributeValue();
+		if (values.isEmpty()) {
+			return 0;
+		}
+
+		int margin = Integer.MAX_VALUE;
+		for (AttributeValue value : attribute.getAttributeValue()) {
+			int valueMargin = (int) (MM_IN_MILS * Integer.parseInt(value.getValue()) / 100);
+			margin = Math.min(margin, valueMargin);
+		}
+		return margin;
 	}
 
 	/**
