@@ -28,6 +28,7 @@ import android.print.PrinterId;
 import android.print.PrinterInfo;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.jonbanjo.detect.MdnsServices;
@@ -99,6 +100,19 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 		addPrinters(printersInfo);
 	}
 
+	private static final String[] REQUIRED_ATTRIBUTES = {
+		"media-default",
+		"media-supported",
+		"printer-resolution-default",
+		"printer-resolution-supported",
+		"print-color-mode-default",
+		"print-color-mode-supported",
+		"media-left-margin-supported",
+		"media-bottom-right-supported",
+		"media-top-margin-supported",
+		"media-bottom-margin-supported"
+	};
+
 	/**
 	 * Ran in the background thread, will check whether a printer is valid
 	 *
@@ -118,9 +132,12 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 		if (testPrinter == null) {
 			Log.e(CupsPrintApp.LOG_TAG, "Printer not found");
 		} else {
+			HashMap<String, String> propertyMap = new HashMap<>();
+			propertyMap.put("requested-attributes", TextUtils.join(" ", REQUIRED_ATTRIBUTES));
+
 			IppGetPrinterAttributesOperation op = new IppGetPrinterAttributesOperation();
 			PrinterCapabilitiesInfo.Builder builder = new PrinterCapabilitiesInfo.Builder(printerId);
-			IppResult ippAttributes = op.request(printerURL, new HashMap<String, String>());
+			IppResult ippAttributes = op.request(printerURL, propertyMap);
 			boolean colorDefault = false;
 			int colorMode = 0;
 			int marginMilsTop = 0, marginMilsRight = 0, marginMilsBottom = 0, marginMilsLeft = 0;
