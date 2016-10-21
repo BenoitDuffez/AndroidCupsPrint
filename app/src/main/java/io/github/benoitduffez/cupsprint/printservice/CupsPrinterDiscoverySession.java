@@ -32,7 +32,11 @@ import android.print.PrinterId;
 import android.print.PrinterInfo;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
+<<<<<<< HEAD
 import android.support.annotation.NonNull;
+=======
+import android.text.TextUtils;
+>>>>>>> 2329364d4f175cdc06f7ed793a59b611bd676f64
 import android.util.Log;
 import android.widget.Toast;
 
@@ -110,6 +114,19 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 		addPrinters(printersInfo);
 	}
 
+	private static final String[] REQUIRED_ATTRIBUTES = {
+		"media-default",
+		"media-supported",
+		"printer-resolution-default",
+		"printer-resolution-supported",
+		"print-color-mode-default",
+		"print-color-mode-supported",
+		"media-left-margin-supported",
+		"media-bottom-right-supported",
+		"media-top-margin-supported",
+		"media-bottom-margin-supported"
+	};
+
 	/**
 	 * Ran in the background thread, will check whether a printer is valid
 	 *
@@ -130,10 +147,13 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 			Log.e(CupsPrintApp.LOG_TAG, "Printer not responding. Printer on fire?");
 			Toast.makeText(mPrintService, mPrintService.getString(R.string.printer_not_responding, url), Toast.LENGTH_LONG).show();
 		} else {
+			HashMap<String, String> propertyMap = new HashMap<>();
+			propertyMap.put("requested-attributes", TextUtils.join(" ", REQUIRED_ATTRIBUTES));
+
 			IppGetPrinterAttributesOperation op = new IppGetPrinterAttributesOperation();
 			PrinterCapabilitiesInfo.Builder builder = new PrinterCapabilitiesInfo.Builder(printerId);
-			IppResult ippAttributes = op.request(printerURL, new HashMap<String, String>());
-			int colorDefault = 0;
+			IppResult ippAttributes = op.request(printerURL, propertyMap);
+			boolean colorDefault = false;
 			int colorMode = 0;
 			int marginMilsTop = 0, marginMilsRight = 0, marginMilsBottom = 0, marginMilsLeft = 0;
 			for (AttributeGroup attributeGroup : ippAttributes.getAttributeGroupList()) {
@@ -175,29 +195,13 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 							colorDefault = PrintAttributes.COLOR_MODE_MONOCHROME;
 						}
 					} else if ("media-left-margin-supported".equals(attribute.getName())) {
-						for (AttributeValue attributeValue : attribute.getAttributeValue()) {
-							if (Integer.parseInt(attributeValue.getValue()) < marginMilsLeft || marginMilsLeft == 0) {
-								marginMilsLeft = (int) (MM_IN_MILS * Integer.parseInt(attributeValue.getValue()));
-							}
-						}
+						marginMilsLeft = determineMarginFromAttribute(attribute);
 					} else if ("media-right-margin-supported".equals(attribute.getName())) {
-						for (AttributeValue attributeValue : attribute.getAttributeValue()) {
-							if (Integer.parseInt(attributeValue.getValue()) < marginMilsRight || marginMilsRight == 0) {
-								marginMilsRight = (int) (MM_IN_MILS * Integer.parseInt(attributeValue.getValue()));
-							}
-						}
+						marginMilsRight = determineMarginFromAttribute(attribute);
 					} else if ("media-top-margin-supported".equals(attribute.getName())) {
-						for (AttributeValue attributeValue : attribute.getAttributeValue()) {
-							if (Integer.parseInt(attributeValue.getValue()) < marginMilsTop || marginMilsTop == 0) {
-								marginMilsTop = (int) (MM_IN_MILS * Integer.parseInt(attributeValue.getValue()));
-							}
-						}
+						marginMilsTop = determineMarginFromAttribute(attribute);
 					} else if ("media-bottom-margin-supported".equals(attribute.getName())) {
-						for (AttributeValue attributeValue : attribute.getAttributeValue()) {
-							if (Integer.parseInt(attributeValue.getValue()) < marginMilsBottom || marginMilsBottom == 0) {
-								marginMilsBottom = (int) (MM_IN_MILS * Integer.parseInt(attributeValue.getValue()));
-							}
-						}
+						marginMilsBottom = determineMarginFromAttribute(attribute);
 					}
 				}
 			}
@@ -212,6 +216,20 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 			return builder.build();
 		}
 		return null;
+	}
+
+	private int determineMarginFromAttribute(Attribute attribute) {
+		List<AttributeValue> values = attribute.getAttributeValue();
+		if (values.isEmpty()) {
+			return 0;
+		}
+
+		int margin = Integer.MAX_VALUE;
+		for (AttributeValue value : attribute.getAttributeValue()) {
+			int valueMargin = (int) (MM_IN_MILS * Integer.parseInt(value.getValue()) / 100);
+			margin = Math.min(margin, valueMargin);
+		}
+		return margin;
 	}
 
 	/**
