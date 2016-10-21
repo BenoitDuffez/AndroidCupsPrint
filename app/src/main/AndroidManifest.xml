@@ -27,6 +27,10 @@
             android:exported="true"
             android:label="@string/activity_add_label"/>
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="ab18fbc78d644944a4a41367f1098b1734a74f77"/>
+
     </application>
 
 </manifest>

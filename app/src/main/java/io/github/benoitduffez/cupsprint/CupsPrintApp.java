@@ -19,6 +19,10 @@ program; if not, see <http://www.gnu.org/licenses/>.
 import android.app.Application;
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
+
+import io.fabric.sdk.android.Fabric;
+
 public class CupsPrintApp extends Application {
 
 	public static final String LOG_TAG = "CUPS";
@@ -37,5 +41,6 @@ public class CupsPrintApp extends Application {
 	public void onCreate() {
 		super.onCreate();
 		instance = this;
+		Fabric.with(this, new Crashlytics());
 	}
 }
