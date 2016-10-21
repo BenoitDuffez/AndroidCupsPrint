@@ -9,6 +9,9 @@ android {
     compileSdkVersion 25
     buildToolsVersion "24.0.0"
 
+    // Force import of legacy Apache HTTP library
+    useLibrary 'org.apache.http.legacy'
+
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
