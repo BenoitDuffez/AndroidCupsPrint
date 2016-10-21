@@ -16,5 +16,7 @@
     </plurals>
     <string name="printer_not_responding">Printer is not responding. Please check it is powered on and available at %1$s</string>
     <string name="err_document_fd_null">Couldn\'t read document to be printed</string>
+    <string name="err_add_printer_empty_name">The printer name cannot be empty</string>
+    <string name="err_add_printer_empty_url">The printer URL cannot be empty</string>
 
 </resources>

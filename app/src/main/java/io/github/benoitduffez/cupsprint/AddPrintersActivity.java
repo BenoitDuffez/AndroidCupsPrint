@@ -5,8 +5,10 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -58,6 +60,15 @@ public class AddPrintersActivity extends Activity {
     public void addPrinter(View button) {
         String url = mUrl.getText().toString();
         String name = mName.getText().toString();
+
+        if (TextUtils.isEmpty(name)) {
+            Toast.makeText(this, R.string.err_add_printer_empty_name, Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (TextUtils.isEmpty(url)) {
+            Toast.makeText(this, R.string.err_add_printer_empty_url, Toast.LENGTH_LONG).show();
+            return;
+        }
 
         SharedPreferences prefs = getSharedPreferences(SHARED_PREFS_MANUAL_PRINTERS, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();

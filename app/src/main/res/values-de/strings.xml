@@ -15,5 +15,7 @@
     </plurals>
     <string name="printer_not_responding">Der ausgewählte Drucker reagiert nicht. Prüfen Sie ob er angeschaltet ist und verfügbar ist unter %1$s.</string>
     <string name="err_document_fd_null">Dokument konnte nicht gelesen werden</string>
+    <string name="err_add_printer_empty_name">Der Druckername darf nicht leer sein</string>
+    <string name="err_add_printer_empty_url">Die Drucker-URL darf nicht leer sein</string>
 
 </resources>
