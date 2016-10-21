@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Android CUPS Print</string>
+    <string name="activity_add_label">Ajouter une imprimante CUPS</string>
+    <string name="add_button">Ajouter l\'imprimante</string>
+    <string name="add_name">Nom de l\'imprimante</string>
+    <string name="add_url">http://serveur.tld:631/printers/Nom_Imprimante</string>
+    <string name="err_document_fd_null">Impossible de lire le document à imprimer</string>
+</resources>
