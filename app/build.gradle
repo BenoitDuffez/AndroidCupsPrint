@@ -25,7 +25,7 @@ allprojects {
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "24.0.0"
+    buildToolsVersion "25.0.0"
 
     // Force import of legacy Apache HTTP library
     useLibrary 'org.apache.http.legacy'
