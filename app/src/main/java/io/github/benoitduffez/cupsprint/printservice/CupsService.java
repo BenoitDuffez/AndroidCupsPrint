@@ -23,12 +23,17 @@ package io.github.benoitduffez.cupsprint.printservice;
 
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.ParcelFileDescriptor;
 import android.print.PrintJobId;
 import android.print.PrintJobInfo;
+import android.print.PrinterId;
 import android.printservice.PrintJob;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.crashlytics.android.Crashlytics;
 
 import org.cups4j.CupsClient;
 import org.cups4j.CupsPrinter;
@@ -45,6 +50,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
+import io.github.benoitduffez.cupsprint.R;
 
 /**
  * CUPS print service
@@ -106,9 +112,20 @@ public class CupsService extends PrintService {
     @Override
     protected void onRequestCancelPrintJob(final PrintJob printJob) {
         final PrintJobInfo jobInfo = printJob.getInfo();
-        String url = jobInfo.getPrinterId().getLocalId();
+        final PrinterId printerId = jobInfo.getPrinterId();
+        if (printerId == null) {
+            Crashlytics.log("Tried to cancel a job, but the printer ID is null");
+            return;
+        }
+
+        String url = printerId.getLocalId();
         String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
-        final int jobId = mJobs.get(printJob.getId());
+        final PrintJobId id = printJob.getId();
+        if (id == null) {
+            Crashlytics.log("Tried to cancel a job, but the print job ID is null");
+            return;
+        }
+        final int jobId = mJobs.get(id);
 
         try {
             final URL clientURL = new URL(clientUrl);
@@ -141,6 +158,8 @@ public class CupsService extends PrintService {
             client.cancelJob(jobId);
         } catch (Exception e) {
             Log.e(CupsPrintApp.LOG_TAG, "Couldn't cancel job: " + jobId + " because: " + e);
+            Crashlytics.log("Couldn't cancel job: " + jobId);
+            Crashlytics.logException(e);
         }
     }
 
@@ -158,14 +177,26 @@ public class CupsService extends PrintService {
     protected void onPrintJobQueued(final PrintJob printJob) {
         startPolling(printJob);
         final PrintJobInfo jobInfo = printJob.getInfo();
-        String url = jobInfo.getPrinterId().getLocalId();
+        final PrinterId printerId = jobInfo.getPrinterId();
+        if (printerId == null) {
+            Crashlytics.log("Tried to queue a job, but the printer ID is null");
+            return;
+        }
+
+        String url = printerId.getLocalId();
         String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
 
         try {
             // Prepare job
             final URL printerURL = new URL(url);
             final URL clientURL = new URL(clientUrl);
-            final FileDescriptor fd = printJob.getDocument().getData().getFileDescriptor();
+            final ParcelFileDescriptor data = printJob.getDocument().getData();
+            if (data == null) {
+                Crashlytics.log("Tried to queue a job, but the document data (file descriptor) is null");
+                Toast.makeText(this, R.string.err_document_fd_null, Toast.LENGTH_LONG).show();
+                return;
+            }
+            final FileDescriptor fd = data.getFileDescriptor();
             final PrintJobId jobId = printJob.getId();
 
             // Send print job
@@ -183,6 +214,8 @@ public class CupsService extends PrintService {
             }.execute();
         } catch (MalformedURLException e) {
             Log.e(CupsPrintApp.LOG_TAG, "Couldn't queue print job: " + printJob + " because: " + e);
+            Crashlytics.log("Couldn't queue job: " + printJob);
+            Crashlytics.logException(e);
         }
     }
 
@@ -206,10 +239,16 @@ public class CupsService extends PrintService {
     private boolean updateJobStatus(final PrintJob printJob) {
         // Check if the job is already gone
         if (!mJobs.containsKey(printJob.getId())) {
+            Crashlytics.log("Tried to request a job status, but the job couldn't be found in the jobs list");
             return false;
         }
 
-        String url = printJob.getInfo().getPrinterId().getLocalId();
+        final PrinterId printerId = printJob.getInfo().getPrinterId();
+        if (printerId == null) {
+            Crashlytics.log("Tried to request a job status, but the printer ID is null");
+            return false;
+        }
+        String url = printerId.getLocalId();
         String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
 
         // Prepare job
@@ -231,6 +270,8 @@ public class CupsService extends PrintService {
             }.execute();
         } catch (MalformedURLException e) {
             Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + printJob + " state because: " + e);
+            Crashlytics.log("Couldn't get job: " + printJob + " state");
+            Crashlytics.logException(e);
         }
 
         // We want to be called again if the job is still in this map
@@ -252,6 +293,8 @@ public class CupsService extends PrintService {
             return attr.getJobState();
         } catch (Exception e) {
             Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + jobId + " state because: " + e);
+            Crashlytics.log("Couldn't get job: " + jobId + " state");
+            Crashlytics.logException(e);
         }
         return null;
     }
@@ -297,6 +340,8 @@ public class CupsService extends PrintService {
             mJobs.put(jobId, result.getJobId());
         } catch (Exception e) {
             Log.e(CupsPrintApp.LOG_TAG, "Couldn't send file descriptor: " + fd + " to printer because: " + e);
+            Crashlytics.log("Couldn't send filed descriptor " + fd + " to printer");
+            Crashlytics.logException(e);
         }
     }
 

@@ -31,6 +31,7 @@ import android.printservice.PrinterDiscoverySession;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.jonbanjo.detect.MdnsServices;
 import com.jonbanjo.detect.PrinterRec;
 import com.jonbanjo.detect.PrinterResult;
@@ -251,6 +252,8 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     return checkPrinter(printerId.getLocalId(), printerId);
                 } catch (Exception e) {
                     Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
+                    Crashlytics.log("Failed to check printer " + printerId);
+                    Crashlytics.logException(e);
                 }
                 return null;
             }
