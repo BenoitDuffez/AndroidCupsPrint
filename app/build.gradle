@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 25
     buildToolsVersion "24.0.0"
 
     packagingOptions {
@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId "io.github.benoitduffez.cupsprint"
         minSdkVersion 19
-        targetSdkVersion 24
+        targetSdkVersion 25
         versionCode 4
         versionName "1.2"
     }
@@ -21,12 +21,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-         }
+        }
     }
 }
 
 dependencies {
     compile 'javax.jmdns:jmdns:3.4.1'
     compile 'org.apache.httpcomponents:httpclient:4.5.2'
-    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:appcompat-v7:25.0.0'
 }
