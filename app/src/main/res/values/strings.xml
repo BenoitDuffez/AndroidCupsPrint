@@ -15,5 +15,6 @@
         <item quantity="other">Search found %d printers</item>
     </plurals>
     <string name="printer_not_responding">Printer is not responding. Please check it is powered on and available at %1$s</string>
+    <string name="err_document_fd_null">Couldn\'t read document to be printed</string>
 
 </resources>
