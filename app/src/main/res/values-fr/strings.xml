@@ -6,4 +6,6 @@
     <string name="add_name">Nom de l\'imprimante</string>
     <string name="add_url">http://serveur.tld:631/printers/Nom_Imprimante</string>
     <string name="err_document_fd_null">Impossible de lire le document à imprimer</string>
+    <string name="err_add_printer_empty_name">Le nom de l\'imprimante ne peut être vide</string>
+    <string name="err_add_printer_empty_url">L\'URL de l\'imprimante ne peut être vide</string>
 </resources>

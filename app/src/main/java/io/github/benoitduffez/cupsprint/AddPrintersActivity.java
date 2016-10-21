@@ -6,8 +6,10 @@ import android.os.Handler;
 import android.print.PrinterId;
 import android.print.PrinterInfo;
 import android.printservice.PrinterDiscoverySession;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +43,16 @@ public class AddPrintersActivity extends Activity {
 				// Get info
 				String url = mUrl.getText().toString();
 				String name = mName.getText().toString();
+
+				if (TextUtils.isEmpty(name)) {
+					Toast.makeText(this, R.string.err_add_printer_empty_name, Toast.LENGTH_LONG).show();
+					return;
+				}
+
+				if (TextUtils.isEmpty(url)) {
+					Toast.makeText(this, R.string.err_add_printer_empty_url, Toast.LENGTH_LONG).show();
+					return;
+				}
 
 				// Build a printer list with only one printer
 				List<PrinterInfo> printersInfo = new ArrayList<>();
