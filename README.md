@@ -1,7 +1,3 @@
-THIS IS THE FDROID VERSON OF THE APP
-====================================
-
-
 # AndroidCupsPrint
 Port of cups4j to Android. Original work was created by Jon Freeman, it included an app that reacts to the SEND intent to print documents.
 
@@ -19,6 +15,7 @@ This app was modified in several ways:
 * project structure converted to gradle format
 * added support for Android PrintService so that it can print documents straight from almost all apps
 * removed all legacy code that allowed printing without the use of Android PrintService (this is removed because of minSdkVersion=19, meaning all targets of this app are PrintService-compliant)
+* removed jars and added source code to be compatible with an f-droid.org publication
  
 ### Print Service
 
@@ -43,6 +40,7 @@ This app wasn't widely tested, it needs your help for better quality. If you fin
 
 * The `master` branch is code published to Google Play.
 * The `jonbanjo` branch is the app containing all the legacy code written by Jon Freeman
+* The `fdroid` branch was created in an effort to be compatible with f-droid.org; however, this effort was merged into develop and is intended to be merged into master.
 
 # License
 
