@@ -24,6 +24,7 @@ package io.github.benoitduffez.cupsprint.printservice;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.print.PrintAttributes;
@@ -135,8 +136,9 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
         }
         URL printerURL = new URL(url);
 
-        String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
-        URL clientURL = new URL(clientUrl);
+        Uri tmpUri = Uri.parse(url);
+        String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
+        URL clientURL = new URL(schemeHostPort);
 
         CupsClient client = new CupsClient(clientURL);
         CupsPrinter testPrinter = client.getPrinter(printerURL);
