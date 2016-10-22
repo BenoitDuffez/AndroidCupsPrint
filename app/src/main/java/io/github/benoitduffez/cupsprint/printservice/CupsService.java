@@ -160,6 +160,8 @@ public class CupsService extends PrintService {
             client.cancelJob(jobId);
         } catch (Exception e) {
             Log.e(CupsPrintApp.LOG_TAG, "Couldn't cancel job: " + jobId + " because: " + e);
+            Crashlytics.log("Couldn't cancel job: " + jobId);
+            Crashlytics.logException(e);
         }
     }
 
@@ -184,7 +186,6 @@ public class CupsService extends PrintService {
         }
 
         String url = printerId.getLocalId();
-
         String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
 
         try {

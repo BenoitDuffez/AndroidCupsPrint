@@ -16,9 +16,9 @@ program; if not, see <http://www.gnu.org/licenses/>.
 
 package com.jonbanjo.detect;
 
-import com.jmdns.ServiceInfo;
-import com.jmdns.impl.DNSIncoming;
-import com.jmdns.impl.DNSRecord;
+import javax.jmdns.ServiceInfo;
+import javax.jmdns.impl.DNSIncoming;
+import javax.jmdns.impl.DNSRecord;
 
 import org.cups4j.CupsClient;
 
