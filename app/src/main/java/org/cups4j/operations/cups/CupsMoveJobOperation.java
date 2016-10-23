@@ -34,7 +34,6 @@ import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.ippclient.IppTag;
 
 public class CupsMoveJobOperation extends IppOperation {
-
     public CupsMoveJobOperation() {
         operationID = 0x400D;
         bufferSize = 8192;
@@ -52,7 +51,9 @@ public class CupsMoveJobOperation extends IppOperation {
 
         if (map == null) {
             ippBuf = IppTag.getEnd(ippBuf);
-            ippBuf.flip();
+            if (ippBuf != null) {
+                ippBuf.flip();
+            }
             return ippBuf;
         }
 
@@ -68,12 +69,14 @@ public class CupsMoveJobOperation extends IppOperation {
         ippBuf = IppTag.getUri(ippBuf, "job-printer-uri", map.get("target-printer-uri"));
 
         ippBuf = IppTag.getEnd(ippBuf);
-        ippBuf.flip();
+        if (ippBuf != null) {
+            ippBuf.flip();
+        }
         return ippBuf;
     }
 
     public boolean moveJob(String hostname, String userName, int jobID, URL targetPrinterURL) throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
         if (userName == null) {
             userName = CupsClient.DEFAULT_USER;
@@ -89,5 +92,4 @@ public class CupsMoveJobOperation extends IppOperation {
         //    IppResultPrinter.print(result);
         return new PrintRequestResult(result).isSuccessfulResult();
     }
-
 }

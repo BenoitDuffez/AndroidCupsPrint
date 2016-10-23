@@ -330,7 +330,6 @@ public class CupsService extends PrintService {
      * @param printerURL The printer URL
      * @param fd         The document to print, as a {@link FileDescriptor}
      */
-
     private void printDocument(PrintJobId jobId, URL clientURL, URL printerURL, FileDescriptor fd) {
         try {
             CupsClient client = new CupsClient(clientURL);

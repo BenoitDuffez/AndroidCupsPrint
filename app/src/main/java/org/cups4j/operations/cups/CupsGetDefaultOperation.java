@@ -40,7 +40,7 @@ public class CupsGetDefaultOperation extends IppOperation {
         CupsPrinter defaultPrinter = null;
         CupsGetDefaultOperation command = new CupsGetDefaultOperation();
 
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.put("requested-attributes", "printer-name printer-uri-supported printer-location");
 
         IppResult result = command.request(new URL(url.toString() + "/printers"), map);
@@ -50,14 +50,18 @@ public class CupsGetDefaultOperation extends IppOperation {
                 String printerName = null;
                 String location = null;
                 for (Attribute attr : group.getAttribute()) {
-                    if (attr.getName().equals("printer-uri-supported")) {
-                        printerURL = attr.getAttributeValue().get(0).getValue().replace("ipp://", "http://");
-                    } else if (attr.getName().equals("printer-name")) {
-                        printerName = attr.getAttributeValue().get(0).getValue();
-                    } else if (attr.getName().equals("printer-location")) {
-                        if (attr.getAttributeValue() != null && attr.getAttributeValue().size() > 0) {
-                            location = attr.getAttributeValue().get(0).getValue();
-                        }
+                    switch (attr.getName()) {
+                        case "printer-uri-supported":
+                            printerURL = attr.getAttributeValue().get(0).getValue().replace("ipp://", "http://");
+                            break;
+                        case "printer-name":
+                            printerName = attr.getAttributeValue().get(0).getValue();
+                            break;
+                        case "printer-location":
+                            if (attr.getAttributeValue() != null && attr.getAttributeValue().size() > 0) {
+                                location = attr.getAttributeValue().get(0).getValue();
+                            }
+                            break;
                     }
                 }
                 defaultPrinter = new CupsPrinter(new URL(printerURL), printerName, true);

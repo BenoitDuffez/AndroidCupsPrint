@@ -15,6 +15,8 @@ package org.cups4j;
  * <http://www.gnu.org/licenses/>.
  */
 
+import android.support.annotation.NonNull;
+
 import org.cups4j.operations.ipp.IppGetJobAttributesOperation;
 import org.cups4j.operations.ipp.IppGetJobsOperation;
 import org.cups4j.operations.ipp.IppPrintJobOperation;
@@ -47,10 +49,9 @@ public class CupsPrinter {
     /**
      * Constructor
      *
-     * @param printerURL
-     * @param printerName
-     * @param isDefault
-     *          true if this is the default printer on this IPP server
+     * @param printerURL  Printer URL
+     * @param printerName Printer name
+     * @param isDefault   true if this is the default printer on this IPP server
      */
     public CupsPrinter(URL printerURL, String printerName, boolean isDefault) {
         this.printerURL = printerURL;
@@ -61,11 +62,11 @@ public class CupsPrinter {
     /**
      * Print method
      *
-     * @param printJob
+     * @param printJob Print job
      * @return PrintRequestResult
      * @throws Exception
      */
-    public PrintRequestResult print(PrintJob printJob) throws Exception {
+    public PrintRequestResult print(@NonNull PrintJob printJob) throws Exception {
         int ippJobID = -1;
         InputStream document = printJob.getDocument();
         String userName = printJob.getUserName();
@@ -79,14 +80,14 @@ public class CupsPrinter {
             userName = CupsClient.DEFAULT_USER;
         }
         if (attributes == null) {
-            attributes = new HashMap<String, String>();
+            attributes = new HashMap<>();
         }
 
         attributes.put("requesting-user-name", userName);
         attributes.put("job-name", jobName);
 
-        String copiesString = null;
-        StringBuffer rangesString = new StringBuffer();
+        String copiesString;
+        StringBuilder rangesString = new StringBuilder();
         if (copies > 0) {// other values are considered bad value by CUPS
             copiesString = "copies:integer:" + copies;
             addAttribute(attributes, "job-attributes", copiesString);
@@ -135,12 +136,11 @@ public class CupsPrinter {
     }
 
     /**
-     *
-     * @param map
-     * @param name
-     * @param value
+     * @param map   Attributes map
+     * @param name  Attribute key
+     * @param value Attribute value
      */
-    private void addAttribute(Map<String, String> map, String name, String value) {
+    private void addAttribute(@NonNull Map<String, String> map, String name, String value) {
         if (value != null && name != null) {
             String attribute = map.get(name);
             if (attribute == null) {
@@ -155,16 +155,12 @@ public class CupsPrinter {
     /**
      * Get a list of jobs
      *
-     * @param whichJobs
-     *          completed, not completed or all
-     * @param user
-     *          requesting user (null will be translated to anonymous)
-     * @param myJobs
-     *          boolean only jobs for requesting user or all jobs for this printer?
+     * @param whichJobs completed, not completed or all
+     * @param user      requesting user (null will be translated to anonymous)
+     * @param myJobs    boolean only jobs for requesting user or all jobs for this printer?
      * @return job list
      * @throws Exception
      */
-
     public List<PrintJobAttributes> getJobs(WhichJobsEnum whichJobs, String user, boolean myJobs) throws Exception {
         IppGetJobsOperation command = new IppGetJobsOperation();
 
@@ -174,7 +170,7 @@ public class CupsPrinter {
     /**
      * Get current status for the print job with the given ID.
      *
-     * @param jobID
+     * @param jobID Job ID
      * @return job status
      * @throws Exception
      */
@@ -185,8 +181,8 @@ public class CupsPrinter {
     /**
      * Get current status for the print job with the given ID
      *
-     * @param userName
-     * @param jobID
+     * @param userName Requesting user name
+     * @param jobID    Job ID
      * @return job status
      * @throws Exception
      */
@@ -267,5 +263,4 @@ public class CupsPrinter {
     public void setDescription(String description) {
         this.description = description;
     }
-
 }

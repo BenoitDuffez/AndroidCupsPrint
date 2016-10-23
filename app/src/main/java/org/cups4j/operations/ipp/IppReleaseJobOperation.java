@@ -34,7 +34,6 @@ import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.ippclient.IppTag;
 
 public class IppReleaseJobOperation extends IppOperation {
-
     public IppReleaseJobOperation() {
         operationID = 0x000D;
         bufferSize = 8192;
@@ -51,7 +50,9 @@ public class IppReleaseJobOperation extends IppOperation {
 
         if (map == null) {
             ippBuf = IppTag.getEnd(ippBuf);
-            ippBuf.flip();
+            if (ippBuf != null) {
+                ippBuf.flip();
+            }
             return ippBuf;
         }
 
@@ -65,23 +66,23 @@ public class IppReleaseJobOperation extends IppOperation {
         ippBuf = IppTag.getNameWithoutLanguage(ippBuf, "requesting-user-name", map.get("requesting-user-name"));
 
         ippBuf = IppTag.getEnd(ippBuf);
-        ippBuf.flip();
+        if (ippBuf != null) {
+            ippBuf.flip();
+        }
         return ippBuf;
     }
 
     /**
      * Cancels a print job on the IPP server running on the given host.
      *
-     * @param hostname
-     * @param userName
-     * @param jobID
-     * @param message
-     * @return true on successful cancelation otherwise false.
+     * @param url      Printer URL
+     * @param userName Requesting user name
+     * @param jobID    Job ID
+     * @return true on successful cancellation otherwise false.
      * @throws Exception
      */
     public boolean releaseJob(URL url, String userName, int jobID) throws Exception {
-
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
         if (userName == null) {
             userName = CupsClient.DEFAULT_USER;

@@ -34,18 +34,16 @@ import ch.ethz.vppserver.schema.ippclient.Attribute;
 import ch.ethz.vppserver.schema.ippclient.AttributeGroup;
 
 public class CupsGetPrintersOperation extends IppOperation {
-
     public CupsGetPrintersOperation() {
         operationID = 0x4002;
         bufferSize = 8192;
     }
 
     public List<CupsPrinter> getPrinters(URL url) throws Exception {
-        List<CupsPrinter> printers = new ArrayList<CupsPrinter>();
+        List<CupsPrinter> printers = new ArrayList<>();
 
-        Map<String, String> map = new HashMap<String, String>();
-        map.put(
-                "requested-attributes",
+        Map<String, String> map = new HashMap<>();
+        map.put("requested-attributes",
                 "copies-supported page-ranges-supported printer-name printer-info printer-location printer-make-and-model printer-uri-supported");
 
         IppResult result = request(new URL(url.toString() + "/printers/"), map);
@@ -53,28 +51,33 @@ public class CupsGetPrintersOperation extends IppOperation {
         //     IppResultPrinter.print(result);
 
         for (AttributeGroup group : result.getAttributeGroupList()) {
-            CupsPrinter printer = null;
+            CupsPrinter printer;
             if (group.getTagName().equals("printer-attributes-tag")) {
                 String printerURI = null;
                 String printerName = null;
                 String printerLocation = null;
                 String printerDescription = null;
                 for (Attribute attr : group.getAttribute()) {
-                    if (attr.getName().equals("printer-uri-supported")) {
-                        printerURI = attr.getAttributeValue().get(0).getValue().replace("ipp://", url.getProtocol() + "://");
-                    } else if (attr.getName().equals("printer-name")) {
-                        printerName = attr.getAttributeValue().get(0).getValue();
-                    } else if (attr.getName().equals("printer-location")) {
-                        if (attr.getAttributeValue() != null && attr.getAttributeValue().size() > 0) {
-                            printerLocation = attr.getAttributeValue().get(0).getValue();
-                        }
-                    } else if (attr.getName().equals("printer-info")) {
-                        if (attr.getAttributeValue() != null && attr.getAttributeValue().size() > 0) {
-                            printerDescription = attr.getAttributeValue().get(0).getValue();
-                        }
+                    switch (attr.getName()) {
+                        case "printer-uri-supported":
+                            printerURI = attr.getAttributeValue().get(0).getValue().replace("ipp://", url.getProtocol() + "://");
+                            break;
+                        case "printer-name":
+                            printerName = attr.getAttributeValue().get(0).getValue();
+                            break;
+                        case "printer-location":
+                            if (attr.getAttributeValue() != null && attr.getAttributeValue().size() > 0) {
+                                printerLocation = attr.getAttributeValue().get(0).getValue();
+                            }
+                            break;
+                        case "printer-info":
+                            if (attr.getAttributeValue() != null && attr.getAttributeValue().size() > 0) {
+                                printerDescription = attr.getAttributeValue().get(0).getValue();
+                            }
+                            break;
                     }
                 }
-                URL printerUrl = null;
+                URL printerUrl;
                 try {
                     printerUrl = new URL(printerURI);
                 } catch (Throwable t) {

@@ -33,7 +33,6 @@ import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.ippclient.IppTag;
 
 public class CupsGetPPDOperation extends IppOperation {
-
     public CupsGetPPDOperation() {
         operationID = 0x400F;
         bufferSize = 8192;
@@ -50,19 +49,22 @@ public class CupsGetPPDOperation extends IppOperation {
 
         if (map == null) {
             ippBuf = IppTag.getEnd(ippBuf);
-            ippBuf.flip();
+            if (ippBuf != null) {
+                ippBuf.flip();
+            }
             return ippBuf;
         }
 
         ippBuf = IppTag.getUri(ippBuf, "printer-uri", map.get("printer-uri"));
         ippBuf = IppTag.getEnd(ippBuf);
-        ippBuf.flip();
+        if (ippBuf != null) {
+            ippBuf.flip();
+        }
         return ippBuf;
     }
 
-
     public String getPPDFile(URL printerUrl) throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
         map.put("printer-uri", printerUrl.getPath());
 
@@ -74,8 +76,5 @@ public class CupsGetPPDOperation extends IppOperation {
         buf = buf.substring(buf.indexOf("*")); // Remove request attributes when returning the string
 
         return buf;
-
-
     }
-
 }

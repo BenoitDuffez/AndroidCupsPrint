@@ -74,9 +74,7 @@ public class CupsClient {
     public List<CupsPrinter> getPrinters() throws Exception {
         List<CupsPrinter> printers = new CupsGetPrintersOperation().getPrinters(url);
         // add default printer if available
-        CupsPrinter defaultPrinter = null;
-
-        defaultPrinter = getDefaultPrinter();
+        CupsPrinter defaultPrinter = getDefaultPrinter();
 
         for (CupsPrinter p : printers) {
             if (defaultPrinter != null && p.getPrinterURL().toString().equals(defaultPrinter.getPrinterURL().toString())) {
@@ -94,7 +92,7 @@ public class CupsClient {
     public CupsPrinter getPrinter(URL printerURL) throws Exception {
         List<CupsPrinter> printers = getPrinters();
         for (CupsPrinter p : printers) {
-            if (p.getPrinterURL().getPath().toString().equals(printerURL.getPath().toString()))
+            if (p.getPrinterURL().getPath().equals(printerURL.getPath()))
                 return p;
         }
         return null;
@@ -152,5 +150,4 @@ public class CupsClient {
 
         return new CupsMoveJobOperation().moveJob(currentHost, userName, jobID, targetPrinter.getPrinterURL());
     }
-
 }

@@ -37,7 +37,6 @@ import ch.ethz.vppserver.schema.ippclient.Attribute;
 import ch.ethz.vppserver.schema.ippclient.AttributeGroup;
 
 public class IppGetJobAttributesOperation extends IppOperation {
-
     public IppGetJobAttributesOperation() {
         operationID = 0x0009;
         bufferSize = 8192;
@@ -50,7 +49,9 @@ public class IppGetJobAttributesOperation extends IppOperation {
         if (map == null) {
             ippBuf = IppTag.getUri(ippBuf, "job-uri", stripPortNumber(uri));
             ippBuf = IppTag.getEnd(ippBuf);
-            ippBuf.flip();
+            if (ippBuf != null) {
+                ippBuf.flip();
+            }
             return ippBuf;
         }
 
@@ -66,12 +67,10 @@ public class IppGetJobAttributesOperation extends IppOperation {
 
         if (map.get("requested-attributes") != null) {
             String[] sta = map.get("requested-attributes").split(" ");
-            if (sta != null) {
-                ippBuf = IppTag.getKeyword(ippBuf, "requested-attributes", sta[0]);
-                int l = sta.length;
-                for (int i = 1; i < l; i++) {
-                    ippBuf = IppTag.getKeyword(ippBuf, null, sta[i]);
-                }
+            ippBuf = IppTag.getKeyword(ippBuf, "requested-attributes", sta[0]);
+            int l = sta.length;
+            for (int i = 1; i < l; i++) {
+                ippBuf = IppTag.getKeyword(ippBuf, null, sta[i]);
             }
         }
 
@@ -87,15 +86,17 @@ public class IppGetJobAttributesOperation extends IppOperation {
             ippBuf = IppTag.getBoolean(ippBuf, "my-jobs", value);
         }
         ippBuf = IppTag.getEnd(ippBuf);
-        ippBuf.flip();
+        if (ippBuf != null) {
+            ippBuf.flip();
+        }
         return ippBuf;
     }
 
     public PrintJobAttributes getPrintJobAttributes(URL url, String userName, int jobID)
             throws Exception {
-        PrintJobAttributes job = null;
+        PrintJobAttributes job;
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         //    map.put("requested-attributes",
         //        "page-ranges print-quality sides job-uri job-id job-state job-printer-uri job-name job-originating-user-name job-k-octets time-at-creation time-at-processing time-at-completed job-media-sheets-completed");
 
@@ -141,5 +142,4 @@ public class IppGetJobAttributesOperation extends IppOperation {
         //    IppResultPrinter.print(result);
         return job;
     }
-
 }

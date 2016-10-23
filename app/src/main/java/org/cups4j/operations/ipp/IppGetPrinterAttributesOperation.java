@@ -31,7 +31,6 @@ import java.util.Map;
 import ch.ethz.vppserver.ippclient.IppTag;
 
 public class IppGetPrinterAttributesOperation extends IppOperation {
-
     public IppGetPrinterAttributesOperation() {
         operationID = 0x000b;
         bufferSize = 8192;
@@ -50,26 +49,28 @@ public class IppGetPrinterAttributesOperation extends IppOperation {
         if (map == null) {
             ippBuf = IppTag.getKeyword(ippBuf, "requested-attributes", "all");
             ippBuf = IppTag.getEnd(ippBuf);
-            ippBuf.flip();
+            if (ippBuf != null) {
+                ippBuf.flip();
+            }
             return ippBuf;
         }
 
         ippBuf = IppTag.getNameWithoutLanguage(ippBuf, "requesting-user-name", map.get("requesting-user-name"));
         if (map.get("requested-attributes") != null) {
             String[] sta = map.get("requested-attributes").split(" ");
-            if (sta != null) {
-                ippBuf = IppTag.getKeyword(ippBuf, "requested-attributes", sta[0]);
-                int l = sta.length;
-                for (int i = 1; i < l; i++) {
-                    ippBuf = IppTag.getKeyword(ippBuf, null, sta[i]);
-                }
+            ippBuf = IppTag.getKeyword(ippBuf, "requested-attributes", sta[0]);
+            int l = sta.length;
+            for (int i = 1; i < l; i++) {
+                ippBuf = IppTag.getKeyword(ippBuf, null, sta[i]);
             }
         }
 
         ippBuf = IppTag.getNameWithoutLanguage(ippBuf, "document-format", map.get("document-format"));
 
         ippBuf = IppTag.getEnd(ippBuf);
-        ippBuf.flip();
+        if (ippBuf != null) {
+            ippBuf.flip();
+        }
         return ippBuf;
     }
 }

@@ -21,8 +21,6 @@ import java.util.Map;
 
 /**
  * Print job class
- *
- *
  */
 public class PrintJob {
     private InputStream document;
@@ -115,8 +113,7 @@ public class PrintJob {
         /**
          * Constructor
          *
-         * @param byte[] document
-         *
+         * @param document Printed document
          */
         public Builder(byte[] document) {
             this.document = new ByteArrayInputStream(document);
@@ -125,18 +122,14 @@ public class PrintJob {
         /**
          * Constructor
          *
-         * @param InputStream
-         *          document
-         *
+         * @param document Printed document
          */
         public Builder(InputStream document) {
             this.document = document;
         }
 
         /**
-         * Number of copies - 0 and 1 are both treated as one copy
-         *
-         * @param copies
+         * @param copies Number of copies - 0 and 1 are both treated as one copy
          * @return Builder
          */
         public Builder copies(int copies) {
@@ -145,9 +138,7 @@ public class PrintJob {
         }
 
         /**
-         * Page ranges
-         *
-         * @pageRanges pageRanges 1-3, 5, 8, 10-13
+         * @param pageRanges Page ranges 1-3, 5, 8, 10-13
          * @return Builder
          */
         public Builder pageRanges(String pageRanges) {
@@ -156,9 +147,7 @@ public class PrintJob {
         }
 
         /**
-         * User name
-         *
-         * @param userName
+         * @param userName Requesting user name
          * @return Builder
          */
         public Builder userName(String userName) {
@@ -167,9 +156,7 @@ public class PrintJob {
         }
 
         /**
-         * Job name
-         *
-         * @param jobName
+         * @param jobName Job name
          * @return Builder
          */
         public Builder jobName(String jobName) {
@@ -178,9 +165,7 @@ public class PrintJob {
         }
 
         /**
-         * Duplex mode
-         *
-         * @param duplex
+         * @param duplex Duplex mode
          * @return Builder
          */
         public Builder duplex(boolean duplex) {
@@ -191,28 +176,23 @@ public class PrintJob {
         /**
          * Additional attributes for the print operation and the print job
          *
-         * @param attributes
-         *          provide operation attributes and/or a String of job-attributes
-         *          <p>
-         *          job attributes are sperated by "#"
-         *          </p>
-         *
-         *          <p>
-         *          example:
-         *          </p>
-         *          <p>
-         *          attributes.put("compression","none");
-         *          </p>
-         *          <p>
-         *          attributes.put("job-attributes",
-         *          "print-quality:enum:3#sheet-collate:keyword:collated#sides:keyword:two-sided-long-edge"
-         *          );
-         *          </p>
-         *          <p>
-         *          -> take a look config/ippclient/list-of-attributes.xml for more
-         *          information
-         *          </p>
-         *
+         * @param attributes provide operation attributes and/or a String of job-attributes
+         *                   <p>
+         *                   job attributes are sperated by "#"
+         *                   </p>
+         *                   <p>
+         *                   <p>
+         *                   example:
+         *                   </p>
+         *                   <code>
+         *                   attributes.put("compression","none");
+         *                   attributes.put("job-attributes",
+         *                   "print-quality:enum:3#sheet-collate:keyword:collated#sides:keyword:two-sided-long-edge"
+         *                   );
+         *                   </code>
+         *                   <p>
+         *                   -> take a look config/ippclient/list-of-attributes.xml for more information
+         *                   </p>
          * @return Builder
          */
         public Builder attributes(Map<String, String> attributes) {

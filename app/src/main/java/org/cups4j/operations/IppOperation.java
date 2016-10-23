@@ -57,12 +57,12 @@ public abstract class IppOperation {
     protected short bufferSize = 8192; // BufferSize for this operation
 
     //
-    String httpStatusLine = null;
+    private String httpStatusLine = null;
 
     /**
      * Gets the IPP header
      *
-     * @param url
+     * @param url Printer URL
      * @return IPP header
      * @throws UnsupportedEncodingException
      */
@@ -81,8 +81,8 @@ public abstract class IppOperation {
     /**
      * Gets the IPP header
      *
-     * @param url
-     * @param map
+     * @param url Printer URL
+     * @param map Print attributes
      * @return IPP header
      * @throws UnsupportedEncodingException
      */
@@ -98,7 +98,9 @@ public abstract class IppOperation {
 
         if (map == null) {
             ippBuf = IppTag.getEnd(ippBuf);
-            ippBuf.flip();
+            if (ippBuf != null) {
+                ippBuf.flip();
+            }
             return ippBuf;
         }
 
@@ -111,26 +113,25 @@ public abstract class IppOperation {
 
         if (map.get("requested-attributes") != null) {
             String[] sta = map.get("requested-attributes").split(" ");
-            if (sta != null) {
-                ippBuf = IppTag.getKeyword(ippBuf, "requested-attributes", sta[0]);
-                int l = sta.length;
-                for (int i = 1; i < l; i++) {
-                    ippBuf = IppTag.getKeyword(ippBuf, null, sta[i]);
-                }
+            ippBuf = IppTag.getKeyword(ippBuf, "requested-attributes", sta[0]);
+            int l = sta.length;
+            for (int i = 1; i < l; i++) {
+                ippBuf = IppTag.getKeyword(ippBuf, null, sta[i]);
             }
         }
 
         ippBuf = IppTag.getEnd(ippBuf);
-        ippBuf.flip();
+        if (ippBuf != null) {
+            ippBuf.flip();
+        }
         return ippBuf;
     }
 
     /**
      * Sends a request to the provided URL
      *
-     * @param url
-     * @param ippBuf
-     *
+     * @param url    Printer URL
+     * @param ippBuf IPP buffer
      * @return result
      * @throws IOException
      * @throws Exception
@@ -142,16 +143,14 @@ public abstract class IppOperation {
     /**
      * Sends a request to the provided url
      *
-     * @param url
-     * @param ippBuf
-     *
-     * @param documentStream
+     * @param url            Printer URL
+     * @param ippBuf         IPP buffer
+     * @param documentStream Printed document input stream
      * @return result
      * @throws Exception
      */
     private IppResult sendRequest(URL url, ByteBuffer ippBuf, InputStream documentStream) throws Exception {
-
-        IppResult ippResult = null;
+        IppResult ippResult;
         if (ippBuf == null) {
             return null;
         }
@@ -164,17 +163,17 @@ public abstract class IppOperation {
 
         // will not work with older versions of CUPS!
         client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_1);
-        client.getParams().setParameter("http.socket.timeout", new Integer(10000));
-        client.getParams().setParameter("http.connection.timeout", new Integer(10000));
+        client.getParams().setParameter("http.socket.timeout", 10000);
+        client.getParams().setParameter("http.connection.timeout", 10000);
         client.getParams().setParameter("http.protocol.content-charset", "UTF-8");
-        client.getParams().setParameter("http.method.response.buffer.warnlimit", new Integer(8092));
+        client.getParams().setParameter("http.method.response.buffer.warnlimit", 8092);
 
         // probabaly not working with older CUPS versions
-        client.getParams().setParameter("http.protocol.expect-continue", Boolean.valueOf(true));
+        client.getParams().setParameter("http.protocol.expect-continue", true);
 
         HttpPost httpPost = new HttpPost(url.toURI());
 
-        httpPost.getParams().setParameter("http.socket.timeout", new Integer(10000));
+        httpPost.getParams().setParameter("http.socket.timeout", 10000);
 
         byte[] bytes = new byte[ippBuf.limit()];
         ippBuf.get(bytes);
@@ -215,7 +214,6 @@ public abstract class IppOperation {
         }
 
         byte[] result = client.execute(httpPost, handler);
-        String test = new String(result);
         IppResponse ippResponse = new IppResponse();
 
         ippResult = ippResponse.getResponse(ByteBuffer.wrap(result));

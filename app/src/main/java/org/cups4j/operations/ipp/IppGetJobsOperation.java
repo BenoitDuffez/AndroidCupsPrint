@@ -45,7 +45,6 @@ import ch.ethz.vppserver.schema.ippclient.Attribute;
 import ch.ethz.vppserver.schema.ippclient.AttributeGroup;
 
 public class IppGetJobsOperation extends IppOperation {
-
     public IppGetJobsOperation() {
         operationID = 0x000a;
         bufferSize = 8192;
@@ -69,12 +68,10 @@ public class IppGetJobsOperation extends IppOperation {
 
         if (map.get("requested-attributes") != null) {
             String[] sta = map.get("requested-attributes").split(" ");
-            if (sta != null) {
-                ippBuf = IppTag.getKeyword(ippBuf, "requested-attributes", sta[0]);
-                int l = sta.length;
-                for (int i = 1; i < l; i++) {
-                    ippBuf = IppTag.getKeyword(ippBuf, null, sta[i]);
-                }
+            ippBuf = IppTag.getKeyword(ippBuf, "requested-attributes", sta[0]);
+            int l = sta.length;
+            for (int i = 1; i < l; i++) {
+                ippBuf = IppTag.getKeyword(ippBuf, null, sta[i]);
             }
         }
 
@@ -91,15 +88,17 @@ public class IppGetJobsOperation extends IppOperation {
         }
 
         ippBuf = IppTag.getEnd(ippBuf);
-        ippBuf.flip();
+        if (ippBuf != null) {
+            ippBuf.flip();
+        }
         return ippBuf;
     }
 
     public List<PrintJobAttributes> getPrintJobs(CupsPrinter printer, WhichJobsEnum whichJobs, String userName,
                                                  boolean myJobs) throws Exception {
-        List<PrintJobAttributes> jobs = new ArrayList<PrintJobAttributes>();
-        PrintJobAttributes jobAttributes = null;
-        Map<String, String> map = new HashMap<String, String>();
+        List<PrintJobAttributes> jobs = new ArrayList<>();
+        PrintJobAttributes jobAttributes;
+        Map<String, String> map = new HashMap<>();
 
         if (userName == null)
             userName = CupsClient.DEFAULT_USER;
@@ -125,22 +124,30 @@ public class IppGetJobsOperation extends IppOperation {
                     if (attr.getAttributeValue() != null && !attr.getAttributeValue().isEmpty()) {
                         String attValue = getAttributeValue(attr);
 
-                        if ("job-uri".equals(attr.getName())) {
-                            jobAttributes.setJobURL(new URL(attValue.replace("ipp://", protocol)));
-                        } else if ("job-id".equals(attr.getName())) {
-                            jobAttributes.setJobID(Integer.parseInt(attValue));
-                        } else if ("job-state".equals(attr.getName())) {
-                            jobAttributes.setJobState(JobStateEnum.fromString(attValue));
-                        } else if ("job-printer-uri".equals(attr.getName())) {
-                            jobAttributes.setPrinterURL(new URL(attValue.replace("ipp://", protocol)));
-                        } else if ("job-name".equals(attr.getName())) {
-                            jobAttributes.setJobName(attValue);
-                        } else if ("job-originating-user-name".equals(attr.getName())) {
-                            jobAttributes.setUserName(attValue);
-                        } else if ("time-at-creation".equals(attr.getName())) {
-                            long unixTime = Long.parseLong(attValue);
-                            Date dt = new Date(unixTime * 1000);
-                            jobAttributes.setJobCreateTime(dt);
+                        switch (attr.getName()) {
+                            case "job-uri":
+                                jobAttributes.setJobURL(new URL(attValue.replace("ipp://", protocol)));
+                                break;
+                            case "job-id":
+                                jobAttributes.setJobID(Integer.parseInt(attValue));
+                                break;
+                            case "job-state":
+                                jobAttributes.setJobState(JobStateEnum.fromString(attValue));
+                                break;
+                            case "job-printer-uri":
+                                jobAttributes.setPrinterURL(new URL(attValue.replace("ipp://", protocol)));
+                                break;
+                            case "job-name":
+                                jobAttributes.setJobName(attValue);
+                                break;
+                            case "job-originating-user-name":
+                                jobAttributes.setUserName(attValue);
+                                break;
+                            case "time-at-creation":
+                                long unixTime = Long.parseLong(attValue);
+                                Date dt = new Date(unixTime * 1000);
+                                jobAttributes.setJobCreateTime(dt);
+                                break;
                         }
                     }
                 }
@@ -150,5 +157,4 @@ public class IppGetJobsOperation extends IppOperation {
 
         return jobs;
     }
-
 }

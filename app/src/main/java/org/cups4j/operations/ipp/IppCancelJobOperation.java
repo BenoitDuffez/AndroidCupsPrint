@@ -34,7 +34,6 @@ import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.ippclient.IppTag;
 
 public class IppCancelJobOperation extends IppOperation {
-
     public IppCancelJobOperation() {
         operationID = 0x0008;
         bufferSize = 8192;
@@ -51,7 +50,9 @@ public class IppCancelJobOperation extends IppOperation {
 
         if (map == null) {
             ippBuf = IppTag.getEnd(ippBuf);
-            ippBuf.flip();
+            if (ippBuf != null) {
+                ippBuf.flip();
+            }
             return ippBuf;
         }
 
@@ -69,13 +70,14 @@ public class IppCancelJobOperation extends IppOperation {
         }
 
         ippBuf = IppTag.getEnd(ippBuf);
-        ippBuf.flip();
+        if (ippBuf != null) {
+            ippBuf.flip();
+        }
         return ippBuf;
     }
 
     public boolean cancelJob(URL url, String userName, int jobID) throws Exception {
-
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
         if (userName == null) {
             userName = CupsClient.DEFAULT_USER;
@@ -89,5 +91,4 @@ public class IppCancelJobOperation extends IppOperation {
 
         return new PrintRequestResult(result).isSuccessfulResult();
     }
-
 }

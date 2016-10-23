@@ -34,7 +34,6 @@ import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.ippclient.IppTag;
 
 public class IppHoldJobOperation extends IppOperation {
-
     public IppHoldJobOperation() {
         operationID = 0x000C;
         bufferSize = 8192;
@@ -52,7 +51,9 @@ public class IppHoldJobOperation extends IppOperation {
 
         if (map == null) {
             ippBuf = IppTag.getEnd(ippBuf);
-            ippBuf.flip();
+            if (ippBuf != null) {
+                ippBuf.flip();
+            }
             return ippBuf;
         }
 
@@ -66,13 +67,14 @@ public class IppHoldJobOperation extends IppOperation {
         ippBuf = IppTag.getNameWithoutLanguage(ippBuf, "requesting-user-name", map.get("requesting-user-name"));
 
         ippBuf = IppTag.getEnd(ippBuf);
-        ippBuf.flip();
+        if (ippBuf != null) {
+            ippBuf.flip();
+        }
         return ippBuf;
     }
 
     public boolean holdJob(URL url, String userName, int jobID) throws Exception {
-
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
         if (userName == null) {
             userName = CupsClient.DEFAULT_USER;
@@ -87,5 +89,4 @@ public class IppHoldJobOperation extends IppOperation {
 
         return new PrintRequestResult(result).isSuccessfulResult();
     }
-
 }

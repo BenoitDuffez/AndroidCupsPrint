@@ -21,9 +21,7 @@ import java.util.regex.Pattern;
 import ch.ethz.vppserver.ippclient.IppResult;
 
 /**
- * Result of a print request 
- *
- *
+ * Result of a print request
  */
 public class PrintRequestResult {
     private int jobId;
@@ -83,5 +81,4 @@ public class PrintRequestResult {
     protected void setJobId(int jobId) {
         this.jobId = jobId;
     }
-
 }

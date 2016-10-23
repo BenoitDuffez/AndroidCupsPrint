@@ -20,31 +20,29 @@ import java.util.Date;
 
 /**
  * Holds print job attributes
- *
- *
  */
 public class PrintJobAttributes {
-    URL jobURL = null;
+    private URL jobURL = null;
 
-    URL printerURL = null;
+    private URL printerURL = null;
 
-    int jobID = -1;
+    private int jobID = -1;
 
-    JobStateEnum jobState = null;
+    private JobStateEnum jobState = null;
 
-    String jobName = null;
+    private String jobName = null;
 
-    String userName = null;
+    private String userName = null;
 
-    Date jobCreateTime;
+    private Date jobCreateTime;
 
-    Date jobCompleteTime;
+    private Date jobCompleteTime;
 
-    int pagesPrinted = 0;
+    private int pagesPrinted = 0;
 
     // Size of the job in kb (this value is rounded up by the IPP server)
     // This value is optional and might not be reported by your IPP server
-    int size = -1;
+    private int size = -1;
 
     public URL getJobURL() {
         return jobURL;
@@ -125,5 +123,4 @@ public class PrintJobAttributes {
     public void setSize(int size) {
         this.size = size;
     }
-
 }
