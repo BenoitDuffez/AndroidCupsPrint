@@ -318,7 +318,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     return checkPrinter(printerId.getLocalId(), printerId);
                 } catch (Exception e) {
                     Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
-                    mException = null;
+                    mException = e;
                     Crashlytics.log("Failed to check printer " + printerId);
                     Crashlytics.logException(e);
                 }
