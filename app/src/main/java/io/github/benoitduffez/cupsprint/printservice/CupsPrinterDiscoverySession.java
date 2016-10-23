@@ -309,6 +309,8 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
     @Override
     public void onStartPrinterStateTracking(@NonNull final PrinterId printerId) {
         new AsyncTask<Void, Void, PrinterCapabilitiesInfo>() {
+            Exception mException;
+
             @Override
             protected PrinterCapabilitiesInfo doInBackground(Void... voids) {
                 try {
@@ -316,7 +318,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     return checkPrinter(printerId.getLocalId(), printerId);
                 } catch (Exception e) {
                     Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
-                    Toast.makeText(mPrintService, e.getMessage(), Toast.LENGTH_LONG).show();
+                    mException = null;
                     Crashlytics.log("Failed to check printer " + printerId);
                     Crashlytics.logException(e);
                 }
@@ -325,6 +327,9 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
             @Override
             protected void onPostExecute(PrinterCapabilitiesInfo printerCapabilitiesInfo) {
+                if (mException != null) {
+                    Toast.makeText(mPrintService, mException.getMessage(), Toast.LENGTH_LONG).show();
+                }
                 onPrinterChecked(printerId, printerCapabilitiesInfo);
             }
         }.execute();
