@@ -19,4 +19,23 @@
     <string name="err_add_printer_empty_name">The printer name cannot be empty</string>
     <string name="err_add_printer_empty_url">The printer URL cannot be empty</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="untrusted_title">Untrusted SSL connection</string>
+    <string name="untrusted_info">Your server sent a certificate that was not trusted by your device. Please review the certificates details below, and choose whether you accept to trust it or not:</string>
+    <string name="untrusted_certinfo">
+        Issuer: CN=test-server\n
+        Validity\n
+        Not Before: Aug 21 19:36:21 2016 GMT\n
+        Not After : Aug 19 19:36:21 2026 GMT\n
+        Subject: CN=test-server\n
+        Subject Public Key Info:\n
+        Public Key Algorithm: rsaEncryption\n
+        Public-Key: (2048 bit)\n
+    </string>
+    <string name="untrusted_trust_button">Trust connection</string>
+    <string name="untrusted_abort_button">Abort connection</string>
+    <string name="untrusted_trusted">Certificates added to the trusted list. Please try again with this printer.</string>
+    <string name="untrusted_couldnt_trust">Couldn\'t save server certificates. Please review the application logs and submit a bug request to the developer.</string>
+
 </resources>

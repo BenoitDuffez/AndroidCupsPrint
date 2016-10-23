@@ -31,6 +31,7 @@ import org.cups4j.operations.ipp.IppHoldJobOperation;
 import org.cups4j.operations.ipp.IppReleaseJobOperation;
 
 import java.net.URL;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 /**
@@ -58,6 +59,8 @@ public class CupsClient {
 
     private String userName = null;
 
+    private X509Certificate[] mServerCerts; // Storage for server certificates if they're not trusted
+
     public CupsClient() throws Exception {
         this(new URL(DEFAULT_URL), DEFAULT_USER);
     }
@@ -72,7 +75,14 @@ public class CupsClient {
     }
 
     public List<CupsPrinter> getPrinters() throws Exception {
-        List<CupsPrinter> printers = new CupsGetPrintersOperation().getPrinters(url);
+        final CupsGetPrintersOperation cupsGetPrintersOperation = new CupsGetPrintersOperation();
+        List<CupsPrinter> printers;
+        try {
+            printers = cupsGetPrintersOperation.getPrinters(url);
+        } finally {
+            mServerCerts = cupsGetPrintersOperation.getServerCerts();
+        }
+
         // add default printer if available
         CupsPrinter defaultPrinter = getDefaultPrinter();
 
@@ -149,5 +159,9 @@ public class CupsClient {
         String currentHost = currentPrinter.getPrinterURL().getHost();
 
         return new CupsMoveJobOperation().moveJob(currentHost, userName, jobID, targetPrinter.getPrinterURL());
+    }
+
+    public X509Certificate[] getServerCerts() {
+        return mServerCerts;
     }
 }

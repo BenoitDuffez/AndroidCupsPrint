@@ -83,7 +83,7 @@ public class AdditionalKeyStoresTrustManager implements X509TrustManager {
 	 * Loop over the trustmanagers until we find one that accepts our server
 	 */
 	public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-		certChain = null;
+		certChain = chain;
 		for (X509TrustManager tm : x509TrustManagers) {
 			try {
 				tm.checkServerTrusted(chain, authType);
@@ -92,7 +92,6 @@ public class AdditionalKeyStoresTrustManager implements X509TrustManager {
 				// ignore
 			}
 		}
-		certChain = chain;
 		throw new CertificateException("No Certificate\n");
 	}
 

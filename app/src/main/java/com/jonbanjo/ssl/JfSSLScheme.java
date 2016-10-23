@@ -16,55 +16,148 @@ program; if not, see <http://www.gnu.org/licenses/>.
 
 package com.jonbanjo.ssl;
 
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.Log;
+
+import com.crashlytics.android.Crashlytics;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
 
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
 
 public class JfSSLScheme {
-	
-	public static final String trustfile = "cupsprint-trustfile";
-	public static final String password = "i6:[(mW*xh~=Ni;S|?8lz8eZ;!SU(S";
-    public static Scheme getScheme(){
-        
-    	FileInputStream fis = null;
-    	Scheme scheme;
-    	
-        try {	
-       		KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
- 
-           	try {
-           		fis = CupsPrintApp.getContext().openFileInput(trustfile);
-           		trustStore.load(fis, password.toCharArray());
-           	}
-            catch (Exception e){
-            	trustStore.load(null, null);
+    private static final String KEYSTORE_FILE = "cupsprint-trustfile";
+
+    private static final String KEYSTORE_PASSWORD = "i6:[(mW*xh~=Ni;S|?8lz8eZ;!SU(S";
+
+    /**
+     * Will handle SSL related stuff to this connection so that certs are properly managed
+     *
+     * @param connection The target https connection
+     */
+    public static void handleHttpsUrlConnection(@NonNull HttpsURLConnection connection) {
+        try {
+            KeyStore trustStore = loadKeyStore();
+            if (trustStore == null) {
+                return;
             }
-           
-            SSLSocketFactory sf = new AdditionalKeyStoresSSLSocketFactory(trustStore);
-        	sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-           	scheme = new Scheme("https", sf, 443);
+
+            KeyManager keyManager = null;
+            try {
+                keyManager = AdditionalKeyManager.fromAlias();
+            } catch (CertificateException e) {
+                Log.e(CupsPrintApp.LOG_TAG, "Couldn't load system key store: " + e.getLocalizedMessage());
+                Crashlytics.log("Couldn't load system key store: ");
+                Crashlytics.logException(e);
+            }
+
+            connection.setSSLSocketFactory(new AdditionalKeyStoresSSLSocketFactory(keyManager, trustStore));
+        } catch (NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException | KeyManagementException e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't handle SSL URL connection: " + e.getLocalizedMessage());
+            Crashlytics.log("Couldn't handle SSL URL connection");
+            Crashlytics.logException(e);
         }
-        catch (Exception e){
-        	scheme = getDefaultScheme();
+    }
+
+    /**
+     * Try to get the contents of the local key store
+     *
+     * @return A valid KeyStore object if nothing went wrong, null otherwise
+     */
+    @Nullable
+    private static KeyStore loadKeyStore() {
+        KeyStore trustStore;
+        try {
+            trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        } catch (KeyStoreException e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
+            Crashlytics.log("Couldn't open local key store");
+            Crashlytics.logException(e);
+            return null;
         }
-        finally {
-            if (fis != null) {
-            	try {
-            		fis.close();
-            	}catch (Exception e1){}
+
+        try {
+            FileInputStream fis = CupsPrintApp.getContext().openFileInput(KEYSTORE_FILE);
+            trustStore.load(fis, KEYSTORE_PASSWORD.toCharArray());
+            return trustStore;
+        } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
+            // if we can't load, create an new empty key store
+            try {
+                trustStore.load(null, null);
+                Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
+                Crashlytics.log("Couldn't open local key store");
+                Crashlytics.logException(e);
+            } catch (IOException | NoSuchAlgorithmException | CertificateException e1) {
+                Log.e(CupsPrintApp.LOG_TAG, "Couldn't create new key store: " + e.getLocalizedMessage());
+                Crashlytics.log("Couldn't create new key store");
+                Crashlytics.logException(e);
             }
         }
-        return scheme;
+
+        return trustStore;
     }
-    
-    private static Scheme getDefaultScheme(){
-    	SSLSocketFactory sf = SSLSocketFactory.getSocketFactory();
-    	sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-    	return new Scheme("https", sf, 443);
+
+    /**
+     * Add certs to the keystore (thus trusting them)
+     *
+     * @param chain The chain of certs to trust
+     * @return true if it was saved, false otherwise
+     */
+    public static boolean saveCertificates(X509Certificate[] chain) {
+        // Load existing certs
+        KeyStore trustStore = loadKeyStore();
+        if (trustStore == null) {
+            return false;
+        }
+
+        // Add new certs
+        try {
+            for (final X509Certificate c : chain) {
+                trustStore.setCertificateEntry(c.getSubjectDN().toString(), c);
+            }
+        } catch (final KeyStoreException e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't store cert chain into key store: " + e);
+            Crashlytics.log("Couldn't store cert chain into key store");
+            Crashlytics.logException(e);
+            return false;
+        }
+
+        // Save new keystore
+        FileOutputStream fos = null;
+        try {
+            fos = CupsPrintApp.getContext().openFileOutput(KEYSTORE_FILE, Context.MODE_PRIVATE);
+            trustStore.store(fos, KEYSTORE_PASSWORD.toCharArray());
+            fos.close();
+        } catch (final Exception e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Unable to save key store: " + e);
+            Crashlytics.log("Unable to save key store");
+            Crashlytics.logException(e);
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    Log.e(CupsPrintApp.LOG_TAG, "Couldn't close key store: " + e);
+                    Crashlytics.log("Couldn't close key store");
+                    Crashlytics.logException(e);
+                }
+            }
+        }
+
+        return true;
     }
-    
 }

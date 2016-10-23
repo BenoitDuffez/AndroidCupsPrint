@@ -20,34 +20,32 @@ package org.cups4j.operations;
  * Jon Freeman - 2013
  */
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
+import com.jonbanjo.ssl.AdditionalKeyStoresSSLSocketFactory;
 import com.jonbanjo.ssl.JfSSLScheme;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.SequenceInputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.security.cert.X509Certificate;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import ch.ethz.vppserver.ippclient.IppResponse;
 import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.ippclient.IppTag;
 import ch.ethz.vppserver.schema.ippclient.Attribute;
-
+import io.github.benoitduffez.cupsprint.CupsPrintApp;
 
 public abstract class IppOperation {
     private final static String IPP_MIME_TYPE = "application/ipp";
@@ -56,8 +54,30 @@ public abstract class IppOperation {
 
     protected short bufferSize = 8192; // BufferSize for this operation
 
-    //
-    private String httpStatusLine = null;
+    private X509Certificate[] mServerCerts; // store the certificates sent by the server if it's not trusted
+
+    /**
+     * Used to copy input data (IPP, document, etc) to HTTP connection
+     *
+     * @param from Data to be read
+     * @param to   Destination
+     * @return Number of copied bytes
+     * @throws IOException
+     */
+    public static long copy(@NonNull InputStream from, @NonNull OutputStream to) throws IOException {
+        final int BUF_SIZE = 0x1000; // 4K
+        byte[] buf = new byte[BUF_SIZE];
+        long total = 0;
+        while (true) {
+            int r = from.read(buf);
+            if (r == -1) {
+                break;
+            }
+            to.write(buf, 0, r);
+            total += r;
+        }
+        return total;
+    }
 
     /**
      * Gets the IPP header
@@ -159,68 +179,80 @@ public abstract class IppOperation {
             return null;
         }
 
-        HttpClient client = new DefaultHttpClient();
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-        // will not work with older versions of CUPS!
-        client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_1);
-        client.getParams().setParameter("http.socket.timeout", 10000);
-        client.getParams().setParameter("http.connection.timeout", 10000);
-        client.getParams().setParameter("http.protocol.content-charset", "UTF-8");
-        client.getParams().setParameter("http.method.response.buffer.warnlimit", 8092);
+        try {
+            connection.setRequestMethod("POST");
+            connection.setReadTimeout(10000);
+            connection.setConnectTimeout(10000);
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setChunkedStreamingMode(0);
+            connection.setRequestProperty("Content-Type", IPP_MIME_TYPE);
 
-        // probabaly not working with older CUPS versions
-        client.getParams().setParameter("http.protocol.expect-continue", true);
+            if (url.getProtocol().equals("https")) {
+                JfSSLScheme.handleHttpsUrlConnection((HttpsURLConnection) connection);
+            }
 
-        HttpPost httpPost = new HttpPost(url.toURI());
+            byte[] bytes = new byte[ippBuf.limit()];
+            ippBuf.get(bytes);
 
-        httpPost.getParams().setParameter("http.socket.timeout", 10000);
+            ByteArrayInputStream headerStream = new ByteArrayInputStream(bytes);
+            // If we need to send a document, concatenate InputStreams
+            InputStream inputStream = headerStream;
+            if (documentStream != null) {
+                inputStream = new SequenceInputStream(headerStream, documentStream);
+            }
 
-        byte[] bytes = new byte[ippBuf.limit()];
-        ippBuf.get(bytes);
+            connection.connect();
 
-        ByteArrayInputStream headerStream = new ByteArrayInputStream(bytes);
-        // If we need to send a document, concatenate InputStreams
-        InputStream inputStream = headerStream;
-        if (documentStream != null) {
-            inputStream = new SequenceInputStream(headerStream, documentStream);
-        }
+            // Send the data
+            copy(inputStream, connection.getOutputStream());
 
-        // set length to -1 to advice the entity to read until EOF
-        InputStreamEntity requestEntity = new InputStreamEntity(inputStream, -1);
+            // Read response
+            byte[] result = readInputStream(connection.getInputStream());
 
-        requestEntity.setContentType(IPP_MIME_TYPE);
-        httpPost.setEntity(requestEntity);
-
-        httpStatusLine = null;
-
-        ResponseHandler<byte[]> handler = new ResponseHandler<byte[]>() {
-            public byte[] handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-                HttpEntity entity = response.getEntity();
-                httpStatusLine = response.getStatusLine().toString();
-                if (entity != null) {
-                    return EntityUtils.toByteArray(entity);
-                } else {
-                    return null;
+            // Prepare IPP result
+            IppResponse ippResponse = new IppResponse();
+            ippResult = ippResponse.getResponse(ByteBuffer.wrap(result));
+            ippResult.setHttpStatusResponse(connection.getResponseMessage());
+        } catch (Exception e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Caught exception while connecting to printer " + url + ": " + e.getLocalizedMessage());
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (connection instanceof HttpsURLConnection) {
+                if (((HttpsURLConnection) connection).getSSLSocketFactory() instanceof AdditionalKeyStoresSSLSocketFactory) {
+                    final AdditionalKeyStoresSSLSocketFactory socketFactory = (AdditionalKeyStoresSSLSocketFactory) ((HttpsURLConnection) connection).getSSLSocketFactory();
+                    mServerCerts = socketFactory.getServerCert();
                 }
             }
-        };
-
-        if (url.getProtocol().equals("https")) {
-
-            Scheme scheme = JfSSLScheme.getScheme();
-            if (scheme == null)
-                return null;
-            client.getConnectionManager().getSchemeRegistry().register(scheme);
+            connection.disconnect();
         }
 
-        byte[] result = client.execute(httpPost, handler);
-        IppResponse ippResponse = new IppResponse();
-
-        ippResult = ippResponse.getResponse(ByteBuffer.wrap(result));
-        ippResult.setHttpStatusResponse(httpStatusLine);
-
-        client.getConnectionManager().shutdown();
         return ippResult;
+    }
+
+    /**
+     * Store the contents of an input stream to a byte array
+     *
+     * @param is Input data to be read
+     * @return Input data read and stored into a byte array
+     * @throws IOException
+     */
+    private byte[] readInputStream(InputStream is) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        int nRead;
+        byte[] data = new byte[16384];
+
+        while ((nRead = is.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+
+        buffer.flush();
+
+        return buffer.toByteArray();
     }
 
     protected String stripPortNumber(URL url) {
@@ -229,5 +261,9 @@ public abstract class IppOperation {
 
     protected String getAttributeValue(Attribute attr) {
         return attr.getAttributeValue().get(0).getValue();
+    }
+
+    public X509Certificate[] getServerCerts() {
+        return mServerCerts;
     }
 }

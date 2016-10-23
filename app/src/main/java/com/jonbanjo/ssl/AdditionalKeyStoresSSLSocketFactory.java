@@ -19,10 +19,11 @@ program; if not, see <http://www.gnu.org/licenses/>.
 
 package com.jonbanjo.ssl;
 
-import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -30,7 +31,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.X509Certificate;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
 /**
@@ -38,30 +41,51 @@ import javax.net.ssl.TrustManager;
  * the default KeyStore
  */
 public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
-	protected SSLContext sslContext = SSLContext.getInstance("TLS");
+    protected SSLContext sslContext = SSLContext.getInstance("TLS");
 
-	private AdditionalKeyStoresTrustManager trustManager;
+    private AdditionalKeyStoresTrustManager trustManager;
 
-	public AdditionalKeyStoresSSLSocketFactory(KeyStore keyStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
-		super(null, null, null, null, null, null);
-		trustManager = new AdditionalKeyStoresTrustManager(keyStore);
-		sslContext.init(null, new TrustManager[]{trustManager}, null);
-	}
+    public AdditionalKeyStoresSSLSocketFactory(KeyManager keyManager, KeyStore keyStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
+        trustManager = new AdditionalKeyStoresTrustManager(keyStore);
+        sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{trustManager}, null);
+    }
 
-	@Override
-	public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException {
-		return sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
-	}
+    public X509Certificate[] getServerCert() {
+        return trustManager.getCertChain();
+    }
 
-	@Override
-	public Socket createSocket() throws IOException {
-		return sslContext.getSocketFactory().createSocket();
-	}
+    @Override
+    public String[] getDefaultCipherSuites() {
+        return new String[0];
+    }
 
-	public X509Certificate[] getCertChain() {
-		if (trustManager == null) {
-			return null;
-		}
-		return trustManager.getCertChain();
-	}
+    @Override
+    public String[] getSupportedCipherSuites() {
+        return new String[0];
+    }
+
+    @Override
+    public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException {
+        return sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
+    }
+
+    @Override
+    public Socket createSocket(String s, int i) throws IOException, UnknownHostException {
+        return sslContext.getSocketFactory().createSocket(s, i);
+    }
+
+    @Override
+    public Socket createSocket(String s, int i, InetAddress inetAddress, int i1) throws IOException, UnknownHostException {
+        return sslContext.getSocketFactory().createSocket(s, i, inetAddress, i1);
+    }
+
+    @Override
+    public Socket createSocket(InetAddress inetAddress, int i) throws IOException {
+        return sslContext.getSocketFactory().createSocket(inetAddress, i);
+    }
+
+    @Override
+    public Socket createSocket(InetAddress inetAddress, int i, InetAddress inetAddress1, int i1) throws IOException {
+        return sslContext.getSocketFactory().createSocket(inetAddress, i, inetAddress1, i1);
+    }
 }

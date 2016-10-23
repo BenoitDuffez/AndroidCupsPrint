@@ -22,6 +22,7 @@
 package io.github.benoitduffez.cupsprint.printservice;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -48,10 +49,13 @@ import org.cups4j.CupsPrinter;
 import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation;
 
 import java.net.URL;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.SSLException;
 
 import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.schema.ippclient.Attribute;
@@ -60,6 +64,7 @@ import ch.ethz.vppserver.schema.ippclient.AttributeValue;
 import io.github.benoitduffez.cupsprint.AddPrintersActivity;
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
 import io.github.benoitduffez.cupsprint.R;
+import io.github.benoitduffez.cupsprint.UntrustedCertActivity;
 
 /**
  * CUPS printer discovery class
@@ -81,6 +86,8 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
     };
 
     private PrintService mPrintService;
+
+    private X509Certificate[] mServerCerts; // If the server sends a non-trusted cert, it will be stored here
 
     public CupsPrinterDiscoverySession(PrintService context) {
         mPrintService = context;
@@ -141,7 +148,16 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
         URL clientURL = new URL(schemeHostPort);
 
         CupsClient client = new CupsClient(clientURL);
-        CupsPrinter testPrinter = client.getPrinter(printerURL);
+        CupsPrinter testPrinter;
+
+        // Check if we need to save the server certs if we don't trust the connection
+        try {
+            testPrinter = client.getPrinter(printerURL);
+        } catch (SSLException e) {
+            mServerCerts = client.getServerCerts();
+            throw e;
+        }
+
         if (testPrinter == null) {
             Log.e(CupsPrintApp.LOG_TAG, "Printer not responding. Printer on fire?");
             Toast.makeText(mPrintService, mPrintService.getString(R.string.printer_not_responding, url), Toast.LENGTH_LONG).show();
@@ -314,8 +330,16 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             @Override
             protected PrinterCapabilitiesInfo doInBackground(Void... voids) {
                 try {
-                    Log.i(CupsPrintApp.LOG_TAG, "Checking printer status: " + printerId);
-                    return checkPrinter(printerId.getLocalId(), printerId);
+                    try {
+                        Log.i(CupsPrintApp.LOG_TAG, "Checking printer status: " + printerId);
+                        return checkPrinter(printerId.getLocalId(), printerId);
+                    } catch (SSLException e) {
+                        // don't fail if we got certs to ask for validation
+                        if (mServerCerts != null && mServerCerts.length > 0) {
+                            return null;
+                        }
+                        throw e;
+                    }
                 } catch (Exception e) {
                     Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
                     mException = e;
@@ -329,6 +353,10 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             protected void onPostExecute(PrinterCapabilitiesInfo printerCapabilitiesInfo) {
                 if (mException != null) {
                     Toast.makeText(mPrintService, mException.getMessage(), Toast.LENGTH_LONG).show();
+                } else if (mServerCerts != null) {
+                    Intent dialog = new Intent(mPrintService, UntrustedCertActivity.class);
+                    dialog.putExtra(UntrustedCertActivity.KEY_CERT, mServerCerts[0]);
+                    mPrintService.startActivity(dialog);
                 }
                 onPrinterChecked(printerId, printerCapabilitiesInfo);
             }
