@@ -2,120 +2,128 @@ package org.cups4j;
 
 /**
  * Copyright (C) 2009 Harald Weyhing
- * 
+ * <p>
  * This program is free software; you can redistribute it and/or modify it under the terms of the
  * GNU Lesser General Public License as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
- * 
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ * <p>
  * See the GNU Lesser General Public License for more details. You should have received a copy of
  * the GNU Lesser General Public License along with this program; if not, see
  * <http://www.gnu.org/licenses/>.
  */
+
 import java.net.URL;
 import java.util.Date;
 
 /**
  * Holds print job attributes
- * 
- * 
+ *
+ *
  */
 public class PrintJobAttributes {
-  URL jobURL = null;
-  URL printerURL = null;
-  int jobID = -1;
-  JobStateEnum jobState = null;
-  String jobName = null;
-  String userName = null;
+    URL jobURL = null;
 
-  Date jobCreateTime;
-  Date jobCompleteTime;
-  int pagesPrinted = 0;
+    URL printerURL = null;
 
-  // Size of the job in kb (this value is rounded up by the IPP server)
-  // This value is optional and might not be reported by your IPP server
-  int size = -1;
+    int jobID = -1;
 
-  public URL getJobURL() {
-    return jobURL;
-  }
+    JobStateEnum jobState = null;
 
-  public void setJobURL(URL jobURL) {
-    this.jobURL = jobURL;
-  }
+    String jobName = null;
 
-  public URL getPrinterURL() {
-    return printerURL;
-  }
+    String userName = null;
 
-  public void setPrinterURL(URL printerURL) {
-    this.printerURL = printerURL;
-  }
+    Date jobCreateTime;
 
-  public int getJobID() {
-    return jobID;
-  }
+    Date jobCompleteTime;
 
-  public void setJobID(int jobID) {
-    this.jobID = jobID;
-  }
+    int pagesPrinted = 0;
 
-  public JobStateEnum getJobState() {
-    return jobState;
-  }
+    // Size of the job in kb (this value is rounded up by the IPP server)
+    // This value is optional and might not be reported by your IPP server
+    int size = -1;
 
-  public void setJobState(JobStateEnum jobState) {
-    this.jobState = jobState;
-  }
+    public URL getJobURL() {
+        return jobURL;
+    }
 
-  public String getJobName() {
-    return jobName;
-  }
+    public void setJobURL(URL jobURL) {
+        this.jobURL = jobURL;
+    }
 
-  public void setJobName(String jobName) {
-    this.jobName = jobName;
-  }
+    public URL getPrinterURL() {
+        return printerURL;
+    }
 
-  public String getUserName() {
-    return userName;
-  }
+    public void setPrinterURL(URL printerURL) {
+        this.printerURL = printerURL;
+    }
 
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
+    public int getJobID() {
+        return jobID;
+    }
 
-  public Date getJobCreateTime() {
-    return jobCreateTime;
-  }
+    public void setJobID(int jobID) {
+        this.jobID = jobID;
+    }
 
-  public void setJobCreateTime(Date jobCreateTime) {
-    this.jobCreateTime = jobCreateTime;
-  }
+    public JobStateEnum getJobState() {
+        return jobState;
+    }
 
-  public Date getJobCompleteTime() {
-    return jobCompleteTime;
-  }
+    public void setJobState(JobStateEnum jobState) {
+        this.jobState = jobState;
+    }
 
-  public void setJobCompleteTime(Date jobCompleteTime) {
-    this.jobCompleteTime = jobCompleteTime;
-  }
+    public String getJobName() {
+        return jobName;
+    }
 
-  public int getPagesPrinted() {
-    return pagesPrinted;
-  }
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
 
-  public void setPagesPrinted(int pagesPrinted) {
-    this.pagesPrinted = pagesPrinted;
-  }
+    public String getUserName() {
+        return userName;
+    }
 
-  public int getSize() {
-    return size;
-  }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-  public void setSize(int size) {
-    this.size = size;
-  }
+    public Date getJobCreateTime() {
+        return jobCreateTime;
+    }
+
+    public void setJobCreateTime(Date jobCreateTime) {
+        this.jobCreateTime = jobCreateTime;
+    }
+
+    public Date getJobCompleteTime() {
+        return jobCompleteTime;
+    }
+
+    public void setJobCompleteTime(Date jobCompleteTime) {
+        this.jobCompleteTime = jobCompleteTime;
+    }
+
+    public int getPagesPrinted() {
+        return pagesPrinted;
+    }
+
+    public void setPagesPrinted(int pagesPrinted) {
+        this.pagesPrinted = pagesPrinted;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
 
 }
