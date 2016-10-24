@@ -22,8 +22,8 @@ import io.github.benoitduffez.cupsprint.CupsPrintApp;
 /**
  * Uses the system keystore
  */
-public class AdditionalKeyManager implements X509KeyManager {
-    public static final String KEY_CERTIFICATE_ALIAS = AdditionalKeyManager.class.getName() + ".CertificateAlias";
+class AdditionalKeyManager implements X509KeyManager {
+    private static final String KEY_CERTIFICATE_ALIAS = AdditionalKeyManager.class.getName() + ".CertificateAlias";
 
     private final String mClientAlias;
 
@@ -41,10 +41,10 @@ public class AdditionalKeyManager implements X509KeyManager {
      * Builds an instance of a KeyChainKeyManager using the given certificate alias. If for any reason retrieval of the credentials from the system
      * KeyChain fails, a null value will be returned.
      *
-     * @return
+     * @return System-wide KeyManager, or null if alias is empty
      * @throws CertificateException
      */
-    public static AdditionalKeyManager fromAlias() throws CertificateException {
+    static AdditionalKeyManager fromAlias() throws CertificateException {
         final Context context = CupsPrintApp.getContext();
         String alias = PreferenceManager.getDefaultSharedPreferences(context).getString(KEY_CERTIFICATE_ALIAS, null);
 

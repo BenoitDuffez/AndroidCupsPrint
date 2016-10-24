@@ -41,11 +41,11 @@ import javax.net.ssl.TrustManager;
  * the default KeyStore
  */
 public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
-    protected SSLContext sslContext = SSLContext.getInstance("TLS");
+    private SSLContext sslContext = SSLContext.getInstance("TLS");
 
     private AdditionalKeyStoresTrustManager trustManager;
 
-    public AdditionalKeyStoresSSLSocketFactory(KeyManager keyManager, KeyStore keyStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
+    AdditionalKeyStoresSSLSocketFactory(KeyManager keyManager, KeyStore keyStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
         trustManager = new AdditionalKeyStoresTrustManager(keyStore);
         sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{trustManager}, null);
     }
