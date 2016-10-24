@@ -9,9 +9,6 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
 
-    // Force import of legacy Apache HTTP library
-    useLibrary 'org.apache.http.legacy'
-
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
@@ -35,7 +32,6 @@ android {
 
 dependencies {
     compile 'javax.jmdns:jmdns:3.4.1'
-    compile 'org.apache.httpcomponents:httpclient:4.5.2'
     compile 'com.android.support:appcompat-v7:25.0.0'
 
     compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
