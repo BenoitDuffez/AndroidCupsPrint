@@ -186,7 +186,6 @@ public class HttpConnectionManagement {
         try {
             String encoded = Base64.encodeToString((username + ":" + password).getBytes("UTF-8"), Base64.NO_WRAP);
             connection.setRequestProperty("Authorization", "Basic " + encoded);
-            Log.v(CupsPrintApp.LOG_TAG, "Set Authorization: Basic " + encoded + " (" + username + ":" + password + ")");
         } catch (UnsupportedEncodingException e) {
             Log.e(CupsPrintApp.LOG_TAG, "Couldn't base64 encode basic auth credentials: " + e);
             Crashlytics.log("Couldn't base64 encode basic auth credentials");
