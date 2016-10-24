@@ -194,6 +194,8 @@ public abstract class IppOperation {
                 JfSSLScheme.handleHttpsUrlConnection((HttpsURLConnection) connection);
             }
 
+            JfSSLScheme.handleBasicAuth(url, connection);
+
             byte[] bytes = new byte[ippBuf.limit()];
             ippBuf.get(bytes);
 

@@ -34,6 +34,13 @@
             android:exported="false"
             android:theme="@style/AndroidCupsPrint.AlertDialog"/>
 
+        <activity
+            android:name=".BasicAuthActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/basic_auth_title"
+            android:exported="false"
+            android:theme="@style/AndroidCupsPrint.AlertDialog"/>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="ab18fbc78d644944a4a41367f1098b1734a74f77"/>

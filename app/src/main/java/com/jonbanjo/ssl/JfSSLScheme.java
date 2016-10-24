@@ -17,8 +17,10 @@ program; if not, see <http://www.gnu.org/licenses/>.
 package com.jonbanjo.ssl;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Base64;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -26,6 +28,9 @@ import com.crashlytics.android.Crashlytics;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -37,6 +42,7 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 
+import io.github.benoitduffez.cupsprint.BasicAuthActivity;
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
 
 public class JfSSLScheme {
@@ -159,5 +165,32 @@ public class JfSSLScheme {
         }
 
         return true;
+    }
+
+    /**
+     * See if there are some basic auth credentials saved, and configure the connection
+     *
+     * @param url        URL we're about to request
+     * @param connection The connection to be configured
+     */
+    public static void handleBasicAuth(URL url, HttpURLConnection connection) {
+        SharedPreferences prefs = CupsPrintApp.getContext().getSharedPreferences(BasicAuthActivity.CREDENTIALS_FILE, Context.MODE_PRIVATE);
+
+        int id = BasicAuthActivity.findSavedCredentialsId(url.toString(), prefs);
+        if (id < 0) {
+            return;
+        }
+
+        String username = prefs.getString(BasicAuthActivity.KEY_BASIC_AUTH_LOGIN + id, "");
+        String password = prefs.getString(BasicAuthActivity.KEY_BASIC_AUTH_PASSWORD + id, "");
+        try {
+            String encoded = Base64.encodeToString((username + ":" + password).getBytes("UTF-8"), Base64.NO_WRAP);
+            connection.setRequestProperty("Authorization", "Basic " + encoded);
+            Log.v(CupsPrintApp.LOG_TAG, "Set Authorization: Basic " + encoded + " (" + username + ":" + password + ")");
+        } catch (UnsupportedEncodingException e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't base64 encode basic auth credentials: " + e);
+            Crashlytics.log("Couldn't base64 encode basic auth credentials");
+            Crashlytics.logException(e);
+        }
     }
 }

@@ -48,6 +48,7 @@ import org.cups4j.CupsClient;
 import org.cups4j.CupsPrinter;
 import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation;
 
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ import ch.ethz.vppserver.schema.ippclient.Attribute;
 import ch.ethz.vppserver.schema.ippclient.AttributeGroup;
 import ch.ethz.vppserver.schema.ippclient.AttributeValue;
 import io.github.benoitduffez.cupsprint.AddPrintersActivity;
+import io.github.benoitduffez.cupsprint.BasicAuthActivity;
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
 import io.github.benoitduffez.cupsprint.R;
 import io.github.benoitduffez.cupsprint.UntrustedCertActivity;
@@ -352,7 +354,16 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             @Override
             protected void onPostExecute(PrinterCapabilitiesInfo printerCapabilitiesInfo) {
                 if (mException != null) {
-                    Toast.makeText(mPrintService, mException.getMessage(), Toast.LENGTH_LONG).show();
+                    // happens when basic auth is required but not sent
+                    if (mException instanceof FileNotFoundException) {
+                        final Uri printerUri = Uri.parse(printerId.getLocalId());
+                        String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
+                        Intent dialog = new Intent(mPrintService, BasicAuthActivity.class);
+                        dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl);
+                        mPrintService.startActivity(dialog);
+                    } else {
+                        Toast.makeText(mPrintService, mException.getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 } else if (mServerCerts != null) {
                     Intent dialog = new Intent(mPrintService, UntrustedCertActivity.class);
                     dialog.putExtra(UntrustedCertActivity.KEY_CERT, mServerCerts[0]);

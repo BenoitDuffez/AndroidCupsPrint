@@ -43,7 +43,7 @@ public class CupsGetDefaultOperation extends IppOperation {
         HashMap<String, String> map = new HashMap<>();
         map.put("requested-attributes", "printer-name printer-uri-supported printer-location");
 
-        IppResult result = command.request(new URL(url.toString() + "/printers"), map);
+        IppResult result = command.request(new URL(url.toString() + "/printers/"), map);
         for (AttributeGroup group : result.getAttributeGroupList()) {
             if (group.getTagName().equals("printer-attributes-tag")) {
                 String printerURL = null;

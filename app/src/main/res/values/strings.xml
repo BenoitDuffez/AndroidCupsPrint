@@ -37,5 +37,10 @@
     <string name="untrusted_abort_button">Abort connection</string>
     <string name="untrusted_trusted">Certificates added to the trusted list. Please try again with this printer.</string>
     <string name="untrusted_couldnt_trust">Couldn\'t save server certificates. Please review the application logs and submit a bug request to the developer.</string>
+    <string name="basic_auth_title">HTTP Basic Auth</string>
+    <string name="basic_auth_info">Your server sent a basic auth request, but we need you to give the credentials. Please fill them below:</string>
+    <string name="basic_auth_login">Username</string>
+    <string name="basic_auth_password">Password</string>
+    <string name="basic_auth_button">Save credentials</string>
 
 </resources>
