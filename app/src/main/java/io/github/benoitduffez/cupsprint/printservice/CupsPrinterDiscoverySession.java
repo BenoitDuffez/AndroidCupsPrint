@@ -40,9 +40,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.jonbanjo.detect.MdnsServices;
-import com.jonbanjo.detect.PrinterRec;
-import com.jonbanjo.detect.PrinterResult;
+import io.github.benoitduffez.cupsprint.detect.MdnsServices;
+import io.github.benoitduffez.cupsprint.detect.PrinterRec;
+import io.github.benoitduffez.cupsprint.detect.PrinterResult;
 
 import org.cups4j.CupsClient;
 import org.cups4j.CupsPrinter;

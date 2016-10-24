@@ -23,8 +23,8 @@ package org.cups4j.operations;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.jonbanjo.ssl.AdditionalKeyStoresSSLSocketFactory;
-import com.jonbanjo.ssl.AndroidCupsHttpConnectionManagement;
+import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory;
+import io.github.benoitduffez.cupsprint.ssl.AndroidCupsHttpConnectionManagement;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

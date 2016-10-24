@@ -1,4 +1,4 @@
-package com.jonbanjo.detect;
+package io.github.benoitduffez.cupsprint.detect;
 
 import java.util.ArrayList;
 import java.util.Collections;

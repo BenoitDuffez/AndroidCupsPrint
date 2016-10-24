@@ -1,4 +1,4 @@
-package com.jonbanjo.ssl;
+package io.github.benoitduffez.cupsprint.ssl;
 
 import android.content.Context;
 import android.preference.PreferenceManager;

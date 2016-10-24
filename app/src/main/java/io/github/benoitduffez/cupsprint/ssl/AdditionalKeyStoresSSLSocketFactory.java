@@ -17,7 +17,7 @@ program; if not, see <http://www.gnu.org/licenses/>.
 
 //This class taken from http://stackoverflow.com/questions/2642777/trusting-all-certificates-using-httpclient-over-https
 
-package com.jonbanjo.ssl;
+package io.github.benoitduffez.cupsprint.ssl;
 
 
 import java.io.IOException;

@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jonbanjo.ssl.AndroidCupsHttpConnectionManagement;
+import io.github.benoitduffez.cupsprint.ssl.AndroidCupsHttpConnectionManagement;
 
 import java.security.cert.X509Certificate;
 

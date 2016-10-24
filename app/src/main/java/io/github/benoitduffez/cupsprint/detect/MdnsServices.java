@@ -14,7 +14,7 @@ received a copy of the GNU Lesser General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.jonbanjo.detect;
+package io.github.benoitduffez.cupsprint.detect;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
