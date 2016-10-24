@@ -6,8 +6,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import io.github.benoitduffez.cupsprint.ssl.AndroidCupsHttpConnectionManagement;
-
 import java.security.cert.X509Certificate;
 
 /**
@@ -38,7 +36,7 @@ public class UntrustedCertActivity extends Activity {
         findViewById(R.id.untrusted_trust_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (AndroidCupsHttpConnectionManagement.saveCertificates(new X509Certificate[]{cert})) {
+                if (HttpConnectionManagement.saveCertificates(new X509Certificate[]{cert})) {
                     Toast.makeText(UntrustedCertActivity.this, R.string.untrusted_trusted, Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(UntrustedCertActivity.this, R.string.untrusted_couldnt_trust, Toast.LENGTH_LONG).show();

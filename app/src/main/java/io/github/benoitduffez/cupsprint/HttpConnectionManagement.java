@@ -14,7 +14,7 @@ received a copy of the GNU Lesser General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-package io.github.benoitduffez.cupsprint.ssl;
+package io.github.benoitduffez.cupsprint;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -42,10 +42,10 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 
-import io.github.benoitduffez.cupsprint.BasicAuthActivity;
-import io.github.benoitduffez.cupsprint.CupsPrintApp;
+import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyManager;
+import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory;
 
-public class AndroidCupsHttpConnectionManagement {
+public class HttpConnectionManagement {
     private static final String KEYSTORE_FILE = "cupsprint-trustfile";
 
     private static final String KEYSTORE_PASSWORD = "i6:[(mW*xh~=Ni;S|?8lz8eZ;!SU(S";
@@ -123,7 +123,7 @@ public class AndroidCupsHttpConnectionManagement {
      * @param chain The chain of certs to trust
      * @return true if it was saved, false otherwise
      */
-    public static boolean saveCertificates(X509Certificate[] chain) {
+    static boolean saveCertificates(X509Certificate[] chain) {
         // Load existing certs
         KeyStore trustStore = loadKeyStore();
         if (trustStore == null) {

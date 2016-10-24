@@ -24,7 +24,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory;
-import io.github.benoitduffez.cupsprint.ssl.AndroidCupsHttpConnectionManagement;
+import io.github.benoitduffez.cupsprint.HttpConnectionManagement;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -191,10 +191,10 @@ public abstract class IppOperation {
             connection.setRequestProperty("Content-Type", IPP_MIME_TYPE);
 
             if (url.getProtocol().equals("https")) {
-                AndroidCupsHttpConnectionManagement.handleHttpsUrlConnection((HttpsURLConnection) connection);
+                HttpConnectionManagement.handleHttpsUrlConnection((HttpsURLConnection) connection);
             }
 
-            AndroidCupsHttpConnectionManagement.handleBasicAuth(url, connection);
+            HttpConnectionManagement.handleBasicAuth(url, connection);
 
             byte[] bytes = new byte[ippBuf.limit()];
             ippBuf.get(bytes);

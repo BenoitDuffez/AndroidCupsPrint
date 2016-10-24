@@ -45,7 +45,7 @@ public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
 
     private AdditionalKeyStoresTrustManager trustManager;
 
-    AdditionalKeyStoresSSLSocketFactory(KeyManager keyManager, KeyStore keyStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
+    public AdditionalKeyStoresSSLSocketFactory(KeyManager keyManager, KeyStore keyStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
         trustManager = new AdditionalKeyStoresTrustManager(keyStore);
         sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{trustManager}, null);
     }
