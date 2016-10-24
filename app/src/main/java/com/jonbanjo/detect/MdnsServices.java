@@ -16,22 +16,19 @@ program; if not, see <http://www.gnu.org/licenses/>.
 
 package com.jonbanjo.detect;
 
-import javax.jmdns.ServiceInfo;
-import javax.jmdns.impl.DNSIncoming;
-import javax.jmdns.impl.DNSRecord;
-
-import org.cups4j.CupsClient;
-
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.jmdns.ServiceInfo;
+import javax.jmdns.impl.DNSIncoming;
+import javax.jmdns.impl.DNSRecord;
 
 public class MdnsServices {
 
@@ -224,7 +221,15 @@ public class MdnsServices {
 		httpsRecs.addAll(getPrinters(MdnsServices.IPPS_SERVICE, 50).values());
 
 		PrinterResult result = new PrinterResult();
-		String urlStr;
+
+        /**
+         * This block below removes the https printers that fail.
+         * However, SSL management is done at printer check time, not mDNS time.
+         * The Merger().merge line below automatically selects SSL if one server provides both http and https.
+         * So we should just ignore SSL errors at mDNS scan time, and manage them later.
+         * TODO: remove this block?
+         */
+		/*String urlStr;
 		Map<String, Boolean> testMap = new HashMap<String, Boolean>();
 		Iterator<PrinterRec> it = httpsRecs.iterator();
 		while (it.hasNext()) {
@@ -248,7 +253,7 @@ public class MdnsServices {
 					}
 				}
 			}
-		}
+		}*/
 		new Merger().merge(httpRecs, httpsRecs);
 		result.printerRecs = httpsRecs;
 		return result;
