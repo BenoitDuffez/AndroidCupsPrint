@@ -45,7 +45,7 @@ import javax.net.ssl.KeyManager;
 import io.github.benoitduffez.cupsprint.BasicAuthActivity;
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
 
-public class JfSSLScheme {
+public class AndroidCupsHttpConnectionManagement {
     private static final String KEYSTORE_FILE = "cupsprint-trustfile";
 
     private static final String KEYSTORE_PASSWORD = "i6:[(mW*xh~=Ni;S|?8lz8eZ;!SU(S";

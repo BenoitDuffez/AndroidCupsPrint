@@ -24,7 +24,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.jonbanjo.ssl.AdditionalKeyStoresSSLSocketFactory;
-import com.jonbanjo.ssl.JfSSLScheme;
+import com.jonbanjo.ssl.AndroidCupsHttpConnectionManagement;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -191,10 +191,10 @@ public abstract class IppOperation {
             connection.setRequestProperty("Content-Type", IPP_MIME_TYPE);
 
             if (url.getProtocol().equals("https")) {
-                JfSSLScheme.handleHttpsUrlConnection((HttpsURLConnection) connection);
+                AndroidCupsHttpConnectionManagement.handleHttpsUrlConnection((HttpsURLConnection) connection);
             }
 
-            JfSSLScheme.handleBasicAuth(url, connection);
+            AndroidCupsHttpConnectionManagement.handleBasicAuth(url, connection);
 
             byte[] bytes = new byte[ippBuf.limit()];
             ippBuf.get(bytes);
