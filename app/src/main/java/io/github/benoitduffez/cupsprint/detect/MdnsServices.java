@@ -229,7 +229,7 @@ public class MdnsServices {
         PrinterResult result = new PrinterResult();
 
         String urlStr;
-        Map<String, Boolean> testMap = new HashMap<String, Boolean>();
+        Map<String, Boolean> testMap = new HashMap<>();
         Iterator<PrinterRec> it = httpsRecs.iterator();
         exception = null;
         while (it.hasNext()) {

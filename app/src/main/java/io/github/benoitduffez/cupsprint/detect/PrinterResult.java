@@ -7,7 +7,7 @@ import java.util.List;
 public class PrinterResult {
     List<PrinterRec> printerRecs;
 
-    private List<String> errors;
+    List<String> errors;
 
     PrinterResult() {
         printerRecs = Collections.synchronizedList(new ArrayList<PrinterRec>());

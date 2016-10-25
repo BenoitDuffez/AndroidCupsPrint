@@ -23,9 +23,6 @@ package org.cups4j.operations;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory;
-import io.github.benoitduffez.cupsprint.HttpConnectionManagement;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,6 +43,8 @@ import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.ippclient.IppTag;
 import ch.ethz.vppserver.schema.ippclient.Attribute;
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
+import io.github.benoitduffez.cupsprint.HttpConnectionManagement;
+import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory;
 
 public abstract class IppOperation {
     private final static String IPP_MIME_TYPE = "application/ipp";
