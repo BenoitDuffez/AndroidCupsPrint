@@ -2,14 +2,15 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:layout_margin="32dp"
+    android:padding="8dp">
 
     <TextView
+        android:id="@+id/untrusted_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:id="@+id/untrusted_title"
         android:text="@string/untrusted_title"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
 
@@ -17,8 +18,8 @@
         android:id="@+id/untrusted_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp"
         android:layout_below="@+id/untrusted_title"
+        android:padding="8dp"
         android:text="@string/untrusted_info"/>
 
     <TextView
@@ -33,7 +34,7 @@
 
     <View
         android:id="@+id/untrusted_bottom_anchor"
-        android:layout_width="8dp"
+        android:layout_width="16dp"
         android:layout_height="1dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"

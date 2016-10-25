@@ -3,6 +3,7 @@ package io.github.benoitduffez.cupsprint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ public class UntrustedCertActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.untrusted_cert);
+        getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         final X509Certificate cert = (X509Certificate) getIntent().getSerializableExtra(KEY_CERT);
 
@@ -28,7 +30,6 @@ public class UntrustedCertActivity extends Activity {
         sb.append("\nValidity: not after ").append(cert.getNotAfter().toString());
         sb.append("\nSubject: ").append(cert.getSubjectX500Principal().getName());
         sb.append("\nKey algo: ").append(cert.getSigAlgName());
-        sb.append("\nKey: ").append(cert.getPublicKey().toString());
 
         TextView certInfo = (TextView) findViewById(R.id.untrusted_certinfo);
         certInfo.setText(sb);
