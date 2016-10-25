@@ -47,5 +47,6 @@
     <string name="host_not_verified_trust_button">Trust host</string>
     <string name="host_not_verified_abort_button">Abort</string>
     <string name="host_not_verified_activity_title">Host not verified</string>
+    <string name="err_http_upgrade">This host refuses plain HTTP, please use the HTTPS access</string>
 
 </resources>
