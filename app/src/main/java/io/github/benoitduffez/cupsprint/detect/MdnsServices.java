@@ -16,12 +16,9 @@ program; if not, see <http://www.gnu.org/licenses/>.
 
 package io.github.benoitduffez.cupsprint.detect;
 
-import org.cups4j.CupsClient;
-
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,8 +46,6 @@ public class MdnsServices {
     private boolean error = false;
 
     private Exception exception = null;
-
-    private String hostError; // if there is an exception caught while trying to connect to an host, save it
 
     public MdnsServices() {
     }
@@ -225,38 +220,9 @@ public class MdnsServices {
         ArrayList<PrinterRec> httpsRecs = new ArrayList<>();
         httpRecs.addAll(getPrinters(MdnsServices.IPP_SERVICE, 0).values());
         httpsRecs.addAll(getPrinters(MdnsServices.IPPS_SERVICE, 50).values());
+        new Merger().merge(httpRecs, httpsRecs);
 
         PrinterResult result = new PrinterResult();
-
-        String urlStr;
-        Map<String, Boolean> testMap = new HashMap<>();
-        Iterator<PrinterRec> it = httpsRecs.iterator();
-        exception = null;
-        while (it.hasNext()) {
-            PrinterRec rec = it.next();
-            urlStr = rec.getProtocol() + "://" + rec.getHost() + ":" + rec.getPort();
-            if (testMap.containsKey(urlStr)) {
-                if (!testMap.get(urlStr)) {
-                    it.remove();
-                }
-            } else {
-                try {
-                    URL url = new URL(urlStr);
-                    CupsClient client = new CupsClient(url);
-                    client.getPrinter(url);
-                    testMap.put(urlStr, true);
-                } catch (Exception e) {
-                    exception = e;
-                    hostError = rec.getHost();
-                    testMap.put(urlStr, false);
-                    it.remove();
-                    if (e.getMessage().contains("No Certificate")) {
-                        result.errors.add(urlStr + ": No SSL cetificate\n");
-                    }
-                }
-            }
-        }
-        new Merger().merge(httpRecs, httpsRecs);
         result.printerRecs = httpsRecs;
         return result;
     }
@@ -270,12 +236,5 @@ public class MdnsServices {
      */
     public Exception getException() {
         return exception;
-    }
-
-    /**
-     * @return the host that raised {@link #exception}, if any
-     */
-    public String getExceptionHost() {
-        return hostError;
     }
 }

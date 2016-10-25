@@ -55,6 +55,8 @@ public abstract class IppOperation {
 
     private X509Certificate[] mServerCerts; // store the certificates sent by the server if it's not trusted
 
+    private int mLastResponseCode;
+
     /**
      * Used to copy input data (IPP, document, etc) to HTTP connection
      *
@@ -179,6 +181,7 @@ public abstract class IppOperation {
         }
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        mLastResponseCode = 0;
 
         try {
             connection.setRequestMethod("POST");
@@ -212,12 +215,14 @@ public abstract class IppOperation {
 
             // Read response
             byte[] result = readInputStream(connection.getInputStream());
+            mLastResponseCode = connection.getResponseCode();
 
             // Prepare IPP result
             IppResponse ippResponse = new IppResponse();
             ippResult = ippResponse.getResponse(ByteBuffer.wrap(result));
             ippResult.setHttpStatusResponse(connection.getResponseMessage());
         } catch (Exception e) {
+            mLastResponseCode = connection.getResponseCode();
             Log.e(CupsPrintApp.LOG_TAG, "Caught exception while connecting to printer " + url + ": " + e.getLocalizedMessage());
             e.printStackTrace();
             throw e;
@@ -266,5 +271,9 @@ public abstract class IppOperation {
 
     public X509Certificate[] getServerCerts() {
         return mServerCerts;
+    }
+
+    public int getLastResponseCode() {
+        return mLastResponseCode;
     }
 }

@@ -5,18 +5,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!--<TextView
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
+        android:id="@+id/untrusted_title"
         android:text="@string/untrusted_title"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
--->
+
     <TextView
         android:id="@+id/untrusted_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
+        android:layout_below="@+id/untrusted_title"
         android:text="@string/untrusted_info"/>
 
     <TextView

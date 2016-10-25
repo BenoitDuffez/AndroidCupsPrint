@@ -61,6 +61,8 @@ public class CupsClient {
 
     private X509Certificate[] mServerCerts; // Storage for server certificates if they're not trusted
 
+    private int mLastResponseCode;
+
     public CupsClient() throws Exception {
         this(new URL(DEFAULT_URL), DEFAULT_USER);
     }
@@ -81,6 +83,7 @@ public class CupsClient {
             printers = cupsGetPrintersOperation.getPrinters(url);
         } finally {
             mServerCerts = cupsGetPrintersOperation.getServerCerts();
+            mLastResponseCode=cupsGetPrintersOperation.getLastResponseCode();
         }
 
         // add default printer if available
@@ -163,5 +166,13 @@ public class CupsClient {
 
     public X509Certificate[] getServerCerts() {
         return mServerCerts;
+    }
+
+    public String getHost() {
+        return url.getHost();
+    }
+
+    public int getLastResponseCode() {
+        return mLastResponseCode;
     }
 }

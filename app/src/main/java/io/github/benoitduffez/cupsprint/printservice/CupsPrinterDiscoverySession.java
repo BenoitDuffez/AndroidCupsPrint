@@ -46,7 +46,9 @@ import org.cups4j.CupsPrinter;
 import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation;
 
 import java.io.FileNotFoundException;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,6 +97,8 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     private String mUnverifiedHost; // If the SSL hostname cannot be verified, this will be the hostname
 
+    private int mResponseCode;
+
     public CupsPrinterDiscoverySession(PrintService context) {
         mPrintService = context;
     }
@@ -108,27 +112,14 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
     @Override
     public void onStartPrinterDiscovery(@NonNull List<PrinterId> priorityList) {
         new AsyncTask<Void, Void, Map<String, String>>() {
-            private Exception mException;
-
             @Override
             protected Map<String, String> doInBackground(Void... params) {
-                try {
-                    return scanPrinters();
-                } catch (SSLPeerUnverifiedException e) {
-                    mException = e;
-                }
-                return null;
+                return scanPrinters();
             }
 
             @Override
             protected void onPostExecute(Map<String, String> printers) {
-                if (mException != null && mException instanceof SSLPeerUnverifiedException) {
-                    Intent dialog = new Intent(mPrintService, HostNotVerifiedActivity.class);
-                    dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, mUnverifiedHost);
-                    mPrintService.startActivity(dialog);
-                } else if (printers != null) {
-                    onPrintersDiscovered(printers);
-                }
+                onPrintersDiscovered(printers);
             }
         }.execute();
     }
@@ -173,8 +164,12 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
         // Check if we need to save the server certs if we don't trust the connection
         try {
             testPrinter = client.getPrinter(printerURL);
-        } catch (SSLException e) {
+        } catch (SSLException | CertificateException e) {
             mServerCerts = client.getServerCerts();
+            mUnverifiedHost = client.getHost();
+            throw e;
+        } catch (FileNotFoundException e) { // this one is returned whenever we get a 4xx HTTP response code
+            mResponseCode = client.getLastResponseCode(); // it might be an HTTP 401!
             throw e;
         }
 
@@ -274,6 +269,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      * @param printerCapabilitiesInfo null if the printer isn't available anymore, otherwise contains the printer capabilities
      */
     private void onPrinterChecked(PrinterId printerId, PrinterCapabilitiesInfo printerCapabilitiesInfo) {
+        Log.d(CupsPrintApp.LOG_TAG, "onPrinterChecked: " + printerId + " (printers: " + getPrinters() + ")");
         if (printerCapabilitiesInfo == null) {
             final ArrayList<PrinterId> printerIds = new ArrayList<>();
             printerIds.add(printerId);
@@ -301,17 +297,11 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      */
     private
     @NonNull
-    Map<String, String> scanPrinters() throws SSLPeerUnverifiedException {
+    Map<String, String> scanPrinters() {
         final MdnsServices mdns = new MdnsServices();
         PrinterResult result = mdns.scan();
 
-        //TODO: check for other errors
-        Exception e = mdns.getException();
-        if (e != null && e instanceof SSLPeerUnverifiedException) {
-            mUnverifiedHost = mdns.getExceptionHost();
-            throw (SSLPeerUnverifiedException) e;
-        }
-
+        //TODO: check for errors
         Map<String, String> printers = new HashMap<>();
         String url, name;
 
@@ -352,22 +342,15 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      */
     @Override
     public void onStartPrinterStateTracking(@NonNull final PrinterId printerId) {
+        Log.d(CupsPrintApp.LOG_TAG, "onStartPrinterStateTracking: " + printerId);
         new AsyncTask<Void, Void, PrinterCapabilitiesInfo>() {
             Exception mException;
 
             @Override
             protected PrinterCapabilitiesInfo doInBackground(Void... voids) {
                 try {
-                    try {
-                        Log.i(CupsPrintApp.LOG_TAG, "Checking printer status: " + printerId);
-                        return checkPrinter(printerId.getLocalId(), printerId);
-                    } catch (SSLException e) {
-                        // don't fail if we got certs to ask for validation
-                        if (mServerCerts != null && mServerCerts.length > 0) {
-                            return null;
-                        }
-                        throw e;
-                    }
+                    Log.i(CupsPrintApp.LOG_TAG, "Checking printer status: " + printerId);
+                    return checkPrinter(printerId.getLocalId(), printerId);
                 } catch (Exception e) {
                     Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
                     mException = e;
@@ -381,21 +364,26 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             protected void onPostExecute(PrinterCapabilitiesInfo printerCapabilitiesInfo) {
                 if (mException != null) {
                     // happens when basic auth is required but not sent
-                    if (mException instanceof FileNotFoundException) {
+                    if (mException instanceof FileNotFoundException && mResponseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                         final Uri printerUri = Uri.parse(printerId.getLocalId());
                         String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
                         Intent dialog = new Intent(mPrintService, BasicAuthActivity.class);
                         dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl);
                         mPrintService.startActivity(dialog);
+                    } else if (mException instanceof SSLPeerUnverifiedException) {
+                        Intent dialog = new Intent(mPrintService, HostNotVerifiedActivity.class);
+                        dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, mUnverifiedHost);
+                        mPrintService.startActivity(dialog);
+                    } else if (mException instanceof SSLException && mServerCerts != null) {
+                        Intent dialog = new Intent(mPrintService, UntrustedCertActivity.class);
+                        dialog.putExtra(UntrustedCertActivity.KEY_CERT, mServerCerts[0]);
+                        mPrintService.startActivity(dialog);
                     } else {
-                        Toast.makeText(mPrintService, mException.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(mPrintService, mException.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                     }
-                } else if (mServerCerts != null) {
-                    Intent dialog = new Intent(mPrintService, UntrustedCertActivity.class);
-                    dialog.putExtra(UntrustedCertActivity.KEY_CERT, mServerCerts[0]);
-                    mPrintService.startActivity(dialog);
+                } else {
+                    onPrinterChecked(printerId, printerCapabilitiesInfo);
                 }
-                onPrinterChecked(printerId, printerCapabilitiesInfo);
             }
         }.execute();
     }
