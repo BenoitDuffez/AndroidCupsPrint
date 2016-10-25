@@ -44,6 +44,7 @@ import javax.net.ssl.KeyManager;
 
 import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyManager;
 import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory;
+import io.github.benoitduffez.cupsprint.ssl.AndroidCupsHostnameVerifier;
 
 public class HttpConnectionManagement {
     private static final String KEYSTORE_FILE = "cupsprint-trustfile";
@@ -56,6 +57,8 @@ public class HttpConnectionManagement {
      * @param connection The target https connection
      */
     public static void handleHttpsUrlConnection(@NonNull HttpsURLConnection connection) {
+        connection.setHostnameVerifier(new AndroidCupsHostnameVerifier());
+
         try {
             KeyStore trustStore = loadKeyStore();
             if (trustStore == null) {

@@ -40,9 +40,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import io.github.benoitduffez.cupsprint.detect.MdnsServices;
-import io.github.benoitduffez.cupsprint.detect.PrinterRec;
-import io.github.benoitduffez.cupsprint.detect.PrinterResult;
 
 import org.cups4j.CupsClient;
 import org.cups4j.CupsPrinter;
@@ -57,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.schema.ippclient.Attribute;
@@ -65,8 +63,12 @@ import ch.ethz.vppserver.schema.ippclient.AttributeValue;
 import io.github.benoitduffez.cupsprint.AddPrintersActivity;
 import io.github.benoitduffez.cupsprint.BasicAuthActivity;
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
+import io.github.benoitduffez.cupsprint.HostNotVerifiedActivity;
 import io.github.benoitduffez.cupsprint.R;
 import io.github.benoitduffez.cupsprint.UntrustedCertActivity;
+import io.github.benoitduffez.cupsprint.detect.MdnsServices;
+import io.github.benoitduffez.cupsprint.detect.PrinterRec;
+import io.github.benoitduffez.cupsprint.detect.PrinterResult;
 
 /**
  * CUPS printer discovery class
@@ -91,26 +93,42 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     private X509Certificate[] mServerCerts; // If the server sends a non-trusted cert, it will be stored here
 
+    private String mUnverifiedHost; // If the SSL hostname cannot be verified, this will be the hostname
+
     public CupsPrinterDiscoverySession(PrintService context) {
         mPrintService = context;
     }
 
     /**
      * Called when the framework wants to find/discover printers
+     * Will prompt the user to trust any (the last) host that raises an {@link SSLPeerUnverifiedException}
      *
      * @param priorityList The list of printers that the user selected sometime in the past, that need to be checked first
      */
     @Override
     public void onStartPrinterDiscovery(@NonNull List<PrinterId> priorityList) {
         new AsyncTask<Void, Void, Map<String, String>>() {
+            private Exception mException;
+
             @Override
             protected Map<String, String> doInBackground(Void... params) {
-                return scanPrinters();
+                try {
+                    return scanPrinters();
+                } catch (SSLPeerUnverifiedException e) {
+                    mException = e;
+                }
+                return null;
             }
 
             @Override
             protected void onPostExecute(Map<String, String> printers) {
-                onPrintersDiscovered(printers);
+                if (mException != null && mException instanceof SSLPeerUnverifiedException) {
+                    Intent dialog = new Intent(mPrintService, HostNotVerifiedActivity.class);
+                    dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, mUnverifiedHost);
+                    mPrintService.startActivity(dialog);
+                } else if (printers != null) {
+                    onPrintersDiscovered(printers);
+                }
             }
         }.execute();
     }
@@ -283,9 +301,17 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      */
     private
     @NonNull
-    Map<String, String> scanPrinters() {
-        PrinterResult result = new MdnsServices().scan();
-        //TODO: check for errors
+    Map<String, String> scanPrinters() throws SSLPeerUnverifiedException {
+        final MdnsServices mdns = new MdnsServices();
+        PrinterResult result = mdns.scan();
+
+        //TODO: check for other errors
+        Exception e = mdns.getException();
+        if (e != null && e instanceof SSLPeerUnverifiedException) {
+            mUnverifiedHost = mdns.getExceptionHost();
+            throw (SSLPeerUnverifiedException) e;
+        }
+
         Map<String, String> printers = new HashMap<>();
         String url, name;
 

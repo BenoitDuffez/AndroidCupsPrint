@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="32dp"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/host_not_verified_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
+
+    <TextView
+        android:id="@+id/host_not_verified_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/host_not_verified_title"
+        android:padding="8dp"
+        android:text="@string/host_not_verified_info"/>
+
+    <View
+        android:id="@+id/host_not_verified_bottom_anchor"
+        android:layout_width="8dp"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        />
+
+    <Button
+        android:id="@+id/host_not_verified_trust_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/host_not_verified_bottom_anchor"
+        android:text="@string/host_not_verified_trust_button"/>
+
+    <Button
+        android:id="@+id/host_not_verified_abort_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/host_not_verified_bottom_anchor"
+        android:text="@string/host_not_verified_abort_button"/>
+
+</RelativeLayout>

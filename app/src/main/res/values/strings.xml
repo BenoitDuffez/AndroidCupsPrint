@@ -42,5 +42,10 @@
     <string name="basic_auth_login">Username</string>
     <string name="basic_auth_password">Password</string>
     <string name="basic_auth_button">Save credentials</string>
+    <string name="host_not_verified_title">Hostname %1$s not verified</string>
+    <string name="host_not_verified_info">This host presented an SSL certificate for which your device couldn\'t verify the hostname. All the printers served by this host will be disabled until you explicitly trust it. Please tell if you would like to trust this host or not:</string>
+    <string name="host_not_verified_trust_button">Trust host</string>
+    <string name="host_not_verified_abort_button">Abort</string>
+    <string name="host_not_verified_activity_title">Host not verified</string>
 
 </resources>

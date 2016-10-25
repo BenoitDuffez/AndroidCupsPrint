@@ -41,6 +41,13 @@
             android:exported="false"
             android:theme="@style/AndroidCupsPrint.AlertDialog"/>
 
+        <activity
+            android:name=".HostNotVerifiedActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/host_not_verified_activity_title"
+            android:exported="false"
+            android:theme="@style/AndroidCupsPrint.AlertDialog"/>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="ab18fbc78d644944a4a41367f1098b1734a74f77"/>
