@@ -35,6 +35,10 @@ As per the code, the following has been added:
 
 This app wasn't widely tested, it needs your help for better quality. If you find bugs, either submit a new issue or fork/fix/submit PR.
 
+Please use the `develop` branch for testing and troubleshooting.
+
+Also, you can subscribe on the Play Store to receive beta versions of this app: https://play.google.com/apps/testing/io.github.benoitduffez.cupsprint
+
 ## Branches
 
 * The `master` branch is code published to Google Play.
