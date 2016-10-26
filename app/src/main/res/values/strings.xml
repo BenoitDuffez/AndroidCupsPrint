@@ -18,12 +18,10 @@
     <string name="err_document_fd_null">Couldn\'t read document to be printed</string>
     <string name="err_add_printer_empty_name">The printer name cannot be empty</string>
     <string name="err_add_printer_empty_url">The printer URL cannot be empty</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="untrusted_title">Untrusted SSL connection</string>
     <string name="untrusted_info">Your server sent a certificate that was not trusted by your device. Please review the certificates details below, and choose whether you accept to trust it or not:</string>
-    <string name="untrusted_certinfo">
+    <string name="untrusted_certinfo"
+            translatable="false">
         Issuer: CN=test-server\n
         Validity\n
         Not Before: Aug 21 19:36:21 2016 GMT\n
