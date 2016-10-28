@@ -48,6 +48,7 @@ import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation;
 import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
 import ch.ethz.vppserver.ippclient.IppResult;
@@ -355,7 +357,13 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
                     mException = e;
                     Crashlytics.log("Failed to check printer " + printerId);
-                    Crashlytics.logException(e);
+
+                    // Don't send SSL errors to crashlytics
+                    if (!(e instanceof SSLHandshakeException
+                            || e instanceof CertificateException
+                            || e instanceof CertPathValidatorException)) {
+                        Crashlytics.logException(e);
+                    }
                 }
                 return null;
             }
