@@ -26,6 +26,7 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -104,13 +105,13 @@ public class HttpConnectionManagement {
             FileInputStream fis = CupsPrintApp.getContext().openFileInput(KEYSTORE_FILE);
             trustStore.load(fis, KEYSTORE_PASSWORD.toCharArray());
             return trustStore;
-        } catch (NoSuchAlgorithmException | CertificateException e) {
+        } catch (FileNotFoundException e) {
+            // This one can be ignored safely - at least not sent to crashlytics
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
+        } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
             Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
             Crashlytics.log("Couldn't open local key store");
             Crashlytics.logException(e);
-        } catch (IOException e) {
-            // This one can be ignored safely - at least not sent to crashlytics
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
         }
 
         // if we couldn't load local keystore file, create an new empty one
