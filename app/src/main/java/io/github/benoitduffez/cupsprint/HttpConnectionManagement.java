@@ -99,22 +99,27 @@ public class HttpConnectionManagement {
             return null;
         }
 
+        // Load the local keystore into memory
         try {
             FileInputStream fis = CupsPrintApp.getContext().openFileInput(KEYSTORE_FILE);
             trustStore.load(fis, KEYSTORE_PASSWORD.toCharArray());
             return trustStore;
+        } catch (NoSuchAlgorithmException | CertificateException e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
+            Crashlytics.log("Couldn't open local key store");
+            Crashlytics.logException(e);
+        } catch (IOException e) {
+            // This one can be ignored safely - at least not sent to crashlytics
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
+        }
+
+        // if we couldn't load local keystore file, create an new empty one
+        try {
+            trustStore.load(null, null);
         } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-            // if we can't load, create an new empty key store
-            try {
-                trustStore.load(null, null);
-                Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
-                Crashlytics.log("Couldn't open local key store");
-                Crashlytics.logException(e);
-            } catch (IOException | NoSuchAlgorithmException | CertificateException e1) {
-                Log.e(CupsPrintApp.LOG_TAG, "Couldn't create new key store: " + e.getLocalizedMessage());
-                Crashlytics.log("Couldn't create new key store");
-                Crashlytics.logException(e);
-            }
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't create new key store: " + e.getLocalizedMessage());
+            Crashlytics.log("Couldn't create new key store");
+            Crashlytics.logException(e);
         }
 
         return trustStore;
