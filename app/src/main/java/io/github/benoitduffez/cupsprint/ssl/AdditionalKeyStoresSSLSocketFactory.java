@@ -44,9 +44,9 @@ import javax.net.ssl.TrustManager;
  * the default KeyStore
  */
 public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
-    private SSLContext sslContext = SSLContext.getInstance("TLS");
+    private SSLContext mSslContext = SSLContext.getInstance("TLS");
 
-    private AdditionalKeyStoresTrustManager trustManager;
+    private AdditionalKeyStoresTrustManager mTrustManager;
 
     /**
      * Create the SSL socket factory
@@ -59,7 +59,7 @@ public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
      * @throws UnrecoverableKeyException
      */
     public AdditionalKeyStoresSSLSocketFactory(@Nullable KeyManager keyManager, @NonNull KeyStore keyStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
-        trustManager = new AdditionalKeyStoresTrustManager(keyStore);
+        mTrustManager = new AdditionalKeyStoresTrustManager(keyStore);
 
         // Ensure we don't pass an empty array. Array must contain a valid key manager, or must be null
         KeyManager[] managers;
@@ -69,11 +69,11 @@ public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
             managers = new KeyManager[]{keyManager};
         }
 
-        sslContext.init(managers, new TrustManager[]{trustManager}, null);
+        mSslContext.init(managers, new TrustManager[]{mTrustManager}, null);
     }
 
     public X509Certificate[] getServerCert() {
-        return trustManager.getCertChain();
+        return mTrustManager.getCertChain();
     }
 
     @Override
@@ -88,26 +88,26 @@ public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
 
     @Override
     public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException {
-        return sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
+        return mSslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
     }
 
     @Override
     public Socket createSocket(String s, int i) throws IOException, UnknownHostException {
-        return sslContext.getSocketFactory().createSocket(s, i);
+        return mSslContext.getSocketFactory().createSocket(s, i);
     }
 
     @Override
     public Socket createSocket(String s, int i, InetAddress inetAddress, int i1) throws IOException, UnknownHostException {
-        return sslContext.getSocketFactory().createSocket(s, i, inetAddress, i1);
+        return mSslContext.getSocketFactory().createSocket(s, i, inetAddress, i1);
     }
 
     @Override
     public Socket createSocket(InetAddress inetAddress, int i) throws IOException {
-        return sslContext.getSocketFactory().createSocket(inetAddress, i);
+        return mSslContext.getSocketFactory().createSocket(inetAddress, i);
     }
 
     @Override
     public Socket createSocket(InetAddress inetAddress, int i, InetAddress inetAddress1, int i1) throws IOException {
-        return sslContext.getSocketFactory().createSocket(inetAddress, i, inetAddress1, i1);
+        return mSslContext.getSocketFactory().createSocket(inetAddress, i, inetAddress1, i1);
     }
 }
