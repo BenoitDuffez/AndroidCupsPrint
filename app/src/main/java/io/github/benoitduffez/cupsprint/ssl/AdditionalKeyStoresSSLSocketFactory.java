@@ -20,6 +20,9 @@ program; if not, see <http://www.gnu.org/licenses/>.
 package io.github.benoitduffez.cupsprint.ssl;
 
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -45,9 +48,28 @@ public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
 
     private AdditionalKeyStoresTrustManager trustManager;
 
-    public AdditionalKeyStoresSSLSocketFactory(KeyManager keyManager, KeyStore keyStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
+    /**
+     * Create the SSL socket factory
+     *
+     * @param keyManager Key manager, can be null
+     * @param keyStore   Keystore, can't be null
+     * @throws NoSuchAlgorithmException
+     * @throws KeyManagementException
+     * @throws KeyStoreException
+     * @throws UnrecoverableKeyException
+     */
+    public AdditionalKeyStoresSSLSocketFactory(@Nullable KeyManager keyManager, @NonNull KeyStore keyStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
         trustManager = new AdditionalKeyStoresTrustManager(keyStore);
-        sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{trustManager}, null);
+
+        // Ensure we don't pass an empty array. Array must contain a valid key manager, or must be null
+        KeyManager[] managers;
+        if (keyManager == null) {
+            managers = null;
+        } else {
+            managers = new KeyManager[]{keyManager};
+        }
+
+        sslContext.init(managers, new TrustManager[]{trustManager}, null);
     }
 
     public X509Certificate[] getServerCert() {
