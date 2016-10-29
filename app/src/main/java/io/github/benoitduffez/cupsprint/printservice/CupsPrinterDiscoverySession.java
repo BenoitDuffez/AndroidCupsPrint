@@ -382,10 +382,12 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     } else if (mException instanceof SSLPeerUnverifiedException) {
                         Intent dialog = new Intent(mPrintService, HostNotVerifiedActivity.class);
                         dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, mUnverifiedHost);
+                        dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         mPrintService.startActivity(dialog);
                     } else if (mException instanceof SSLException && mServerCerts != null) {
                         Intent dialog = new Intent(mPrintService, UntrustedCertActivity.class);
                         dialog.putExtra(UntrustedCertActivity.KEY_CERT, mServerCerts[0]);
+                        dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         mPrintService.startActivity(dialog);
                     } else {
                         if (mResponseCode == 426) {// 426 Upgrade Required (plus header: Upgrade: TLS/1.2,TLS/1.1,TLS/1.0) which means please use HTTPS
