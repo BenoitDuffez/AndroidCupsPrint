@@ -377,6 +377,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                         String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
                         Intent dialog = new Intent(mPrintService, BasicAuthActivity.class);
                         dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl);
+                        dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         mPrintService.startActivity(dialog);
                     } else if (mException instanceof SSLPeerUnverifiedException) {
                         Intent dialog = new Intent(mPrintService, HostNotVerifiedActivity.class);
