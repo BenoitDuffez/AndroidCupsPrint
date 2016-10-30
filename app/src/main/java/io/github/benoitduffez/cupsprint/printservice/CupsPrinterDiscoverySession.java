@@ -360,6 +360,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
                     // Don't send SSL errors to crashlytics
                     if (!(e instanceof SSLHandshakeException
+                            || e instanceof SSLPeerUnverifiedException
                             || e instanceof CertificateException
                             || e instanceof CertPathValidatorException)) {
                         Crashlytics.logException(e);
