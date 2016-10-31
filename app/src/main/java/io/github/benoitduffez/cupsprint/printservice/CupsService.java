@@ -30,6 +30,7 @@ import android.print.PrinterId;
 import android.printservice.PrintJob;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -61,6 +62,7 @@ public class CupsService extends PrintService {
      */
     public static final int JOB_CHECK_POLLING_INTERVAL = 5000;
 
+    @NonNull
     Map<PrintJobId, Integer> mJobs = new HashMap<>();
 
     @Override
@@ -84,7 +86,11 @@ public class CupsService extends PrintService {
             Crashlytics.log("Tried to cancel a job, but the print job ID is null");
             return;
         }
-        final int jobId = mJobs.get(id);
+        final Integer jobId = mJobs.get(id);
+        if (jobId == null) {
+            Crashlytics.log("Tried to cancel a job, but the print job ID is null");
+            return;
+        }
 
         try {
             final URL clientURL = new URL(clientUrl);
