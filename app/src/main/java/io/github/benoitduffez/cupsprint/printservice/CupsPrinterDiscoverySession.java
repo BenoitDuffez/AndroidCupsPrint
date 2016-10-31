@@ -320,6 +320,16 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             url = prefs.getString(AddPrintersActivity.PREF_URL + i, null);
             name = prefs.getString(AddPrintersActivity.PREF_NAME + i, null);
             if (url != null && name != null && url.trim().length() > 0 && name.trim().length() > 0) {
+                // Ensure a port is set, and set it to 631 if unset
+                Uri uri = Uri.parse(url);
+                if (uri.getPort() < 0) {
+                    url = uri.getScheme() + "://" + uri.getHost() + ":" + 631;
+                } else {
+                    url = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort();
+                }
+                if (uri.getPath() != null) {
+                    url += uri.getPath();
+                }
                 printers.put(url, name);
             }
         }
