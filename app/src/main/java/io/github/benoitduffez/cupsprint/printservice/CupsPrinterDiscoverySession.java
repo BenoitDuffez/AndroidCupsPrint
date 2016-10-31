@@ -78,6 +78,8 @@ import io.github.benoitduffez.cupsprint.detect.PrinterResult;
  * CUPS printer discovery class
  */
 public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
+    private static final int HTTP_UPGRADE_REQUIRED = 426;
+
     private static final double MM_IN_MILS = 39.3700787;
 
     private static final String[] REQUIRED_ATTRIBUTES = {
@@ -367,12 +369,14 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
                     mException = e;
                     Crashlytics.log("Failed to check printer " + printerId);
+                    Crashlytics.log("HTTP response code: " + mResponseCode);
 
                     // Don't send SSL errors to crashlytics
                     if (!(e instanceof SSLHandshakeException
                             || e instanceof SSLPeerUnverifiedException
                             || e instanceof CertificateException
-                            || e instanceof CertPathValidatorException)) {
+                            || e instanceof CertPathValidatorException)
+                            && mResponseCode != HTTP_UPGRADE_REQUIRED) { // don't send HTTP 426 Upgrade Required to crashlytics
                         Crashlytics.logException(e);
                     }
                 }
