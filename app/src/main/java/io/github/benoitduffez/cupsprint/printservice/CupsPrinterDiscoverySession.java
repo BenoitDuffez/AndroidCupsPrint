@@ -179,7 +179,6 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
         if (testPrinter == null) {
             Log.e(CupsPrintApp.LOG_TAG, "Printer not responding. Printer on fire?");
-            Toast.makeText(mPrintService, mPrintService.getString(R.string.printer_not_responding, url), Toast.LENGTH_LONG).show();
         } else {
             HashMap<String, String> propertyMap = new HashMap<>();
             propertyMap.put("requested-attributes", TextUtils.join(" ", REQUIRED_ATTRIBUTES));
@@ -278,6 +277,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             final ArrayList<PrinterId> printerIds = new ArrayList<>();
             printerIds.add(printerId);
             removePrinters(printerIds);
+            Toast.makeText(mPrintService, mPrintService.getString(R.string.printer_not_responding, printerId.getLocalId()), Toast.LENGTH_LONG).show();
         } else {
             List<PrinterInfo> printers = new ArrayList<>();
             for (PrinterInfo printer : getPrinters()) {
