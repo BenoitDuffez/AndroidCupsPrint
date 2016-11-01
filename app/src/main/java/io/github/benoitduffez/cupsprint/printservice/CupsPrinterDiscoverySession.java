@@ -299,9 +299,8 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      *
      * @return The list of printers as {@link PrinterRec}
      */
-    private
     @NonNull
-    Map<String, String> scanPrinters() {
+    private Map<String, String> scanPrinters() {
         final MdnsServices mdns = new MdnsServices();
         PrinterResult result = mdns.scan();
 
