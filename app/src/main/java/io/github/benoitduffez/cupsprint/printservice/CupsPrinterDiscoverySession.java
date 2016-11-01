@@ -244,6 +244,12 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                 colorMode = PrintAttributes.COLOR_MODE_MONOCHROME | PrintAttributes.COLOR_MODE_COLOR;
                 Log.w(CupsPrintApp.LOG_TAG, "Workaround for Kitkat enabled.");
             }
+
+            // May happen. Fallback to monochrome by default
+            if ((colorMode & (PrintAttributes.COLOR_MODE_MONOCHROME | PrintAttributes.COLOR_MODE_COLOR)) == 0) {
+                colorMode = PrintAttributes.COLOR_MODE_MONOCHROME;
+            }
+
             builder.setColorModes(colorMode, colorDefault);
             builder.setMinMargins(new PrintAttributes.Margins(marginMilsLeft, marginMilsTop, marginMilsRight, marginMilsBottom));
             return builder.build();
