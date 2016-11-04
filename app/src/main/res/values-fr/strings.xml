@@ -34,4 +34,5 @@
     <string name="untrusted_title">Connexion SSL non fiable</string>
     <string name="untrusted_trust_button">Accepter la connexion</string>
     <string name="untrusted_trusted">Certificats ajoutés à la liste de confiance. Veuillez réessayer d\'imprimer.</string>
+    <string name="err_printer_null_when_printing">Impossible de trouver l\'imprimante, est-elle disponible ?</string>
 </resources>

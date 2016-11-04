@@ -46,5 +46,6 @@
     <string name="host_not_verified_abort_button">Abort</string>
     <string name="host_not_verified_activity_title">Host not verified</string>
     <string name="err_http_upgrade">This host refuses plain HTTP, please use the HTTPS access</string>
+    <string name="err_printer_null_when_printing">Couldn\'t find printer, is it available?</string>
 
 </resources>

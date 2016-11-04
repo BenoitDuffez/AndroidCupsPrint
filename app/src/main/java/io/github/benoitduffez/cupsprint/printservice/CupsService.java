@@ -31,6 +31,7 @@ import android.printservice.PrintJob;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -167,16 +168,20 @@ public class CupsService extends PrintService {
             final PrintJobId jobId = printJob.getId();
 
             // Send print job
-            new AsyncTask<Void, Void, Void>() {
+            new AsyncTask<Void, Void, Integer>() {
+                @StringRes
                 @Override
-                protected Void doInBackground(Void... params) {
-                    printDocument(jobId, clientURL, printerURL, fd);
-                    return null;
+                protected Integer doInBackground(Void... params) {
+                    return printDocument(jobId, clientURL, printerURL, fd);
                 }
 
                 @Override
-                protected void onPostExecute(Void v) {
-                    onPrintJobSent(printJob);
+                protected void onPostExecute(@StringRes Integer result) {
+                    if (result > 0) {
+                        Toast.makeText(CupsService.this, result, Toast.LENGTH_LONG).show();
+                    } else {
+                        onPrintJobSent(printJob);
+                    }
                 }
             }.execute();
         } catch (MalformedURLException e) {
@@ -294,11 +299,18 @@ public class CupsService extends PrintService {
      * @param clientURL  The client URL
      * @param printerURL The printer URL
      * @param fd         The document to print, as a {@link FileDescriptor}
+     * @return -1 if no error occurred; a string resource ID describing the error that happened otherwise
      */
-    private void printDocument(PrintJobId jobId, URL clientURL, URL printerURL, FileDescriptor fd) {
+    @StringRes
+    private int printDocument(PrintJobId jobId, URL clientURL, URL printerURL, FileDescriptor fd) {
         try {
             CupsClient client = new CupsClient(clientURL);
             CupsPrinter printer = client.getPrinter(printerURL);
+            if (printer == null) {
+                Log.e(CupsPrintApp.LOG_TAG, "Printer is null when trying to print: printer no longer available?");
+                Crashlytics.log("Printer is null when trying to print: printer no longer available?");
+                return R.string.err_printer_null_when_printing;
+            }
 
             InputStream is = new FileInputStream(fd);
             org.cups4j.PrintJob job = new org.cups4j.PrintJob.Builder(is).build();
@@ -309,6 +321,8 @@ public class CupsService extends PrintService {
             Crashlytics.log("Couldn't send filed descriptor " + fd + " to printer");
             Crashlytics.logException(e);
         }
+
+        return -1;
     }
 
     /**

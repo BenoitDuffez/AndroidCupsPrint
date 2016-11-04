@@ -34,5 +34,6 @@
     <string name="untrusted_title">Nicht vertrauenswürdige SSL-Verbindung</string>
     <string name="untrusted_trust_button">Verbindung vertrauen</string>
     <string name="untrusted_trusted">Zertifikat wurde der List vertrauenswürdiger Zertifikate hinzugefügt. Bitte versuchen Sie den Verbindungsaufbau zu diesem Drucker noch einmal.</string>
+    <string name="err_printer_null_when_printing">Drucker konnte nicht gefunden werden, ist er verfügbar?</string>
 
 </resources>
