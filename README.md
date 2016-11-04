@@ -1,10 +1,12 @@
 # AndroidCupsPrint
-Port of cups4j to Android. Original work was created by Jon Freeman, it included an app that reacts to the SEND intent to print documents.
+Port of cups4j to Android.
 
 See it live on the Play Store: https://play.google.com/store/apps/details?id=io.github.benoitduffez.cupsprint  
 See it live on f-droid.org: https://f-droid.org/repository/browse/?fdid=io.github.benoitduffez.cupsprint
 
 ## Original work
+
+Original work was created by Jon Freeman, it included an app that reacts to the SEND intent to print documents.
 
 Original work can be found here: http://mobd.jonbanjo.com/jfcupsprint/default.php  
 Original work found via: http://android.stackexchange.com/q/43774/63883
@@ -15,7 +17,8 @@ This app was modified in several ways:
 
 * project structure converted to gradle format
 * added support for Android PrintService so that it can print documents straight from almost all apps
-* removed all legacy code that allowed printing without the use of Android PrintService (this is removed because of minSdkVersion=19, meaning all targets of this app are PrintService-compliant)
+* removed all legacy code that allowed printing without the use of Android PrintService (this is removed because of `minSdkVersion=19`, meaning all targets of this app are `PrintService`-compliant)
+* fixed SSL code to properly handle serlf-signed certificates (as it is likely the case with home printers)
  
 ### Print Service
 
