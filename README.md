@@ -1,7 +1,7 @@
 # AndroidCupsPrint
 Port of cups4j to Android. Original work was created by Jon Freeman, it included an app that reacts to the SEND intent to print documents.
 
-See it live on the Play Store: https://play.google.com/store/apps/details?id=io.github.benoitduffez.cupsprint
+See it live on the Play Store: https://play.google.com/store/apps/details?id=io.github.benoitduffez.cupsprint  
 See it live on f-droid.org: https://f-droid.org/repository/browse/?fdid=io.github.benoitduffez.cupsprint
 
 ## Original work
