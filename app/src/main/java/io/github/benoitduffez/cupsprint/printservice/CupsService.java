@@ -21,6 +21,7 @@
 
 package io.github.benoitduffez.cupsprint.printservice;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
@@ -81,7 +82,9 @@ public class CupsService extends PrintService {
         }
 
         String url = printerId.getLocalId();
-        String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
+        Uri tmpUri = Uri.parse(url);
+        String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
+
         final PrintJobId id = printJob.getId();
         if (id == null) {
             Crashlytics.log("Tried to cancel a job, but the print job ID is null");
@@ -94,7 +97,7 @@ public class CupsService extends PrintService {
         }
 
         try {
-            final URL clientURL = new URL(clientUrl);
+            final URL clientURL = new URL(schemeHostPort);
             new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
@@ -152,12 +155,13 @@ public class CupsService extends PrintService {
         }
 
         String url = printerId.getLocalId();
-        String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
+        Uri tmpUri = Uri.parse(url);
+        String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
 
         try {
             // Prepare job
             final URL printerURL = new URL(url);
-            final URL clientURL = new URL(clientUrl);
+            final URL clientURL = new URL(schemeHostPort);
             final ParcelFileDescriptor data = printJob.getDocument().getData();
             if (data == null) {
                 Crashlytics.log("Tried to queue a job, but the document data (file descriptor) is null");
@@ -221,11 +225,12 @@ public class CupsService extends PrintService {
             return false;
         }
         String url = printerId.getLocalId();
-        String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
+        Uri tmpUri = Uri.parse(url);
+        String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
 
         // Prepare job
         try {
-            final URL clientURL = new URL(clientUrl);
+            final URL clientURL = new URL(schemeHostPort);
             final int jobId = mJobs.get(printJob.getId());
 
             // Send print job
