@@ -19,6 +19,7 @@ This app was modified in several ways:
 * added support for Android PrintService so that it can print documents straight from almost all apps
 * removed all legacy code that allowed printing without the use of Android PrintService (this is removed because of `minSdkVersion=19`, meaning all targets of this app are `PrintService`-compliant)
 * fixed SSL code to properly handle serlf-signed certificates (as it is likely the case with home printers)
+* removed jars and added source code to be compatible with an f-droid.org publication
  
 ### Print Service
 
@@ -47,6 +48,7 @@ Also, you can subscribe on the Play Store to receive beta versions of this app: 
 
 * The `master` branch is code published to Google Play.
 * The `jonbanjo` branch is the app containing all the legacy code written by Jon Freeman
+* The `fdroid` branch was created in an effort to be compatible with f-droid.org; however, this effort was merged into develop and is intended to be merged into master.
 
 # License
 

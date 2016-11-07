@@ -16,7 +16,7 @@ program; if not, see <http://www.gnu.org/licenses/>.
 
 //This class based on http://stackoverflow.com/questions/2642777/trusting-all-certificates-using-httpclient-over-https
 
-package com.jonbanjo.ssl;
+package io.github.benoitduffez.cupsprint.ssl;
 
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
@@ -29,14 +29,14 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 public class AdditionalKeyStoresTrustManager implements X509TrustManager {
+    public static final String UNTRUSTED_CERTIFICATE = "Untrusted Certificate";
+
+    private ArrayList<X509TrustManager> x509TrustManagers = new ArrayList<>();
 
     private X509Certificate[] certChain = null;
-    
-	protected ArrayList<X509TrustManager> x509TrustManagers = new ArrayList<X509TrustManager>();
-    
 
-    protected AdditionalKeyStoresTrustManager(KeyStore... additionalkeyStores) {
-        final ArrayList<TrustManagerFactory> factories = new ArrayList<TrustManagerFactory>();
+    AdditionalKeyStoresTrustManager(KeyStore... additionalkeyStores) {
+        final ArrayList<TrustManagerFactory> factories = new ArrayList<>();
 
         try {
             // The default Trustmanager with default keystore
@@ -44,7 +44,7 @@ public class AdditionalKeyStoresTrustManager implements X509TrustManager {
             original.init((KeyStore) null);
             factories.add(original);
 
-            for( KeyStore keyStore : additionalkeyStores ) {
+            for (KeyStore keyStore : additionalkeyStores) {
                 final TrustManagerFactory additionalCerts = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 additionalCerts.init(keyStore);
                 factories.add(additionalCerts);
@@ -54,20 +54,22 @@ public class AdditionalKeyStoresTrustManager implements X509TrustManager {
             throw new RuntimeException(e);
         }
 
-
-
         /*
          * Iterate over the returned trustmanagers, and hold on
          * to any that are X509TrustManagers
          */
-        for (TrustManagerFactory tmf : factories)
-            for( TrustManager tm : tmf.getTrustManagers() )
-                if (tm instanceof X509TrustManager)
-                    x509TrustManagers.add( (X509TrustManager)tm );
+        for (TrustManagerFactory tmf : factories) {
+            for (TrustManager tm : tmf.getTrustManagers()) {
+                if (tm instanceof X509TrustManager) {
+                    x509TrustManagers.add((X509TrustManager) tm);
+                }
+            }
+        }
 
 
-        if( x509TrustManagers.size()==0 )
+        if (x509TrustManagers.size() == 0) {
             throw new RuntimeException("Couldn't find any X509TrustManagers");
+        }
 
     }
 
@@ -83,27 +85,27 @@ public class AdditionalKeyStoresTrustManager implements X509TrustManager {
      * Loop over the trustmanagers until we find one that accepts our server
      */
     public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-    	certChain = null;
-    	for( X509TrustManager tm : x509TrustManagers ) {
+        certChain = chain;
+        for (X509TrustManager tm : x509TrustManagers) {
             try {
-                tm.checkServerTrusted(chain,authType);
+                tm.checkServerTrusted(chain, authType);
                 return;
-            } catch( CertificateException e ) {
+            } catch (CertificateException e) {
                 // ignore
             }
         }
-    	certChain = chain;
-        throw new CertificateException("No Certificate\n");
+        throw new CertificateException(UNTRUSTED_CERTIFICATE);
     }
 
     public X509Certificate[] getAcceptedIssuers() {
         final ArrayList<X509Certificate> list = new ArrayList<X509Certificate>();
-        for( X509TrustManager tm : x509TrustManagers )
+        for (X509TrustManager tm : x509TrustManagers) {
             list.addAll(Arrays.asList(tm.getAcceptedIssuers()));
+        }
         return list.toArray(new X509Certificate[list.size()]);
     }
-    
-    public X509Certificate[] getCertChain(){
-    	return certChain;
+
+    X509Certificate[] getCertChain() {
+        return certChain;
     }
 }

@@ -1,4 +1,4 @@
-package io.github.benoitduffez.cupsprint;
+package ch.ethz.vppserver.ippclient;
 
 /*Copyright (C) 2013 Jon Freeman
 
@@ -16,30 +16,8 @@ received a copy of the GNU Lesser General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-import android.app.Application;
-import android.content.Context;
+import java.util.LinkedHashMap;
 
-import com.crashlytics.android.Crashlytics;
+public class EnumMap extends LinkedHashMap<String, EnumItemMap>{
 
-import io.fabric.sdk.android.Fabric;
-
-public class CupsPrintApp extends Application {
-    public static final String LOG_TAG = "CUPS";
-
-    private static CupsPrintApp instance;
-
-    public static CupsPrintApp getInstance() {
-        return instance;
-    }
-
-    public static Context getContext() {
-        return instance.getApplicationContext();
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        instance = this;
-        Fabric.with(this, new Crashlytics());
-    }
 }

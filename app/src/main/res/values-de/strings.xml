@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Android CUPS Print</string>
+    <string name="add_url">http://cups-server.mit.domäne:631/printers/Drucker_Name</string>
+    <string name="add_name">Bezeichnung des Druckers</string>
+    <string name="add_button">Drucker hinzufügen</string>
+    <string name="add_search_button">Suche nach Druckern</string>
+    <string name="activity_add_label">CUPS-Drucker hinzufügen</string>
+    <string name="add_full_manual">Wahlweise können Sie auch die komplette URI des Druckers in den folgenden Feldern eingeben.</string>
+    <string name="add_server_ip">IP-Nummer oder Hostname</string>
+    <string name="add_autodetect">Sie können die Drucker eines Servers auflisten lassen, indem Sie die IP-Nummer oder den Hostnamen des Servers angeben.</string>
+    <plurals name="printer_discovery_result">
+        <item quantity="other">%d Drucker gefunden</item>
+    </plurals>
+    <string name="printer_not_responding">Der ausgewählte Drucker reagiert nicht. Prüfen Sie ob er angeschaltet ist und verfügbar ist unter %1$s.</string>
+    <string name="err_document_fd_null">Dokument konnte nicht gelesen werden</string>
+    <string name="err_add_printer_empty_name">Der Druckername darf nicht leer sein</string>
+    <string name="err_add_printer_empty_url">Die Drucker-URL darf nicht leer sein</string>
+    <string name="basic_auth_button">Anmeldeinformationen speichern</string>
+    <string name="basic_auth_info">Ihr Server hat eine Basis-Authentifizierung angefordert, aber wir müssen Sie die Anmeldeinformationen zu geben. Bitte füllen Sie folgende Felder aus:</string>
+    <string name="basic_auth_login">Benutzername</string>
+    <string name="basic_auth_password">Passwort</string>
+    <string name="basic_auth_title">HTTP-Standardauthentifizierung</string>
+    <string name="err_http_upgrade">Dieser Host lehnt einfach HTTP ab, verwenden Sie bitte den HTTPS-Zugriff</string>
+    <string name="host_not_verified_activity_title">Host nicht überprüft</string>
+    <string name="host_not_verified_abort_button">Abbrechen</string>
+    <string name="host_not_verified_info">Dieser Host präsentierte ein SSL-Zertifikat, für das Ihr Gerät den Hostnamen nicht überprüfen konnte. Alle Drucker, die von diesem Host bedient werden, werden deaktiviert, bis Sie es explizit vertrauen. Bitte sagen Sie, ob Sie diesem Host vertrauen möchten oder nicht:</string>
+    <string name="host_not_verified_title">Hostname %1$s nicht bestätigt</string>
+    <string name="host_not_verified_trust_button">Vertrauen Sie Host</string>
+    <string name="untrusted_abort_button">Verbindung abbrechen</string>
+    <string name="untrusted_couldnt_trust">Serverzertifikate konnten nicht gespeichert werden. Bitte überprüfen Sie die Anwendungsprotokolle und senden Sie eine Bug-Anfrage an den Entwickler.</string>
+    <string name="untrusted_info">Ihr Server hat ein Zertifikat gesendet, das von Ihrem Gerät nicht vertraut wurde. Bitte überprüfen Sie die unten aufgeführten Zertifikate und wählen Sie aus, ob Sie es akzeptieren oder nicht:</string>
+    <string name="untrusted_title">Nicht vertrauenswürdige SSL-Verbindung</string>
+    <string name="untrusted_trust_button">Vertrauen Verbindung</string>
+    <string name="untrusted_trusted">Zertifikate, die der vertrauenswürdigen Liste hinzugefügt wurden. Bitte versuchen Sie es erneut mit diesem Drucker.</string>
+
+</resources>

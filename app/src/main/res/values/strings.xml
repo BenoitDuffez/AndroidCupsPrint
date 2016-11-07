@@ -5,6 +5,46 @@
     <string name="add_url">http://server.tld:631/printers/Printer_Name</string>
     <string name="add_name">Printer Name</string>
     <string name="add_button">Add printer</string>
+    <string name="add_search_button">Search for printers</string>
     <string name="activity_add_label">Add a CUPS printer</string>
+    <string name="add_full_manual">Alternatively, you can enter a complete URI and printer name in the fields below</string>
+    <string name="add_server_ip">Server IP or host name</string>
+    <string name="add_autodetect">You can either auto-detect the printers from your server by entering its IP or host name below</string>
+    <plurals name="printer_discovery_result">
+        <item quantity="one">Search found %d printer</item>
+        <item quantity="other">Search found %d printers</item>
+    </plurals>
+    <string name="printer_not_responding">Printer is not responding. Please check it is powered on and available at %1$s</string>
+    <string name="err_document_fd_null">Couldn\'t read document to be printed</string>
+    <string name="err_add_printer_empty_name">The printer name cannot be empty</string>
+    <string name="err_add_printer_empty_url">The printer URL cannot be empty</string>
+    <string name="untrusted_title">Untrusted SSL connection</string>
+    <string name="untrusted_info">Your server sent a certificate that was not trusted by your device. Please review the certificates details below, and choose whether you accept to trust it or not:</string>
+    <string name="untrusted_certinfo"
+            translatable="false">
+        Issuer: CN=test-server\n
+        Validity\n
+        Not Before: Aug 21 19:36:21 2016 GMT\n
+        Not After : Aug 19 19:36:21 2026 GMT\n
+        Subject: CN=test-server\n
+        Subject Public Key Info:\n
+        Public Key Algorithm: rsaEncryption\n
+        Public-Key: (2048 bit)\n
+    </string>
+    <string name="untrusted_trust_button">Trust connection</string>
+    <string name="untrusted_abort_button">Abort connection</string>
+    <string name="untrusted_trusted">Certificates added to the trusted list. Please try again with this printer.</string>
+    <string name="untrusted_couldnt_trust">Couldn\'t save server certificates. Please review the application logs and submit a bug request to the developer.</string>
+    <string name="basic_auth_title">HTTP Basic Auth</string>
+    <string name="basic_auth_info">Your server sent a basic auth request, but we need you to give the credentials. Please fill them below:</string>
+    <string name="basic_auth_login">Username</string>
+    <string name="basic_auth_password">Password</string>
+    <string name="basic_auth_button">Save credentials</string>
+    <string name="host_not_verified_title">Hostname %1$s not verified</string>
+    <string name="host_not_verified_info">This host presented an SSL certificate for which your device couldn\'t verify the hostname. All the printers served by this host will be disabled until you explicitly trust it. Please tell if you would like to trust this host or not:</string>
+    <string name="host_not_verified_trust_button">Trust host</string>
+    <string name="host_not_verified_abort_button">Abort</string>
+    <string name="host_not_verified_activity_title">Host not verified</string>
+    <string name="err_http_upgrade">This host refuses plain HTTP, please use the HTTPS access</string>
 
 </resources>

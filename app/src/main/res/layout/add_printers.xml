@@ -5,11 +5,36 @@
               android:orientation="vertical"
               android:padding="16dp">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_autodetect"/>
+
+    <EditText
+        android:id="@+id/add_server_ip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/add_server_ip"
+        android:inputType="textUri|number"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:onClick="searchPrinters"
+        android:text="@string/add_search_button"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_full_manual"/>
+
     <EditText
         android:id="@+id/add_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/add_url"/>
+        android:hint="@string/add_url"
+        android:inputType="textUri"/>
 
     <EditText
         android:id="@+id/add_name"

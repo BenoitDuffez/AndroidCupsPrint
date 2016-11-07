@@ -23,12 +23,17 @@ package io.github.benoitduffez.cupsprint.printservice;
 
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.ParcelFileDescriptor;
 import android.print.PrintJobId;
 import android.print.PrintJobInfo;
+import android.print.PrinterId;
 import android.printservice.PrintJob;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.crashlytics.android.Crashlytics;
 
 import org.cups4j.CupsClient;
 import org.cups4j.CupsPrinter;
@@ -45,268 +50,309 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
+import io.github.benoitduffez.cupsprint.R;
 
 /**
  * CUPS print service
  */
 public class CupsService extends PrintService {
-	/**
-	 * When a print job is active, the app will poll the printer to retrieve the job status. This is the polling interval.
-	 */
-	public static final int JOB_CHECK_POLLING_INTERVAL = 5000;
+    /**
+     * When a print job is active, the app will poll the printer to retrieve the job status. This is the polling interval.
+     */
+    public static final int JOB_CHECK_POLLING_INTERVAL = 5000;
 
-	/**
-	 * Lock for setting/accessing the static instance
-	 */
-	private static final Object sLock = new Object();
+    /**
+     * Lock for setting/accessing the static instance
+     */
+    private static final Object sLock = new Object();
 
-	/**
-	 * Static instance, valid when the service is connected
-	 */
-	private static CupsService sInstance;
+    /**
+     * Static instance, valid when the service is connected
+     */
+    private static CupsService sInstance;
 
-	/**
-	 * Current discovery session
-	 */
-	private CupsPrinterDiscoverySession mSession;
+    Map<PrintJobId, Integer> mJobs = new HashMap<>();
 
-	Map<PrintJobId, Integer> mJobs = new HashMap<>();
+    /**
+     * Current discovery session
+     */
+    private CupsPrinterDiscoverySession mSession;
 
-	public static CupsService peekInstance() {
-		synchronized (sLock) {
-			return sInstance;
-		}
-	}
+    public static CupsService peekInstance() {
+        synchronized (sLock) {
+            return sInstance;
+        }
+    }
 
-	@Override
-	protected void onConnected() {
-		synchronized (sLock) {
-			sInstance = this;
-		}
-	}
+    @Override
+    protected void onConnected() {
+        synchronized (sLock) {
+            sInstance = this;
+        }
+    }
 
-	@Override
-	protected void onDisconnected() {
-		synchronized (sLock) {
-			sInstance = null;
-			mSession = null;
-		}
-	}
+    @Override
+    protected void onDisconnected() {
+        synchronized (sLock) {
+            sInstance = null;
+            mSession = null;
+        }
+    }
 
-	public PrinterDiscoverySession getSession() {
-		return mSession;
-	}
+    public PrinterDiscoverySession getSession() {
+        return mSession;
+    }
 
-	@Override
-	protected PrinterDiscoverySession onCreatePrinterDiscoverySession() {
-		mSession = new CupsPrinterDiscoverySession(this);
-		return mSession;
-	}
+    @Override
+    protected PrinterDiscoverySession onCreatePrinterDiscoverySession() {
+        mSession = new CupsPrinterDiscoverySession(this);
+        return mSession;
+    }
 
-	@Override
-	protected void onRequestCancelPrintJob(final PrintJob printJob) {
-		final PrintJobInfo jobInfo = printJob.getInfo();
-		String url = jobInfo.getPrinterId().getLocalId();
-		String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
-		final int jobId = mJobs.get(printJob.getId());
+    @Override
+    protected void onRequestCancelPrintJob(final PrintJob printJob) {
+        final PrintJobInfo jobInfo = printJob.getInfo();
+        final PrinterId printerId = jobInfo.getPrinterId();
+        if (printerId == null) {
+            Crashlytics.log("Tried to cancel a job, but the printer ID is null");
+            return;
+        }
 
-		try {
-			final URL clientURL = new URL(clientUrl);
-			new AsyncTask<Void, Void, Void>() {
-				@Override
-				protected Void doInBackground(Void... params) {
-					cancelPrintJob(clientURL, jobId);
-					return null;
-				}
+        String url = printerId.getLocalId();
+        String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
+        final PrintJobId id = printJob.getId();
+        if (id == null) {
+            Crashlytics.log("Tried to cancel a job, but the print job ID is null");
+            return;
+        }
+        final int jobId = mJobs.get(id);
 
-				@Override
-				protected void onPostExecute(Void v) {
-					onPrintJobCancelled(printJob);
-				}
-			}.execute();
-		} catch (MalformedURLException e) {
-			Log.e(CupsPrintApp.LOG_TAG, "Couldn't cancel print job: " + printJob + " because: " + e);
-		}
-	}
+        try {
+            final URL clientURL = new URL(clientUrl);
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    cancelPrintJob(clientURL, jobId);
+                    return null;
+                }
 
-	/**
-	 * Called from a background thread, ask the printer to cancel a job by its printer job ID
-	 *
-	 * @param clientURL The printer client URL
-	 * @param jobId     The printer job ID
-	 */
-	private void cancelPrintJob(URL clientURL, int jobId) {
-		try {
-			CupsClient client = new CupsClient(clientURL);
-			client.cancelJob(jobId);
-		} catch (Exception e) {
-			Log.e(CupsPrintApp.LOG_TAG, "Couldn't cancel job: " + jobId + " because: " + e);
-		}
-	}
+                @Override
+                protected void onPostExecute(Void v) {
+                    onPrintJobCancelled(printJob);
+                }
+            }.execute();
+        } catch (MalformedURLException e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't cancel print job: " + printJob + " because: " + e);
+            Crashlytics.log("Couldn't cancel job: " + jobId);
+            Crashlytics.logException(e);
+        }
+    }
 
-	/**
-	 * Called on the main thread, when the print job was cancelled
-	 *
-	 * @param printJob The print job
-	 */
-	private void onPrintJobCancelled(PrintJob printJob) {
-		mJobs.remove(printJob.getId());
-		printJob.cancel();
-	}
+    /**
+     * Called from a background thread, ask the printer to cancel a job by its printer job ID
+     *
+     * @param clientURL The printer client URL
+     * @param jobId     The printer job ID
+     */
+    private void cancelPrintJob(URL clientURL, int jobId) {
+        try {
+            CupsClient client = new CupsClient(clientURL);
+            client.cancelJob(jobId);
+        } catch (Exception e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't cancel job: " + jobId + " because: " + e);
+            Crashlytics.log("Couldn't cancel job: " + jobId);
+            Crashlytics.logException(e);
+        }
+    }
 
-	@Override
-	protected void onPrintJobQueued(final PrintJob printJob) {
-		startPolling(printJob);
-		final PrintJobInfo jobInfo = printJob.getInfo();
-		String url = jobInfo.getPrinterId().getLocalId();
-		String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
+    /**
+     * Called on the main thread, when the print job was cancelled
+     *
+     * @param printJob The print job
+     */
+    private void onPrintJobCancelled(PrintJob printJob) {
+        mJobs.remove(printJob.getId());
+        printJob.cancel();
+    }
 
-		try {
-			// Prepare job
-			final URL printerURL = new URL(url);
-			final URL clientURL = new URL(clientUrl);
-			final FileDescriptor fd = printJob.getDocument().getData().getFileDescriptor();
-			final PrintJobId jobId = printJob.getId();
+    @Override
+    protected void onPrintJobQueued(final PrintJob printJob) {
+        startPolling(printJob);
+        final PrintJobInfo jobInfo = printJob.getInfo();
+        final PrinterId printerId = jobInfo.getPrinterId();
+        if (printerId == null) {
+            Crashlytics.log("Tried to queue a job, but the printer ID is null");
+            return;
+        }
 
-			// Send print job
-			new AsyncTask<Void, Void, Void>() {
-				@Override
-				protected Void doInBackground(Void... params) {
-					printDocument(jobId, clientURL, printerURL, fd);
-					return null;
-				}
+        String url = printerId.getLocalId();
+        String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
 
-				@Override
-				protected void onPostExecute(Void v) {
-					onPrintJobSent(printJob);
-				}
-			}.execute();
-		} catch (MalformedURLException e) {
-			Log.e(CupsPrintApp.LOG_TAG, "Couldn't queue print job: " + printJob + " because: " + e);
-		}
-	}
+        try {
+            // Prepare job
+            final URL printerURL = new URL(url);
+            final URL clientURL = new URL(clientUrl);
+            final ParcelFileDescriptor data = printJob.getDocument().getData();
+            if (data == null) {
+                Crashlytics.log("Tried to queue a job, but the document data (file descriptor) is null");
+                Toast.makeText(this, R.string.err_document_fd_null, Toast.LENGTH_LONG).show();
+                return;
+            }
+            final FileDescriptor fd = data.getFileDescriptor();
+            final PrintJobId jobId = printJob.getId();
 
-	private void startPolling(final PrintJob printJob) {
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				if (updateJobStatus(printJob)) {
-					new Handler().postDelayed(this, JOB_CHECK_POLLING_INTERVAL);
-				}
-			}
-		}, JOB_CHECK_POLLING_INTERVAL);
-	}
+            // Send print job
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    printDocument(jobId, clientURL, printerURL, fd);
+                    return null;
+                }
 
-	/**
-	 * Called in the main thread, will ask the job status and update it in the Android framework
-	 *
-	 * @param printJob The print job
-	 * @return true if this method should be called again, false otherwise (in case the job is still pending or it is complete)
-	 */
-	private boolean updateJobStatus(final PrintJob printJob) {
-		// Check if the job is already gone
-		if (!mJobs.containsKey(printJob.getId())) {
-			return false;
-		}
+                @Override
+                protected void onPostExecute(Void v) {
+                    onPrintJobSent(printJob);
+                }
+            }.execute();
+        } catch (MalformedURLException e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't queue print job: " + printJob + " because: " + e);
+            Crashlytics.log("Couldn't queue job: " + printJob);
+            Crashlytics.logException(e);
+        }
+    }
 
-		String url = printJob.getInfo().getPrinterId().getLocalId();
-		String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
+    private void startPolling(final PrintJob printJob) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (updateJobStatus(printJob)) {
+                    new Handler().postDelayed(this, JOB_CHECK_POLLING_INTERVAL);
+                }
+            }
+        }, JOB_CHECK_POLLING_INTERVAL);
+    }
 
-		// Prepare job
-		try {
-			final URL clientURL = new URL(clientUrl);
-			final int jobId = mJobs.get(printJob.getId());
+    /**
+     * Called in the main thread, will ask the job status and update it in the Android framework
+     *
+     * @param printJob The print job
+     * @return true if this method should be called again, false otherwise (in case the job is still pending or it is complete)
+     */
+    private boolean updateJobStatus(final PrintJob printJob) {
+        // Check if the job is already gone
+        if (!mJobs.containsKey(printJob.getId())) {
+            Crashlytics.log("Tried to request a job status, but the job couldn't be found in the jobs list");
+            return false;
+        }
 
-			// Send print job
-			new AsyncTask<Void, Void, JobStateEnum>() {
-				@Override
-				protected JobStateEnum doInBackground(Void... params) {
-					return getJobState(jobId, clientURL);
-				}
+        final PrinterId printerId = printJob.getInfo().getPrinterId();
+        if (printerId == null) {
+            Crashlytics.log("Tried to request a job status, but the printer ID is null");
+            return false;
+        }
+        String url = printerId.getLocalId();
+        String clientUrl = url.substring(0, url.substring(0, url.lastIndexOf('/')).lastIndexOf('/'));
 
-				@Override
-				protected void onPostExecute(JobStateEnum state) {
-					onJobStateUpdate(printJob, state);
-				}
-			}.execute();
-		} catch (MalformedURLException e) {
-			Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + printJob + " state because: " + e);
-		}
+        // Prepare job
+        try {
+            final URL clientURL = new URL(clientUrl);
+            final int jobId = mJobs.get(printJob.getId());
 
-		// We want to be called again if the job is still in this map
-		// Indeed, when the job is complete, the job is removed from this map.
-		return mJobs.containsKey(printJob.getId());
-	}
+            // Send print job
+            new AsyncTask<Void, Void, JobStateEnum>() {
+                @Override
+                protected JobStateEnum doInBackground(Void... params) {
+                    return getJobState(jobId, clientURL);
+                }
 
-	/**
-	 * Called in a background thread, in order to check the job status
-	 *
-	 * @param jobId     The printer job ID
-	 * @param clientURL The printer client URL
-	 * @return true if the job is complete/aborted/cancelled, false if it's still processing (printing, paused, etc)
-	 */
-	private JobStateEnum getJobState(int jobId, URL clientURL) {
-		CupsClient client = new CupsClient(clientURL);
-		try {
-			PrintJobAttributes attr = client.getJobAttributes(jobId);
-			return attr.getJobState();
-		} catch (Exception e) {
-			Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + jobId + " state because: " + e);
-		}
-		return null;
-	}
+                @Override
+                protected void onPostExecute(JobStateEnum state) {
+                    onJobStateUpdate(printJob, state);
+                }
+            }.execute();
+        } catch (MalformedURLException e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + printJob + " state because: " + e);
+            Crashlytics.log("Couldn't get job: " + printJob + " state");
+            Crashlytics.logException(e);
+        }
 
-	/**
-	 * Called on the main thread, when a job status has been checked
-	 *
-	 * @param printJob The print job
-	 * @param state    Print job state
-	 */
-	private void onJobStateUpdate(PrintJob printJob, JobStateEnum state) {
-		// Couldn't check state -- don't do anything
-		if (state == null) {
-			mJobs.remove(printJob.getId());
-			printJob.cancel();
-		} else {
-			if (state == JobStateEnum.CANCELED) {
-				mJobs.remove(printJob.getId());
-				printJob.cancel();
-			} else if (state == JobStateEnum.COMPLETED || state == JobStateEnum.ABORTED) {
-				mJobs.remove(printJob.getId());
-				printJob.complete();
-			}
-		}
-	}
+        // We want to be called again if the job is still in this map
+        // Indeed, when the job is complete, the job is removed from this map.
+        return mJobs.containsKey(printJob.getId());
+    }
 
-	/**
-	 * Called from a background thread, when the print job has to be sent to the printer.
-	 *
-	 * @param clientURL  The client URL
-	 * @param printerURL The printer URL
-	 * @param fd         The document to print, as a {@link FileDescriptor}
-	 */
+    /**
+     * Called in a background thread, in order to check the job status
+     *
+     * @param jobId     The printer job ID
+     * @param clientURL The printer client URL
+     * @return true if the job is complete/aborted/cancelled, false if it's still processing (printing, paused, etc)
+     */
+    private JobStateEnum getJobState(int jobId, URL clientURL) {
+        CupsClient client = new CupsClient(clientURL);
+        try {
+            PrintJobAttributes attr = client.getJobAttributes(jobId);
+            return attr.getJobState();
+        } catch (Exception e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + jobId + " state because: " + e);
+            Crashlytics.log("Couldn't get job: " + jobId + " state");
+            Crashlytics.logException(e);
+        }
+        return null;
+    }
 
-	private void printDocument(PrintJobId jobId, URL clientURL, URL printerURL, FileDescriptor fd) {
-		try {
-			CupsClient client = new CupsClient(clientURL);
-			CupsPrinter printer = client.getPrinter(printerURL);
+    /**
+     * Called on the main thread, when a job status has been checked
+     *
+     * @param printJob The print job
+     * @param state    Print job state
+     */
+    private void onJobStateUpdate(PrintJob printJob, JobStateEnum state) {
+        // Couldn't check state -- don't do anything
+        if (state == null) {
+            mJobs.remove(printJob.getId());
+            printJob.cancel();
+        } else {
+            if (state == JobStateEnum.CANCELED) {
+                mJobs.remove(printJob.getId());
+                printJob.cancel();
+            } else if (state == JobStateEnum.COMPLETED || state == JobStateEnum.ABORTED) {
+                mJobs.remove(printJob.getId());
+                printJob.complete();
+            }
+        }
+    }
 
-			InputStream is = new FileInputStream(fd);
-			org.cups4j.PrintJob job = new org.cups4j.PrintJob.Builder(is).build();
-			PrintRequestResult result = printer.print(job);
-			mJobs.put(jobId, result.getJobId());
-		} catch (Exception e) {
-			Log.e(CupsPrintApp.LOG_TAG, "Couldn't send file descriptor: " + fd + " to printer because: " + e);
-		}
-	}
+    /**
+     * Called from a background thread, when the print job has to be sent to the printer.
+     *
+     * @param clientURL  The client URL
+     * @param printerURL The printer URL
+     * @param fd         The document to print, as a {@link FileDescriptor}
+     */
+    private void printDocument(PrintJobId jobId, URL clientURL, URL printerURL, FileDescriptor fd) {
+        try {
+            CupsClient client = new CupsClient(clientURL);
+            CupsPrinter printer = client.getPrinter(printerURL);
 
-	/**
-	 * Called on the main thread, when the job was sent to the printer
-	 *
-	 * @param printJob The print job
-	 */
-	private void onPrintJobSent(PrintJob printJob) {
-		printJob.start();
-	}
+            InputStream is = new FileInputStream(fd);
+            org.cups4j.PrintJob job = new org.cups4j.PrintJob.Builder(is).build();
+            PrintRequestResult result = printer.print(job);
+            mJobs.put(jobId, result.getJobId());
+        } catch (Exception e) {
+            Log.e(CupsPrintApp.LOG_TAG, "Couldn't send file descriptor: " + fd + " to printer because: " + e);
+            Crashlytics.log("Couldn't send filed descriptor " + fd + " to printer");
+            Crashlytics.logException(e);
+        }
+    }
+
+    /**
+     * Called on the main thread, when the job was sent to the printer
+     *
+     * @param printJob The print job
+     */
+    private void onPrintJobSent(PrintJob printJob) {
+        printJob.start();
+    }
 }
 
