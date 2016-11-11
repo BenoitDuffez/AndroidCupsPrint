@@ -48,7 +48,6 @@ import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation;
 import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -57,7 +56,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
 import ch.ethz.vppserver.ippclient.IppResult;
@@ -375,15 +373,6 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     mException = e;
                     Crashlytics.log("Failed to check printer " + printerId);
                     Crashlytics.log("HTTP response code: " + mResponseCode);
-
-                    // Don't send SSL errors to crashlytics
-                    if (!(e instanceof SSLHandshakeException
-                            || e instanceof SSLPeerUnverifiedException
-                            || e instanceof CertificateException
-                            || e instanceof CertPathValidatorException)
-                            && mResponseCode != HTTP_UPGRADE_REQUIRED) { // don't send HTTP 426 Upgrade Required to crashlytics
-                        Crashlytics.logException(e);
-                    }
                 }
                 return null;
             }
@@ -391,7 +380,9 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             @Override
             protected void onPostExecute(PrinterCapabilitiesInfo printerCapabilitiesInfo) {
                 if (mException != null) {
-                    handlePrinterException(mException, printerId);
+                    if (handlePrinterException(mException, printerId)) {
+                        Crashlytics.logException(mException);
+                    }
                 } else {
                     onPrinterChecked(printerId, printerCapabilitiesInfo);
                 }
@@ -404,23 +395,26 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      *
      * @param exception The exception that occurred
      * @param printerId The printer on which the exception occurred
+     * @return true if the exception should be reported to Crashlytics, false otherwise
      */
-    private void handlePrinterException(@NonNull Exception exception, PrinterId printerId) {
+    private boolean handlePrinterException(@NonNull Exception exception, PrinterId printerId) {
         // Happens when the HTTP response code is in the 4xx range
         if (exception instanceof FileNotFoundException) {
-            handleHttpError(exception, printerId);
+            return handleHttpError(exception, printerId);
         } else if (exception instanceof SSLPeerUnverifiedException) {
             Intent dialog = new Intent(mPrintService, HostNotVerifiedActivity.class);
             dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, mUnverifiedHost);
             dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mPrintService.startActivity(dialog);
+            return false;
         } else if (exception instanceof SSLException && mServerCerts != null) {
             Intent dialog = new Intent(mPrintService, UntrustedCertActivity.class);
             dialog.putExtra(UntrustedCertActivity.KEY_CERT, mServerCerts[0]);
             dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mPrintService.startActivity(dialog);
+            return false;
         } else {
-            handleHttpError(exception, printerId);
+            return handleHttpError(exception, printerId);
         }
     }
 
@@ -429,8 +423,9 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      *
      * @param exception The exception that occurred
      * @param printerId The printer on which the exception occurred
+     * @return true if the exception should be reported to Crashlytics, false otherwise
      */
-    private void handleHttpError(Exception exception, PrinterId printerId) {
+    private boolean handleHttpError(Exception exception, PrinterId printerId) {
         // happens when basic auth is required but not sent
         switch (mResponseCode) {
             case HttpURLConnection.HTTP_NOT_FOUND:
@@ -457,8 +452,9 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
             default:
                 Toast.makeText(mPrintService, exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                break;
+                return true;
         }
+        return false;
     }
 
     @Override
