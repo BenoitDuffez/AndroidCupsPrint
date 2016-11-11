@@ -229,27 +229,43 @@ public class CupsService extends PrintService {
         String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
 
         // Prepare job
+        final URL clientURL;
+        final int jobId;
         try {
-            final URL clientURL = new URL(schemeHostPort);
-            final int jobId = mJobs.get(printJob.getId());
-
-            // Send print job
-            new AsyncTask<Void, Void, JobStateEnum>() {
-                @Override
-                protected JobStateEnum doInBackground(Void... params) {
-                    return getJobState(jobId, clientURL);
-                }
-
-                @Override
-                protected void onPostExecute(JobStateEnum state) {
-                    onJobStateUpdate(printJob, state);
-                }
-            }.execute();
+            clientURL = new URL(schemeHostPort);
+            jobId = mJobs.get(printJob.getId());
         } catch (MalformedURLException e) {
             Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + printJob + " state because: " + e);
             Crashlytics.log("Couldn't get job: " + printJob + " state");
             Crashlytics.logException(e);
+            return false;
         }
+
+        // Send print job
+        new AsyncTask<Void, Void, JobStateEnum>() {
+            Exception mException;
+
+            @Override
+            protected JobStateEnum doInBackground(Void... params) {
+                try {
+                    return getJobState(jobId, clientURL);
+                } catch (Exception e) {
+                    mException = e;
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(JobStateEnum state) {
+                if (mException != null) {
+                    Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + jobId + " state because: " + mException);
+                    Crashlytics.log("Couldn't get job: " + jobId + " state");
+                    Crashlytics.logException(mException);
+                } else if (state != null) {
+                    onJobStateUpdate(printJob, state);
+                }
+            }
+        }.execute();
 
         // We want to be called again if the job is still in this map
         // Indeed, when the job is complete, the job is removed from this map.
@@ -263,17 +279,10 @@ public class CupsService extends PrintService {
      * @param clientURL The printer client URL
      * @return true if the job is complete/aborted/cancelled, false if it's still processing (printing, paused, etc)
      */
-    private JobStateEnum getJobState(int jobId, URL clientURL) {
+    private JobStateEnum getJobState(int jobId, URL clientURL) throws Exception {
         CupsClient client = new CupsClient(clientURL);
-        try {
-            PrintJobAttributes attr = client.getJobAttributes(jobId);
-            return attr.getJobState();
-        } catch (Exception e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + jobId + " state because: " + e);
-            Crashlytics.log("Couldn't get job: " + jobId + " state");
-            Crashlytics.logException(e);
-        }
-        return null;
+        PrintJobAttributes attr = client.getJobAttributes(jobId);
+        return attr.getJobState();
     }
 
     /**
