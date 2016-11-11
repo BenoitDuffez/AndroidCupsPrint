@@ -47,5 +47,6 @@
     <string name="host_not_verified_activity_title">Host not verified</string>
     <string name="err_http_upgrade">This host refuses plain HTTP, please use the HTTPS access</string>
     <string name="err_printer_null_when_printing">Couldn\'t find printer, is it available?</string>
+    <string name="err_404">The printer name was not found on the server (HTTP 404). Please check its name.</string>
 
 </resources>

@@ -433,6 +433,10 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
     private void handleHttpError(Exception exception, PrinterId printerId) {
         // happens when basic auth is required but not sent
         switch (mResponseCode) {
+            case HttpURLConnection.HTTP_NOT_FOUND:
+                Toast.makeText(mPrintService, R.string.err_404, Toast.LENGTH_LONG).show();
+                break;
+
             case HttpURLConnection.HTTP_UNAUTHORIZED:
                 final Uri printerUri = Uri.parse(printerId.getLocalId());
                 String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
