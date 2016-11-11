@@ -78,9 +78,6 @@ import io.github.benoitduffez.cupsprint.detect.PrinterResult;
  * CUPS printer discovery class
  */
 public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
-
-    public static final int HTTP_UPGRADE_REQUIRED = 426;
-
     private static final int HTTP_UPGRADE_REQUIRED = 426;
 
     private static final double MM_IN_MILS = 39.3700787;
@@ -435,20 +432,28 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      */
     private void handleHttpError(Exception exception, PrinterId printerId) {
         // happens when basic auth is required but not sent
-        if (mResponseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            final Uri printerUri = Uri.parse(printerId.getLocalId());
-            String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
-            Intent dialog = new Intent(mPrintService, BasicAuthActivity.class);
-            dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl);
-            dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mPrintService.startActivity(dialog);
-        } else if (mResponseCode == HTTP_UPGRADE_REQUIRED) {// 426 Upgrade Required (plus header: Upgrade: TLS/1.2,TLS/1.1,TLS/1.0) which means please use HTTPS
-            Toast.makeText(mPrintService, R.string.err_http_upgrade, Toast.LENGTH_LONG).show();
-            List<PrinterId> remove = new ArrayList<>(1);
-            remove.add(printerId);
-            removePrinters(remove);
-        } else {
-            Toast.makeText(mPrintService, exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+        switch (mResponseCode) {
+            case HttpURLConnection.HTTP_UNAUTHORIZED:
+                final Uri printerUri = Uri.parse(printerId.getLocalId());
+                String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
+                Intent dialog = new Intent(mPrintService, BasicAuthActivity.class);
+                dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl);
+                dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mPrintService.startActivity(dialog);
+                break;
+
+            // 426 Upgrade Required (plus header: Upgrade: TLS/1.2,TLS/1.1,TLS/1.0) which means please use HTTPS
+            case HTTP_UPGRADE_REQUIRED:
+                // remove this printer from the list because it will refuse to print anything over HTTP
+                Toast.makeText(mPrintService, R.string.err_http_upgrade, Toast.LENGTH_LONG).show();
+                List<PrinterId> remove = new ArrayList<>(1);
+                remove.add(printerId);
+                removePrinters(remove);
+                break;
+
+            default:
+                Toast.makeText(mPrintService, exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                break;
         }
     }
 
