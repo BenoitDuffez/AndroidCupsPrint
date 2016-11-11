@@ -45,6 +45,7 @@ import org.cups4j.CupsPrinter;
 import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
@@ -403,7 +404,8 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
         // Happens when the HTTP response code is in the 4xx range
         if (exception instanceof FileNotFoundException) {
             return handleHttpError(exception, printerId);
-        } else if (exception instanceof SSLPeerUnverifiedException) {
+        } else if (exception instanceof SSLPeerUnverifiedException
+                || (exception instanceof IOException && exception.getLocalizedMessage().contains("not verified"))) {
             Intent dialog = new Intent(mPrintService, HostNotVerifiedActivity.class);
             dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, mUnverifiedHost);
             dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
