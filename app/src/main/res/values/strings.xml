@@ -51,5 +51,7 @@
     <string name="err_404">The printer name was not found on the server (HTTP 404). Please check its name.</string>
     <string name="err_job_econnreset">Couldn\'t check job #%1$d status because the connection with the CUPS server was reset</string>
     <string name="err_job_not_found">Couldn\'t find job #%1$d, is it already finished?</string>
+    <string name="err_job_socket_timeout">Couldn\'t print document: socket timeout. Please check network connectivity.</string>
+    <string name="err_job_exception">Couldn\'t handle job: %1$s (%2$s)</string>
 
 </resources>

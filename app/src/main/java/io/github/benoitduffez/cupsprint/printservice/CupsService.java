@@ -32,7 +32,6 @@ import android.printservice.PrintJob;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -49,6 +48,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -169,17 +169,23 @@ public class CupsService extends PrintService {
             final PrintJobId jobId = printJob.getId();
 
             // Send print job
-            new AsyncTask<Void, Void, Integer>() {
-                @StringRes
+            new AsyncTask<Void, Void, Void>() {
+                Exception mException;
+
                 @Override
-                protected Integer doInBackground(Void... params) {
-                    return printDocument(jobId, clientURL, printerURL, fd);
+                protected Void doInBackground(Void... params) {
+                    try {
+                        printDocument(jobId, clientURL, printerURL, fd);
+                    } catch (Exception e) {
+                        mException = e;
+                    }
+                    return null;
                 }
 
                 @Override
-                protected void onPostExecute(@StringRes Integer result) {
-                    if (result > 0) {
-                        Toast.makeText(CupsService.this, result, Toast.LENGTH_LONG).show();
+                protected void onPostExecute(Void result) {
+                    if (mException != null) {
+                        handleJobException(jobId, mException);
                     } else {
                         onPrintJobSent(printJob);
                     }
@@ -187,6 +193,24 @@ public class CupsService extends PrintService {
             }.execute();
         } catch (MalformedURLException e) {
             L.e("Couldn't queue print job: " + printJob, e);
+        }
+    }
+
+    /**
+     * Called from the UI thread.
+     * Handle the exception (e.g. log or send it to crashlytics?), and inform the user of what happened
+     *
+     * @param jobId The print job
+     * @param e     The exception that occurred
+     */
+    private void handleJobException(PrintJobId jobId, @NonNull Exception e) {
+        if (e instanceof SocketTimeoutException) {
+            Toast.makeText(this, R.string.err_job_socket_timeout, Toast.LENGTH_LONG).show();
+        } else if (e instanceof NullPrinterException) {
+            Toast.makeText(this, R.string.err_printer_null_when_printing, Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, getString(R.string.err_job_exception, jobId.toString(), e.getLocalizedMessage()), Toast.LENGTH_LONG).show();
+            L.e("Couldn't query job " + jobId, e);
         }
     }
 
@@ -312,27 +336,18 @@ public class CupsService extends PrintService {
      * @param clientURL  The client URL
      * @param printerURL The printer URL
      * @param fd         The document to print, as a {@link FileDescriptor}
-     * @return -1 if no error occurred; a string resource ID describing the error that happened otherwise
      */
-    @StringRes
-    private int printDocument(PrintJobId jobId, URL clientURL, URL printerURL, FileDescriptor fd) {
-        try {
-            CupsClient client = new CupsClient(clientURL);
-            CupsPrinter printer = client.getPrinter(printerURL);
-            if (printer == null) {
-                L.e("Printer is null when trying to print: printer no longer available?");
-                return R.string.err_printer_null_when_printing;
-            }
-
-            InputStream is = new FileInputStream(fd);
-            org.cups4j.PrintJob job = new org.cups4j.PrintJob.Builder(is).build();
-            PrintRequestResult result = printer.print(job);
-            mJobs.put(jobId, result.getJobId());
-        } catch (Exception e) {
-            L.e("Couldn't send file descriptor: " + fd + " to printer", e);
+    private void printDocument(PrintJobId jobId, URL clientURL, URL printerURL, FileDescriptor fd) throws Exception {
+        CupsClient client = new CupsClient(clientURL);
+        CupsPrinter printer = client.getPrinter(printerURL);
+        if (printer == null) {
+            throw new NullPrinterException();
         }
 
-        return -1;
+        InputStream is = new FileInputStream(fd);
+        org.cups4j.PrintJob job = new org.cups4j.PrintJob.Builder(is).build();
+        PrintRequestResult result = printer.print(job);
+        mJobs.put(jobId, result.getJobId());
     }
 
     /**
@@ -342,6 +357,12 @@ public class CupsService extends PrintService {
      */
     private void onPrintJobSent(PrintJob printJob) {
         printJob.start();
+    }
+
+    private static class NullPrinterException extends Exception {
+        NullPrinterException() {
+            super("Printer is null when trying to print: printer no longer available?");
+        }
     }
 }
 
