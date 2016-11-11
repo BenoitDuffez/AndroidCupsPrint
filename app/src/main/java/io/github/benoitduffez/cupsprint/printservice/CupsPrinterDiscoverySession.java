@@ -391,39 +391,52 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             @Override
             protected void onPostExecute(PrinterCapabilitiesInfo printerCapabilitiesInfo) {
                 if (mException != null) {
-                    // happens when basic auth is required but not sent
-                    if (mException instanceof FileNotFoundException && mResponseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                        final Uri printerUri = Uri.parse(printerId.getLocalId());
-                        String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
-                        Intent dialog = new Intent(mPrintService, BasicAuthActivity.class);
-                        dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl);
-                        dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        mPrintService.startActivity(dialog);
-                    } else if (mException instanceof SSLPeerUnverifiedException) {
-                        Intent dialog = new Intent(mPrintService, HostNotVerifiedActivity.class);
-                        dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, mUnverifiedHost);
-                        dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        mPrintService.startActivity(dialog);
-                    } else if (mException instanceof SSLException && mServerCerts != null) {
-                        Intent dialog = new Intent(mPrintService, UntrustedCertActivity.class);
-                        dialog.putExtra(UntrustedCertActivity.KEY_CERT, mServerCerts[0]);
-                        dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        mPrintService.startActivity(dialog);
-                    } else {
-                        if (mResponseCode == 426) {// 426 Upgrade Required (plus header: Upgrade: TLS/1.2,TLS/1.1,TLS/1.0) which means please use HTTPS
-                            Toast.makeText(mPrintService, R.string.err_http_upgrade, Toast.LENGTH_LONG).show();
-                            List<PrinterId> remove = new ArrayList<>(1);
-                            remove.add(printerId);
-                            removePrinters(remove);
-                        } else {
-                            Toast.makeText(mPrintService, mException.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    }
+                    handlePrinterException(mException, printerId);
                 } else {
                     onPrinterChecked(printerId, printerCapabilitiesInfo);
                 }
             }
         }.execute();
+    }
+
+    /**
+     * Run on the UI thread. Present the user some information about the error that happened during the printer check
+     *
+     * @param exception The exception that occurred
+     * @param printerId The printer on which the exception occurred
+     */
+    private void handlePrinterException(@NonNull Exception exception, PrinterId printerId) {
+        // Happens when the HTTP response code is in the 4xx range
+        if (exception instanceof FileNotFoundException) {
+            // happens when basic auth is required but not sent
+            if (mResponseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                final Uri printerUri = Uri.parse(printerId.getLocalId());
+                String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
+                Intent dialog = new Intent(mPrintService, BasicAuthActivity.class);
+                dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl);
+                dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mPrintService.startActivity(dialog);
+            }
+        } else if (exception instanceof SSLPeerUnverifiedException) {
+            Intent dialog = new Intent(mPrintService, HostNotVerifiedActivity.class);
+            dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, mUnverifiedHost);
+            dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mPrintService.startActivity(dialog);
+        } else if (exception instanceof SSLException && mServerCerts != null) {
+            Intent dialog = new Intent(mPrintService, UntrustedCertActivity.class);
+            dialog.putExtra(UntrustedCertActivity.KEY_CERT, mServerCerts[0]);
+            dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mPrintService.startActivity(dialog);
+        } else {
+            if (mResponseCode == 426) {// 426 Upgrade Required (plus header: Upgrade: TLS/1.2,TLS/1.1,TLS/1.0) which means please use HTTPS
+                Toast.makeText(mPrintService, R.string.err_http_upgrade, Toast.LENGTH_LONG).show();
+                List<PrinterId> remove = new ArrayList<>(1);
+                remove.add(printerId);
+                removePrinters(remove);
+            } else {
+                Toast.makeText(mPrintService, exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
