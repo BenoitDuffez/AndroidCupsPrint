@@ -432,6 +432,10 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                 Toast.makeText(mPrintService, R.string.err_404, Toast.LENGTH_LONG).show();
                 break;
 
+            case HttpURLConnection.HTTP_BAD_REQUEST:
+                Toast.makeText(mPrintService, R.string.err_400, Toast.LENGTH_LONG).show();
+                break;
+
             case HttpURLConnection.HTTP_UNAUTHORIZED:
                 final Uri printerUri = Uri.parse(printerId.getLocalId());
                 String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
