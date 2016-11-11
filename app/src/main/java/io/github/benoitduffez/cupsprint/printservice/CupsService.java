@@ -48,6 +48,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -260,7 +261,12 @@ public class CupsService extends PrintService {
                 if (mException != null) {
                     Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + jobId + " state because: " + mException);
                     Crashlytics.log("Couldn't get job: " + jobId + " state");
-                    Crashlytics.logException(mException);
+
+                    if (mException instanceof SocketException && mException.getMessage().contains("ECONNRESET")) {
+                        Toast.makeText(CupsService.this, getString(R.string.err_job_econnreset, jobId), Toast.LENGTH_LONG).show();
+                    } else {
+                        Crashlytics.logException(mException);
+                    }
                 } else if (state != null) {
                     onJobStateUpdate(printJob, state);
                 }
