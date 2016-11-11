@@ -48,6 +48,8 @@
     <string name="err_http_upgrade">This host refuses plain HTTP, please use the HTTPS access</string>
     <string name="err_printer_null_when_printing">Couldn\'t find printer, is it available?</string>
     <string name="err_printer_socket_timeout">Couldn\'t query printer status: socket timeout. Please check network connectivity.</string>
+    <string name="err_printer_unknown_host">Couldn\'t query printer status: unknown host. Please check network connectivity.</string>
+    <string name="err_printer_network_unreachable">Couldn\'t query printer status: network unreachable. Please check network connectivity.</string>
     <string name="err_400">The CUPS server indicated that we sent a bad request. This is either a bad configuration on the server, or a wrong URL. Please check both.</string>
     <string name="err_404">The printer name was not found on the server (HTTP 404). Please check its name.</string>
     <string name="err_job_econnreset">Couldn\'t check job #%1$d status because the connection with the CUPS server was reset</string>

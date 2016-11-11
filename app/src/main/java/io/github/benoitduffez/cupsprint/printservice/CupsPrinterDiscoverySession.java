@@ -45,9 +45,11 @@ import org.cups4j.CupsPrinter;
 import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation;
 
 import java.io.FileNotFoundException;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -413,6 +415,10 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             mPrintService.startActivity(dialog);
         } else if (exception instanceof SocketTimeoutException) {
             Toast.makeText(mPrintService, R.string.err_printer_socket_timeout, Toast.LENGTH_LONG).show();
+        } else if (exception instanceof UnknownHostException) {
+            Toast.makeText(mPrintService, R.string.err_printer_unknown_host, Toast.LENGTH_LONG).show();
+        } else if (exception instanceof ConnectException && exception.getLocalizedMessage().contains("ENETUNREACH")) {
+            Toast.makeText(mPrintService, R.string.err_printer_network_unreachable, Toast.LENGTH_LONG).show();
         } else {
             return handleHttpError(exception, printerId);
         }
