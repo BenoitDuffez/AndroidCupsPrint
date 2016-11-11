@@ -45,6 +45,7 @@ import org.cups4j.PrintRequestResult;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.SocketException;
@@ -254,6 +255,8 @@ public class CupsService extends PrintService {
 
                     if (mException instanceof SocketException && mException.getMessage().contains("ECONNRESET")) {
                         Toast.makeText(CupsService.this, getString(R.string.err_job_econnreset, jobId), Toast.LENGTH_LONG).show();
+                    } else if (mException instanceof FileNotFoundException) {
+                        Toast.makeText(CupsService.this, getString(R.string.err_job_not_found, jobId), Toast.LENGTH_LONG).show();
                     } else {
                         Crashlytics.logException(mException);
                     }
