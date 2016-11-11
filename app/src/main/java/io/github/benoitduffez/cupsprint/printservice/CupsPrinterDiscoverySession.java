@@ -46,6 +46,7 @@ import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation;
 
 import java.io.FileNotFoundException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -405,16 +406,17 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, mUnverifiedHost);
             dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mPrintService.startActivity(dialog);
-            return false;
         } else if (exception instanceof SSLException && mServerCerts != null) {
             Intent dialog = new Intent(mPrintService, UntrustedCertActivity.class);
             dialog.putExtra(UntrustedCertActivity.KEY_CERT, mServerCerts[0]);
             dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mPrintService.startActivity(dialog);
-            return false;
+        } else if (exception instanceof SocketTimeoutException) {
+            Toast.makeText(mPrintService, R.string.err_printer_socket_timeout, Toast.LENGTH_LONG).show();
         } else {
             return handleHttpError(exception, printerId);
         }
+        return false;
     }
 
     /**
