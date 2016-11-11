@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.benoitduffez.cupsprint.L;
+
 class Merger {
     void merge(List<PrinterRec> httpRecs, List<PrinterRec> httpsRecs) {
         List<PrinterRec> tmpRecs = new ArrayList<>();
@@ -18,7 +20,7 @@ class Merger {
                         break;
                     }
                 } catch (Exception e) {
-                    System.out.println("Invalid record in merge");
+                    L.e("Invalid record in merge", e);
                 }
             }
             if (!match) {

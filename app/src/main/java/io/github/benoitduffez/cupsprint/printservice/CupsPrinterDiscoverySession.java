@@ -36,7 +36,6 @@ import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -66,6 +65,7 @@ import io.github.benoitduffez.cupsprint.AddPrintersActivity;
 import io.github.benoitduffez.cupsprint.BasicAuthActivity;
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
 import io.github.benoitduffez.cupsprint.HostNotVerifiedActivity;
+import io.github.benoitduffez.cupsprint.L;
 import io.github.benoitduffez.cupsprint.R;
 import io.github.benoitduffez.cupsprint.UntrustedCertActivity;
 import io.github.benoitduffez.cupsprint.detect.MdnsServices;
@@ -135,7 +135,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
         final Resources res = CupsPrintApp.getInstance().getResources();
         final String toast = res.getQuantityString(R.plurals.printer_discovery_result, printers.size(), printers.size());
         Toast.makeText(mPrintService, toast, Toast.LENGTH_SHORT).show();
-        Log.i(CupsPrintApp.LOG_TAG, "onPrintersDiscovered(" + printers + ")");
+        L.d("onPrintersDiscovered(" + printers + ")");
         List<PrinterInfo> printersInfo = new ArrayList<>(printers.size());
         for (String url : printers.keySet()) {
             final PrinterId printerId = mPrintService.generatePrinterId(url);
@@ -176,7 +176,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
         }
 
         if (testPrinter == null) {
-            Log.e(CupsPrintApp.LOG_TAG, "Printer not responding. Printer on fire?");
+            L.e("Printer not responding. Printer on fire?");
         } else {
             HashMap<String, String> propertyMap = new HashMap<>();
             propertyMap.put("requested-attributes", TextUtils.join(" ", REQUIRED_ATTRIBUTES));
@@ -240,7 +240,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             // see: https://developer.android.com/reference/android/print/PrinterCapabilitiesInfo.Builder.html
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && colorMode == PrintAttributes.COLOR_MODE_MONOCHROME) {
                 colorMode = PrintAttributes.COLOR_MODE_MONOCHROME | PrintAttributes.COLOR_MODE_COLOR;
-                Log.w(CupsPrintApp.LOG_TAG, "Workaround for Kitkat enabled.");
+                L.w("Workaround for Kitkat enabled.");
             }
 
             // May happen. Fallback to monochrome by default
@@ -276,7 +276,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      * @param printerCapabilitiesInfo null if the printer isn't available anymore, otherwise contains the printer capabilities
      */
     private void onPrinterChecked(PrinterId printerId, PrinterCapabilitiesInfo printerCapabilitiesInfo) {
-        Log.d(CupsPrintApp.LOG_TAG, "onPrinterChecked: " + printerId + " (printers: " + getPrinters() + ")");
+        L.d("onPrinterChecked: " + printerId + " (printers: " + getPrinters() + ")");
         if (printerCapabilitiesInfo == null) {
             final ArrayList<PrinterId> printerIds = new ArrayList<>();
             printerIds.add(printerId);
@@ -359,20 +359,19 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      */
     @Override
     public void onStartPrinterStateTracking(@NonNull final PrinterId printerId) {
-        Log.d(CupsPrintApp.LOG_TAG, "onStartPrinterStateTracking: " + printerId);
+        L.d("onStartPrinterStateTracking: " + printerId);
         new AsyncTask<Void, Void, PrinterCapabilitiesInfo>() {
             Exception mException;
 
             @Override
             protected PrinterCapabilitiesInfo doInBackground(Void... voids) {
                 try {
-                    Log.i(CupsPrintApp.LOG_TAG, "Checking printer status: " + printerId);
+                    L.i("Checking printer status: " + printerId);
                     return checkPrinter(printerId.getLocalId(), printerId);
                 } catch (Exception e) {
-                    Log.e(CupsPrintApp.LOG_TAG, "Failed to check printer " + printerId + ": " + e);
+                    L.e("Failed to check printer " + printerId, e);
+                    L.e("HTTP response code: " + mResponseCode);
                     mException = e;
-                    Crashlytics.log("Failed to check printer " + printerId);
-                    Crashlytics.log("HTTP response code: " + mResponseCode);
                 }
                 return null;
             }

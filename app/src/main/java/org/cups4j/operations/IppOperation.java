@@ -21,7 +21,6 @@ package org.cups4j.operations;
  */
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,8 +41,8 @@ import ch.ethz.vppserver.ippclient.IppResponse;
 import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.ippclient.IppTag;
 import ch.ethz.vppserver.schema.ippclient.Attribute;
-import io.github.benoitduffez.cupsprint.CupsPrintApp;
 import io.github.benoitduffez.cupsprint.HttpConnectionManagement;
+import io.github.benoitduffez.cupsprint.L;
 import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory;
 
 public abstract class IppOperation {
@@ -223,8 +222,7 @@ public abstract class IppOperation {
             ippResult.setHttpStatusResponse(connection.getResponseMessage());
         } catch (Exception e) {
             mLastResponseCode = connection.getResponseCode();
-            Log.e(CupsPrintApp.LOG_TAG, "Caught exception while connecting to printer " + url + ": " + e.getLocalizedMessage());
-            e.printStackTrace();
+            L.e("Caught exception while connecting to printer " + url + ": " + e.getLocalizedMessage());
             throw e;
         } finally {
             if (connection instanceof HttpsURLConnection) {

@@ -33,7 +33,6 @@ import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -53,7 +52,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.benoitduffez.cupsprint.CupsPrintApp;
+import io.github.benoitduffez.cupsprint.L;
 import io.github.benoitduffez.cupsprint.R;
 
 /**
@@ -112,9 +111,7 @@ public class CupsService extends PrintService {
                 }
             }.execute();
         } catch (MalformedURLException e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't cancel print job: " + printJob + " because: " + e);
-            Crashlytics.log("Couldn't cancel job: " + jobId);
-            Crashlytics.logException(e);
+            L.e("Couldn't cancel print job: " + printJob + ", jobId: " + jobId, e);
         }
     }
 
@@ -129,9 +126,7 @@ public class CupsService extends PrintService {
             CupsClient client = new CupsClient(clientURL);
             client.cancelJob(jobId);
         } catch (Exception e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't cancel job: " + jobId + " because: " + e);
-            Crashlytics.log("Couldn't cancel job: " + jobId);
-            Crashlytics.logException(e);
+            L.e("Couldn't cancel job: " + jobId, e);
         }
     }
 
@@ -190,9 +185,7 @@ public class CupsService extends PrintService {
                 }
             }.execute();
         } catch (MalformedURLException e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't queue print job: " + printJob + " because: " + e);
-            Crashlytics.log("Couldn't queue job: " + printJob);
-            Crashlytics.logException(e);
+            L.e("Couldn't queue print job: " + printJob, e);
         }
     }
 
@@ -236,9 +229,7 @@ public class CupsService extends PrintService {
             clientURL = new URL(schemeHostPort);
             jobId = mJobs.get(printJob.getId());
         } catch (MalformedURLException e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + printJob + " state because: " + e);
-            Crashlytics.log("Couldn't get job: " + printJob + " state");
-            Crashlytics.logException(e);
+            L.e("Couldn't get job: " + printJob + " state", e);
             return false;
         }
 
@@ -259,8 +250,7 @@ public class CupsService extends PrintService {
             @Override
             protected void onPostExecute(JobStateEnum state) {
                 if (mException != null) {
-                    Log.e(CupsPrintApp.LOG_TAG, "Couldn't get job: " + jobId + " state because: " + mException);
-                    Crashlytics.log("Couldn't get job: " + jobId + " state");
+                    L.e("Couldn't get job: " + jobId + " state because: " + mException);
 
                     if (mException instanceof SocketException && mException.getMessage().contains("ECONNRESET")) {
                         Toast.makeText(CupsService.this, getString(R.string.err_job_econnreset, jobId), Toast.LENGTH_LONG).show();
@@ -327,8 +317,7 @@ public class CupsService extends PrintService {
             CupsClient client = new CupsClient(clientURL);
             CupsPrinter printer = client.getPrinter(printerURL);
             if (printer == null) {
-                Log.e(CupsPrintApp.LOG_TAG, "Printer is null when trying to print: printer no longer available?");
-                Crashlytics.log("Printer is null when trying to print: printer no longer available?");
+                L.e("Printer is null when trying to print: printer no longer available?");
                 return R.string.err_printer_null_when_printing;
             }
 
@@ -337,9 +326,7 @@ public class CupsService extends PrintService {
             PrintRequestResult result = printer.print(job);
             mJobs.put(jobId, result.getJobId());
         } catch (Exception e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't send file descriptor: " + fd + " to printer because: " + e);
-            Crashlytics.log("Couldn't send filed descriptor " + fd + " to printer");
-            Crashlytics.logException(e);
+            L.e("Couldn't send file descriptor: " + fd + " to printer", e);
         }
 
         return -1;

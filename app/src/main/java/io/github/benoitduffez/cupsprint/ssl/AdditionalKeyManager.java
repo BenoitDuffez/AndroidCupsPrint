@@ -5,9 +5,6 @@ import android.preference.PreferenceManager;
 import android.security.KeyChain;
 import android.security.KeyChainException;
 import android.text.TextUtils;
-import android.util.Log;
-
-import com.crashlytics.android.Crashlytics;
 
 import java.net.Socket;
 import java.security.Principal;
@@ -18,6 +15,7 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.X509KeyManager;
 
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
+import io.github.benoitduffez.cupsprint.L;
 
 /**
  * Uses the system keystore
@@ -86,9 +84,7 @@ public class AdditionalKeyManager implements X509KeyManager {
     }
 
     private static void logError(final String alias, final String type, final Exception ex) {
-        Log.e(CupsPrintApp.LOG_TAG, "Unable to retrieve " + type + " for [" + alias + "] due to " + ex);
-        Crashlytics.log("Unable to retrieve " + type + " for [" + alias + "]");
-        Crashlytics.logException(ex);
+        L.e("Unable to retrieve " + type + " for [" + alias + "]" , ex);
     }
 
     @Override

@@ -21,9 +21,6 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Base64;
-import android.util.Log;
-
-import com.crashlytics.android.Crashlytics;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -70,16 +67,12 @@ public class HttpConnectionManagement {
             try {
                 keyManager = AdditionalKeyManager.fromAlias();
             } catch (CertificateException e) {
-                Log.e(CupsPrintApp.LOG_TAG, "Couldn't load system key store: " + e.getLocalizedMessage());
-                Crashlytics.log("Couldn't load system key store: ");
-                Crashlytics.logException(e);
+                L.e("Couldn't load system key store: " + e.getLocalizedMessage(), e);
             }
 
             connection.setSSLSocketFactory(new AdditionalKeyStoresSSLSocketFactory(keyManager, trustStore));
         } catch (NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException | KeyManagementException e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't handle SSL URL connection: " + e.getLocalizedMessage());
-            Crashlytics.log("Couldn't handle SSL URL connection");
-            Crashlytics.logException(e);
+            L.e("Couldn't handle SSL URL connection: " + e.getLocalizedMessage(), e);
         }
     }
 
@@ -94,9 +87,7 @@ public class HttpConnectionManagement {
         try {
             trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
         } catch (KeyStoreException e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
-            Crashlytics.log("Couldn't open local key store");
-            Crashlytics.logException(e);
+            L.e("Couldn't open local key store", e);
             return null;
         }
 
@@ -107,20 +98,16 @@ public class HttpConnectionManagement {
             return trustStore;
         } catch (FileNotFoundException e) {
             // This one can be ignored safely - at least not sent to crashlytics
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
+            L.e("Couldn't open local key store: " + e.getLocalizedMessage());
         } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't open local key store: " + e.getLocalizedMessage());
-            Crashlytics.log("Couldn't open local key store");
-            Crashlytics.logException(e);
+            L.e("Couldn't open local key store", e);
         }
 
         // if we couldn't load local keystore file, create an new empty one
         try {
             trustStore.load(null, null);
         } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't create new key store: " + e.getLocalizedMessage());
-            Crashlytics.log("Couldn't create new key store");
-            Crashlytics.logException(e);
+            L.e("Couldn't create new key store", e);
         }
 
         return trustStore;
@@ -145,9 +132,7 @@ public class HttpConnectionManagement {
                 trustStore.setCertificateEntry(c.getSubjectDN().toString(), c);
             }
         } catch (final KeyStoreException e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't store cert chain into key store: " + e);
-            Crashlytics.log("Couldn't store cert chain into key store");
-            Crashlytics.logException(e);
+            L.e("Couldn't store cert chain into key store", e);
             return false;
         }
 
@@ -158,17 +143,13 @@ public class HttpConnectionManagement {
             trustStore.store(fos, KEYSTORE_PASSWORD.toCharArray());
             fos.close();
         } catch (final Exception e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Unable to save key store: " + e);
-            Crashlytics.log("Unable to save key store");
-            Crashlytics.logException(e);
+            L.e("Unable to save key store", e);
         } finally {
             if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException e) {
-                    Log.e(CupsPrintApp.LOG_TAG, "Couldn't close key store: " + e);
-                    Crashlytics.log("Couldn't close key store");
-                    Crashlytics.logException(e);
+                    L.e("Couldn't close key store", e);
                 }
             }
         }
@@ -196,9 +177,7 @@ public class HttpConnectionManagement {
             String encoded = Base64.encodeToString((username + ":" + password).getBytes("UTF-8"), Base64.NO_WRAP);
             connection.setRequestProperty("Authorization", "Basic " + encoded);
         } catch (UnsupportedEncodingException e) {
-            Log.e(CupsPrintApp.LOG_TAG, "Couldn't base64 encode basic auth credentials: " + e);
-            Crashlytics.log("Couldn't base64 encode basic auth credentials");
-            Crashlytics.logException(e);
+            L.e("Couldn't base64 encode basic auth credentials" , e);
         }
     }
 }
