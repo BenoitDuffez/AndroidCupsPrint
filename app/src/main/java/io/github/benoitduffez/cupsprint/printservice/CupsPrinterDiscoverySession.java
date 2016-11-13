@@ -418,8 +418,8 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      * @return true if the exception should be reported to Crashlytics, false otherwise
      */
     private boolean handleHttpError(Exception exception, PrinterId printerId) {
-        // happens when basic auth is required but not sent
         switch (mResponseCode) {
+            // happens when basic auth is required but not sent
             case HttpURLConnection.HTTP_NOT_FOUND:
                 Toast.makeText(mPrintService, R.string.err_404, Toast.LENGTH_LONG).show();
                 break;
