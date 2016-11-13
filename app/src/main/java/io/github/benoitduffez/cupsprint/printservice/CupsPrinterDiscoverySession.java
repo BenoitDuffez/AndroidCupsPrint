@@ -1,24 +1,3 @@
-/*
- * CupsPrinterDiscoverySession.java
- *
- * Copyright (c) 2015, Benoit Duffez. All rights reserved.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301  USA
- */
-
 package io.github.benoitduffez.cupsprint.printservice;
 
 import android.content.Context;
@@ -65,12 +44,12 @@ import ch.ethz.vppserver.ippclient.IppResult;
 import ch.ethz.vppserver.schema.ippclient.Attribute;
 import ch.ethz.vppserver.schema.ippclient.AttributeGroup;
 import ch.ethz.vppserver.schema.ippclient.AttributeValue;
-import io.github.benoitduffez.cupsprint.app.AddPrintersActivity;
-import io.github.benoitduffez.cupsprint.app.BasicAuthActivity;
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
-import io.github.benoitduffez.cupsprint.app.HostNotVerifiedActivity;
 import io.github.benoitduffez.cupsprint.L;
 import io.github.benoitduffez.cupsprint.R;
+import io.github.benoitduffez.cupsprint.app.AddPrintersActivity;
+import io.github.benoitduffez.cupsprint.app.BasicAuthActivity;
+import io.github.benoitduffez.cupsprint.app.HostNotVerifiedActivity;
 import io.github.benoitduffez.cupsprint.app.UntrustedCertActivity;
 import io.github.benoitduffez.cupsprint.detect.MdnsServices;
 import io.github.benoitduffez.cupsprint.detect.PrinterRec;

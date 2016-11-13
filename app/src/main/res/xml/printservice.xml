@@ -1,25 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-printservice.xml
-
-Copyright (c) 2015, Benoit Duffez. All rights reserved.
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-MA 02110-1301  USA
--->
 <print-service
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:addPrintersActivity="io.github.benoitduffez.cupsprint.app.AddPrintersActivity"
-    android:vendor="Generic CUPS client"/>
+    android:vendor="@string/print_service_vendor"/>
