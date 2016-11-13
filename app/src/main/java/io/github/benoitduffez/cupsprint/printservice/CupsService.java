@@ -1,6 +1,5 @@
 package io.github.benoitduffez.cupsprint.printservice;
 
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
@@ -28,6 +27,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,8 +63,6 @@ public class CupsService extends PrintService {
         }
 
         String url = printerId.getLocalId();
-        Uri tmpUri = Uri.parse(url);
-        String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
 
         final PrintJobId id = printJob.getId();
         if (id == null) {
@@ -77,6 +76,9 @@ public class CupsService extends PrintService {
         }
 
         try {
+            URI tmpUri = new URI(url);
+            String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
+
             final URL clientURL = new URL(schemeHostPort);
             new AsyncTask<Void, Void, Void>() {
                 @Override
@@ -92,6 +94,8 @@ public class CupsService extends PrintService {
             }.execute();
         } catch (MalformedURLException e) {
             L.e("Couldn't cancel print job: " + printJob + ", jobId: " + jobId, e);
+        } catch (URISyntaxException e) {
+            L.e("Couldn't parse URI: " + url, e);
         }
     }
 
@@ -131,10 +135,10 @@ public class CupsService extends PrintService {
         }
 
         String url = printerId.getLocalId();
-        Uri tmpUri = Uri.parse(url);
-        String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
-
         try {
+            URI tmpUri = new URI(url);
+            String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
+
             // Prepare job
             final URL printerURL = new URL(url);
             final URL clientURL = new URL(schemeHostPort);
@@ -172,6 +176,8 @@ public class CupsService extends PrintService {
             }.execute();
         } catch (MalformedURLException e) {
             L.e("Couldn't queue print job: " + printJob, e);
+        } catch (URISyntaxException e) {
+            L.e("Couldn't parse URI: " + url, e);
         }
     }
 
@@ -223,17 +229,21 @@ public class CupsService extends PrintService {
             return false;
         }
         String url = printerId.getLocalId();
-        Uri tmpUri = Uri.parse(url);
-        String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
 
         // Prepare job
         final URL clientURL;
         final int jobId;
         try {
+            URI tmpUri = new URI(url);
+            String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
+
             clientURL = new URL(schemeHostPort);
             jobId = mJobs.get(printJob.getId());
         } catch (MalformedURLException e) {
             L.e("Couldn't get job: " + printJob + " state", e);
+            return false;
+        } catch (URISyntaxException e) {
+            L.e("Couldn't parse URI: " + url, e);
             return false;
         }
 

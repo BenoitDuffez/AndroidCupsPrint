@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.print.PrintAttributes;
@@ -28,6 +27,8 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
@@ -139,7 +140,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
         }
         URL printerURL = new URL(url);
 
-        Uri tmpUri = Uri.parse(url);
+        URI tmpUri = new URI(url);
         String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
         URL clientURL = new URL(schemeHostPort);
 
@@ -314,16 +315,22 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             name = prefs.getString(AddPrintersActivity.PREF_NAME + i, null);
             if (url != null && name != null && url.trim().length() > 0 && name.trim().length() > 0) {
                 // Ensure a port is set, and set it to 631 if unset
-                Uri uri = Uri.parse(url);
-                if (uri.getPort() < 0) {
-                    url = uri.getScheme() + "://" + uri.getHost() + ":" + 631;
-                } else {
-                    url = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort();
+                try {
+                    URI uri = new URI(url);
+                    if (uri.getPort() < 0) {
+                        url = uri.getScheme() + "://" + uri.getHost() + ":" + 631;
+                    } else {
+                        url = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort();
+                    }
+                    if (uri.getPath() != null) {
+                        url += uri.getPath();
+                    }
+
+                    // Now, add printer
+                    printers.put(url, name);
+                } catch (URISyntaxException e) {
+                    L.e("Unable to parse manually-entered URI: " + url, e);
                 }
-                if (uri.getPath() != null) {
-                    url += uri.getPath();
-                }
-                printers.put(url, name);
             }
         }
 
@@ -429,12 +436,17 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                 break;
 
             case HttpURLConnection.HTTP_UNAUTHORIZED:
-                final Uri printerUri = Uri.parse(printerId.getLocalId());
-                String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
-                Intent dialog = new Intent(mPrintService, BasicAuthActivity.class);
-                dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl);
-                dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mPrintService.startActivity(dialog);
+                try {
+                    final URI printerUri = new URI(printerId.getLocalId());
+                    String printersUrl = printerUri.getScheme() + "://" + printerUri.getHost() + ":" + printerUri.getPort() + "/printers/";
+                    Intent dialog = new Intent(mPrintService, BasicAuthActivity.class);
+                    dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl);
+                    dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mPrintService.startActivity(dialog);
+                } catch (URISyntaxException e) {
+                    L.e("Couldn't parse URI: " + printerId.getLocalId(), e);
+                    return true;
+                }
                 break;
 
             // 426 Upgrade Required (plus header: Upgrade: TLS/1.2,TLS/1.1,TLS/1.0) which means please use HTTPS
