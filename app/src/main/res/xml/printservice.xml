@@ -21,5 +21,5 @@ MA 02110-1301  USA
 -->
 <print-service
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:addPrintersActivity="io.github.benoitduffez.cupsprint.AddPrintersActivity"
+    android:addPrintersActivity="io.github.benoitduffez.cupsprint.app.AddPrintersActivity"
     android:vendor="Generic CUPS client"/>
