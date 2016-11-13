@@ -252,6 +252,11 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                 colorMode = PrintAttributes.COLOR_MODE_MONOCHROME;
             }
 
+            // May happen. Fallback to monochrome by default
+            if ((colorDefault & (PrintAttributes.COLOR_MODE_MONOCHROME | PrintAttributes.COLOR_MODE_COLOR)) == 0) {
+                colorDefault = PrintAttributes.COLOR_MODE_MONOCHROME;
+            }
+
             builder.setColorModes(colorMode, colorDefault);
             builder.setMinMargins(new PrintAttributes.Margins(marginMilsLeft, marginMilsTop, marginMilsRight, marginMilsBottom));
             return builder.build();
