@@ -357,8 +357,6 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     L.i("Checking printer status: " + printerId);
                     return checkPrinter(printerId.getLocalId(), printerId);
                 } catch (Exception e) {
-                    L.e("HTTP response code: " + mResponseCode);
-                    L.e("Failed to check printer " + printerId, e);
                     mException = e;
                 }
                 return null;
@@ -366,6 +364,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
             @Override
             protected void onPostExecute(PrinterCapabilitiesInfo printerCapabilitiesInfo) {
+                L.v("HTTP response code: " + mResponseCode);
                 if (mException != null) {
                     if (handlePrinterException(mException, printerId)) {
                         Crashlytics.logException(mException);
