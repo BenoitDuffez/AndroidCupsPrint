@@ -84,7 +84,7 @@ public class AdditionalKeyManager implements X509KeyManager {
     }
 
     private static void logError(final String alias, final String type, final Exception ex) {
-        L.e("Unable to retrieve " + type + " for [" + alias + "]" , ex);
+        L.e("Unable to retrieve " + type + " for [" + alias + "]", ex);
     }
 
     @Override

@@ -9,9 +9,9 @@
 
     <application
         android:name="io.github.benoitduffez.cupsprint.CupsPrintApp"
+        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:allowBackup="true">
+        android:label="@string/app_name">
         <service
             android:name=".printservice.CupsService"
             android:permission="android.permission.BIND_PRINT_SERVICE">
@@ -31,22 +31,22 @@
         <activity
             android:name=".app.UntrustedCertActivity"
             android:excludeFromRecents="true"
-            android:label="@string/untrusted_title"
             android:exported="false"
+            android:label="@string/untrusted_title"
             android:theme="@style/AndroidCupsPrint.AlertDialog"/>
 
         <activity
             android:name=".app.BasicAuthActivity"
             android:excludeFromRecents="true"
-            android:label="@string/basic_auth_title"
             android:exported="false"
+            android:label="@string/basic_auth_title"
             android:theme="@style/AndroidCupsPrint.AlertDialog"/>
 
         <activity
             android:name=".app.HostNotVerifiedActivity"
             android:excludeFromRecents="true"
-            android:label="@string/host_not_verified_activity_title"
             android:exported="false"
+            android:label="@string/host_not_verified_activity_title"
             android:theme="@style/AndroidCupsPrint.AlertDialog"/>
 
         <meta-data
