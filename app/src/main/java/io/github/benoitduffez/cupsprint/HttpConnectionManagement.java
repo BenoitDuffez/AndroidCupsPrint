@@ -40,6 +40,7 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 
+import io.github.benoitduffez.cupsprint.app.BasicAuthActivity;
 import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyManager;
 import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory;
 import io.github.benoitduffez.cupsprint.ssl.AndroidCupsHostnameVerifier;
@@ -119,7 +120,7 @@ public class HttpConnectionManagement {
      * @param chain The chain of certs to trust
      * @return true if it was saved, false otherwise
      */
-    static boolean saveCertificates(X509Certificate[] chain) {
+    public static boolean saveCertificates(X509Certificate[] chain) {
         // Load existing certs
         KeyStore trustStore = loadKeyStore();
         if (trustStore == null) {

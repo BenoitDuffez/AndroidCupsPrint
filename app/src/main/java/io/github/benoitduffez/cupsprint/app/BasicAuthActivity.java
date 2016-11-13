@@ -1,4 +1,4 @@
-package io.github.benoitduffez.cupsprint;
+package io.github.benoitduffez.cupsprint.app;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+
+import io.github.benoitduffez.cupsprint.R;
 
 /**
  * Ask for the HTTP basic auth credentials

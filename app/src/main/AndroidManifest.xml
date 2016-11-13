@@ -23,26 +23,26 @@
         </service>
 
         <activity
-            android:name=".AddPrintersActivity"
+            android:name=".app.AddPrintersActivity"
             android:exported="true"
             android:label="@string/activity_add_label"/>
 
         <activity
-            android:name=".UntrustedCertActivity"
+            android:name=".app.UntrustedCertActivity"
             android:excludeFromRecents="true"
             android:label="@string/untrusted_title"
             android:exported="false"
             android:theme="@style/AndroidCupsPrint.AlertDialog"/>
 
         <activity
-            android:name=".BasicAuthActivity"
+            android:name=".app.BasicAuthActivity"
             android:excludeFromRecents="true"
             android:label="@string/basic_auth_title"
             android:exported="false"
             android:theme="@style/AndroidCupsPrint.AlertDialog"/>
 
         <activity
-            android:name=".HostNotVerifiedActivity"
+            android:name=".app.HostNotVerifiedActivity"
             android:excludeFromRecents="true"
             android:label="@string/host_not_verified_activity_title"
             android:exported="false"

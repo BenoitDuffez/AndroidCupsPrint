@@ -1,4 +1,4 @@
-package io.github.benoitduffez.cupsprint;
+package io.github.benoitduffez.cupsprint.app;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -16,6 +16,8 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.github.benoitduffez.cupsprint.R;
 
 /**
  * Called when the system needs to manually add a printer

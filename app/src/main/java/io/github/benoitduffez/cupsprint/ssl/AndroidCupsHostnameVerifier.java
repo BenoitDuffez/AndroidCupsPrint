@@ -4,10 +4,10 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
 import io.github.benoitduffez.cupsprint.CupsPrintApp;
-import io.github.benoitduffez.cupsprint.HostNotVerifiedActivity;
+import io.github.benoitduffez.cupsprint.app.HostNotVerifiedActivity;
 
 /**
- * Used with {@link io.github.benoitduffez.cupsprint.HostNotVerifiedActivity} to trust certain hosts
+ * Used with {@link HostNotVerifiedActivity} to trust certain hosts
  */
 public class AndroidCupsHostnameVerifier implements HostnameVerifier {
     @Override

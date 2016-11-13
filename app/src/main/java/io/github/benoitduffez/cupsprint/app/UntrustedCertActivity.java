@@ -1,4 +1,4 @@
-package io.github.benoitduffez.cupsprint;
+package io.github.benoitduffez.cupsprint.app;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -8,6 +8,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.security.cert.X509Certificate;
+
+import io.github.benoitduffez.cupsprint.HttpConnectionManagement;
+import io.github.benoitduffez.cupsprint.R;
 
 /**
  * Show an untrusted cert info + two buttons to accept or refuse to trust said cert
