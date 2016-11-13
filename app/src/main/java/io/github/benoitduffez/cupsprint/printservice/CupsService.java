@@ -105,7 +105,7 @@ public class CupsService extends PrintService {
      * @param clientURL The printer client URL
      * @param jobId     The printer job ID
      */
-    private void cancelPrintJob(URL clientURL, int jobId) {
+    void cancelPrintJob(URL clientURL, int jobId) {
         try {
             CupsClient client = new CupsClient(clientURL);
             client.cancelJob(jobId);
@@ -119,7 +119,7 @@ public class CupsService extends PrintService {
      *
      * @param printJob The print job
      */
-    private void onPrintJobCancelled(PrintJob printJob) {
+    void onPrintJobCancelled(PrintJob printJob) {
         mJobs.remove(printJob.getId());
         printJob.cancel();
     }
@@ -188,7 +188,7 @@ public class CupsService extends PrintService {
      * @param jobId The print job
      * @param e     The exception that occurred
      */
-    private void handleJobException(PrintJobId jobId, @NonNull Exception e) {
+    void handleJobException(PrintJobId jobId, @NonNull Exception e) {
         if (e instanceof SocketTimeoutException) {
             Toast.makeText(this, R.string.err_job_socket_timeout, Toast.LENGTH_LONG).show();
         } else if (e instanceof NullPrinterException) {
@@ -216,7 +216,7 @@ public class CupsService extends PrintService {
      * @param printJob The print job
      * @return true if this method should be called again, false otherwise (in case the job is still pending or it is complete)
      */
-    private boolean updateJobStatus(final PrintJob printJob) {
+    boolean updateJobStatus(final PrintJob printJob) {
         // Check if the job is already gone
         if (!mJobs.containsKey(printJob.getId())) {
             Crashlytics.log("Tried to request a job status, but the job couldn't be found in the jobs list");
@@ -291,7 +291,7 @@ public class CupsService extends PrintService {
      * @param clientURL The printer client URL
      * @return true if the job is complete/aborted/cancelled, false if it's still processing (printing, paused, etc)
      */
-    private JobStateEnum getJobState(int jobId, URL clientURL) throws Exception {
+    JobStateEnum getJobState(int jobId, URL clientURL) throws Exception {
         CupsClient client = new CupsClient(clientURL);
         PrintJobAttributes attr = client.getJobAttributes(jobId);
         return attr.getJobState();
@@ -303,7 +303,7 @@ public class CupsService extends PrintService {
      * @param printJob The print job
      * @param state    Print job state
      */
-    private void onJobStateUpdate(PrintJob printJob, JobStateEnum state) {
+    void onJobStateUpdate(PrintJob printJob, JobStateEnum state) {
         // Couldn't check state -- don't do anything
         if (state == null) {
             mJobs.remove(printJob.getId());
@@ -326,7 +326,7 @@ public class CupsService extends PrintService {
      * @param printerURL The printer URL
      * @param fd         The document to print, as a {@link FileDescriptor}
      */
-    private void printDocument(PrintJobId jobId, URL clientURL, URL printerURL, FileDescriptor fd) throws Exception {
+    void printDocument(PrintJobId jobId, URL clientURL, URL printerURL, FileDescriptor fd) throws Exception {
         CupsClient client = new CupsClient(clientURL);
         CupsPrinter printer = client.getPrinter(printerURL);
         if (printer == null) {
@@ -344,7 +344,7 @@ public class CupsService extends PrintService {
      *
      * @param printJob The print job
      */
-    private void onPrintJobSent(PrintJob printJob) {
+    void onPrintJobSent(PrintJob printJob) {
         printJob.start();
     }
 

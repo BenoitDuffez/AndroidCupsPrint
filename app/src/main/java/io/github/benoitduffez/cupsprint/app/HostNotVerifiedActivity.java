@@ -60,7 +60,7 @@ public class HostNotVerifiedActivity extends Activity {
      *
      * @param trusted Whether the host should be trusted or not
      */
-    private void validateTrust(boolean trusted) {
+    void validateTrust(boolean trusted) {
         SharedPreferences.Editor prefs = getSharedPreferences(HOSTS_FILE, MODE_PRIVATE).edit();
         prefs.putBoolean(mUnverifiedHostname, trusted);
         prefs.apply();

@@ -107,7 +107,7 @@ public class AddPrintersActivity extends Activity {
      *
      * @param scheme The target scheme, http or https
      */
-    private void searchPrinters(String scheme) {
+    void searchPrinters(String scheme) {
         HttpURLConnection urlConnection = null;
         StringBuilder sb = new StringBuilder();
         String server = mServerIp.getText().toString();

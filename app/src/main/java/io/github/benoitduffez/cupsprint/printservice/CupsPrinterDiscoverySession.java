@@ -83,7 +83,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     private String mUnverifiedHost; // If the SSL hostname cannot be verified, this will be the hostname
 
-    private int mResponseCode;
+    int mResponseCode;
 
     CupsPrinterDiscoverySession(PrintService context) {
         mPrintService = context;
@@ -115,7 +115,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      *
      * @param printers The list of printers found, as a map of URL=>name
      */
-    private void onPrintersDiscovered(@NonNull Map<String, String> printers) {
+    void onPrintersDiscovered(@NonNull Map<String, String> printers) {
         final Resources res = CupsPrintApp.getInstance().getResources();
         final String toast = res.getQuantityString(R.plurals.printer_discovery_result, printers.size(), printers.size());
         Toast.makeText(mPrintService, toast, Toast.LENGTH_SHORT).show();
@@ -134,7 +134,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      *
      * @return The printer capabilities if the printer is available, null otherwise
      */
-    private PrinterCapabilitiesInfo checkPrinter(final String url, final PrinterId printerId) throws Exception {
+    PrinterCapabilitiesInfo checkPrinter(final String url, final PrinterId printerId) throws Exception {
         if (url == null || (!url.startsWith("http://") && !url.startsWith("https://"))) {
             return null;
         }
@@ -264,7 +264,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      * @param printerId               The printer
      * @param printerCapabilitiesInfo null if the printer isn't available anymore, otherwise contains the printer capabilities
      */
-    private void onPrinterChecked(PrinterId printerId, PrinterCapabilitiesInfo printerCapabilitiesInfo) {
+    void onPrinterChecked(PrinterId printerId, PrinterCapabilitiesInfo printerCapabilitiesInfo) {
         L.d("onPrinterChecked: " + printerId + " (printers: " + getPrinters() + ")");
         if (printerCapabilitiesInfo == null) {
             final ArrayList<PrinterId> printerIds = new ArrayList<>();
@@ -293,7 +293,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      * @return The list of printers as {@link PrinterRec}
      */
     @NonNull
-    private Map<String, String> scanPrinters() {
+    Map<String, String> scanPrinters() {
         final MdnsServices mdns = new MdnsServices();
         PrinterResult result = mdns.scan();
 
@@ -390,7 +390,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      * @param printerId The printer on which the exception occurred
      * @return true if the exception should be reported to Crashlytics, false otherwise
      */
-    private boolean handlePrinterException(@NonNull Exception exception, @NonNull PrinterId printerId) {
+    boolean handlePrinterException(@NonNull Exception exception, @NonNull PrinterId printerId) {
         // Happens when the HTTP response code is in the 4xx range
         if (exception instanceof FileNotFoundException) {
             return handleHttpError(exception, printerId);

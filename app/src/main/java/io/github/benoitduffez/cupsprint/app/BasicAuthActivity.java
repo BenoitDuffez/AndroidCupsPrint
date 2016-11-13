@@ -21,7 +21,7 @@ public class BasicAuthActivity extends Activity {
 
     public static final String KEY_BASIC_AUTH_PASSWORD = BasicAuthActivity.class.getName() + ".Password";
 
-    private static final String KEY_BASIC_AUTH_NUMBER = BasicAuthActivity.class.getName() + ".Number";
+    static final String KEY_BASIC_AUTH_NUMBER = BasicAuthActivity.class.getName() + ".Number";
 
     /**
      * See if we have already saved credentials for this server
