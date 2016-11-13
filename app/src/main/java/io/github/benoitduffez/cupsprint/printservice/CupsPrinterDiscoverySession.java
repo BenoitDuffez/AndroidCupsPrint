@@ -383,7 +383,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      * @param printerId The printer on which the exception occurred
      * @return true if the exception should be reported to Crashlytics, false otherwise
      */
-    private boolean handlePrinterException(@NonNull Exception exception, PrinterId printerId) {
+    private boolean handlePrinterException(@NonNull Exception exception, @NonNull PrinterId printerId) {
         // Happens when the HTTP response code is in the 4xx range
         if (exception instanceof FileNotFoundException) {
             return handleHttpError(exception, printerId);
@@ -417,7 +417,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      * @param printerId The printer on which the exception occurred
      * @return true if the exception should be reported to Crashlytics, false otherwise
      */
-    private boolean handleHttpError(Exception exception, PrinterId printerId) {
+    private boolean handleHttpError(@NonNull Exception exception, @NonNull PrinterId printerId) {
         switch (mResponseCode) {
             // happens when basic auth is required but not sent
             case HttpURLConnection.HTTP_NOT_FOUND:
