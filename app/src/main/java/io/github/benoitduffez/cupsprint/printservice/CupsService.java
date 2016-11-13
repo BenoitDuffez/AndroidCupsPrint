@@ -63,10 +63,10 @@ public class CupsService extends PrintService {
     /**
      * When a print job is active, the app will poll the printer to retrieve the job status. This is the polling interval.
      */
-    public static final int JOB_CHECK_POLLING_INTERVAL = 5000;
+    private static final int JOB_CHECK_POLLING_INTERVAL = 5000;
 
     @NonNull
-    Map<PrintJobId, Integer> mJobs = new HashMap<>();
+    private final Map<PrintJobId, Integer> mJobs = new HashMap<>();
 
     @Override
     protected PrinterDiscoverySession onCreatePrinterDiscoverySession() {

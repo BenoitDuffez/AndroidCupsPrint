@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class PrinterResult {
-    List<PrinterRec> printerRecs;
+    private List<PrinterRec> printerRecs;
 
-    List<String> errors;
+    private List<String> errors;
 
     PrinterResult() {
         printerRecs = Collections.synchronizedList(new ArrayList<PrinterRec>());
@@ -20,5 +20,9 @@ public class PrinterResult {
 
     public List<String> getErrors() {
         return errors;
+    }
+
+    void setPrinterRecs(ArrayList<PrinterRec> printerRecs) {
+        this.printerRecs = printerRecs;
     }
 }

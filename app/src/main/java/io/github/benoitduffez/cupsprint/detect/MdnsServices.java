@@ -177,7 +177,7 @@ public class MdnsServices {
         return new PrinterRec(nickname, protocol, host, port, queue);
     }
 
-    private Map<String, PrinterRec> getPrinters(String service, int stage) {
+    private Map<String, PrinterRec> getPrinters(String service) {
         Map<String, PrinterRec> printers = new HashMap<>();
         try {
             MulticastSocket s;
@@ -218,12 +218,12 @@ public class MdnsServices {
     public PrinterResult scan() {
         ArrayList<PrinterRec> httpRecs = new ArrayList<>();
         ArrayList<PrinterRec> httpsRecs = new ArrayList<>();
-        httpRecs.addAll(getPrinters(MdnsServices.IPP_SERVICE, 0).values());
-        httpsRecs.addAll(getPrinters(MdnsServices.IPPS_SERVICE, 50).values());
+        httpRecs.addAll(getPrinters(MdnsServices.IPP_SERVICE).values());
+        httpsRecs.addAll(getPrinters(MdnsServices.IPPS_SERVICE).values());
         new Merger().merge(httpRecs, httpsRecs);
 
         PrinterResult result = new PrinterResult();
-        result.printerRecs = httpsRecs;
+        result.setPrinterRecs(httpsRecs);
         return result;
     }
 

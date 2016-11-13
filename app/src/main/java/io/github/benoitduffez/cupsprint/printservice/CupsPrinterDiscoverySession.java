@@ -79,7 +79,7 @@ import io.github.benoitduffez.cupsprint.detect.PrinterResult;
 /**
  * CUPS printer discovery class
  */
-public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
+class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
     private static final int HTTP_UPGRADE_REQUIRED = 426;
 
     private static final double MM_IN_MILS = 39.3700787;
@@ -97,7 +97,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             "media-bottom-margin-supported"
     };
 
-    private PrintService mPrintService;
+    private final PrintService mPrintService;
 
     private X509Certificate[] mServerCerts; // If the server sends a non-trusted cert, it will be stored here
 
@@ -105,7 +105,7 @@ public class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     private int mResponseCode;
 
-    public CupsPrinterDiscoverySession(PrintService context) {
+    CupsPrinterDiscoverySession(PrintService context) {
         mPrintService = context;
     }
 

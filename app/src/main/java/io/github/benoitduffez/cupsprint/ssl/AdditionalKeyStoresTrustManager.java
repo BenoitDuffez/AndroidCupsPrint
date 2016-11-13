@@ -28,10 +28,10 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-public class AdditionalKeyStoresTrustManager implements X509TrustManager {
-    public static final String UNTRUSTED_CERTIFICATE = "Untrusted Certificate";
+class AdditionalKeyStoresTrustManager implements X509TrustManager {
+    private static final String UNTRUSTED_CERTIFICATE = "Untrusted Certificate";
 
-    private ArrayList<X509TrustManager> x509TrustManagers = new ArrayList<>();
+    final private ArrayList<X509TrustManager> x509TrustManagers = new ArrayList<>();
 
     private X509Certificate[] certChain = null;
 
@@ -98,7 +98,7 @@ public class AdditionalKeyStoresTrustManager implements X509TrustManager {
     }
 
     public X509Certificate[] getAcceptedIssuers() {
-        final ArrayList<X509Certificate> list = new ArrayList<X509Certificate>();
+        final ArrayList<X509Certificate> list = new ArrayList<>();
         for (X509TrustManager tm : x509TrustManagers) {
             list.addAll(Arrays.asList(tm.getAcceptedIssuers()));
         }

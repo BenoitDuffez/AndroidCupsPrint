@@ -95,7 +95,7 @@ public class CupsPrinter {
         if (pageRanges != null && !"".equals(pageRanges)) {
             String[] ranges = pageRanges.split(",");
 
-            String delimeter = "";
+            String delimiter = "";
 
             rangesString.append("page-ranges:setOfRangeOfInteger:");
             for (String range : ranges) {
@@ -105,9 +105,9 @@ public class CupsPrinter {
                     range = range + "-" + range;
                 }
 
-                rangesString.append(delimeter).append(range);
+                rangesString.append(delimiter).append(range);
                 // following ranges need to be separated with ","
-                delimeter = ",";
+                delimiter = ",";
             }
             addAttribute(attributes, "job-attributes", rangesString.toString());
         }

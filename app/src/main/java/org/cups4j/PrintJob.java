@@ -100,8 +100,6 @@ public class PrintJob {
 
         private String pageRanges = null;
 
-        ;
-
         private String userName = null;
 
         private String jobName = null;
@@ -178,7 +176,7 @@ public class PrintJob {
          *
          * @param attributes provide operation attributes and/or a String of job-attributes
          *                   <p>
-         *                   job attributes are sperated by "#"
+         *                   job attributes are seperated by "#"
          *                   </p>
          *                   <p>
          *                   <p>

@@ -43,7 +43,7 @@ public class AddPrintersActivity extends Activity {
      */
     public static final String PREF_NAME = "name";
 
-    EditText mUrl, mName, mServerIp;
+    private EditText mUrl, mName, mServerIp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

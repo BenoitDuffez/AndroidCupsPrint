@@ -26,7 +26,6 @@ import android.support.annotation.Nullable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -44,9 +43,9 @@ import javax.net.ssl.TrustManager;
  * the default KeyStore
  */
 public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
-    private SSLContext mSslContext = SSLContext.getInstance("TLS");
+    private final SSLContext mSslContext = SSLContext.getInstance("TLS");
 
-    private AdditionalKeyStoresTrustManager mTrustManager;
+    private final AdditionalKeyStoresTrustManager mTrustManager;
 
     /**
      * Create the SSL socket factory
@@ -92,12 +91,12 @@ public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
     }
 
     @Override
-    public Socket createSocket(String s, int i) throws IOException, UnknownHostException {
+    public Socket createSocket(String s, int i) throws IOException {
         return mSslContext.getSocketFactory().createSocket(s, i);
     }
 
     @Override
-    public Socket createSocket(String s, int i, InetAddress inetAddress, int i1) throws IOException, UnknownHostException {
+    public Socket createSocket(String s, int i, InetAddress inetAddress, int i1) throws IOException {
         return mSslContext.getSocketFactory().createSocket(s, i, inetAddress, i1);
     }
 

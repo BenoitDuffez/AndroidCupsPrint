@@ -14,11 +14,11 @@ import io.github.benoitduffez.cupsprint.R;
  * Ask for host trust when it couldn't be verified
  */
 public class HostNotVerifiedActivity extends Activity {
-    public static final String HOSTS_FILE = "hosts_trust";
+    private static final String HOSTS_FILE = "hosts_trust";
 
     public static final String KEY_HOST = HostNotVerifiedActivity.class.getName() + ".ErrorText";
 
-    String mUnverifiedHostname;
+    private String mUnverifiedHostname;
 
     /**
      * Check whether host is known and trusted
