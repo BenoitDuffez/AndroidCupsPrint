@@ -357,8 +357,8 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     L.i("Checking printer status: " + printerId);
                     return checkPrinter(printerId.getLocalId(), printerId);
                 } catch (Exception e) {
-                    L.e("Failed to check printer " + printerId, e);
                     L.e("HTTP response code: " + mResponseCode);
+                    L.e("Failed to check printer " + printerId, e);
                     mException = e;
                 }
                 return null;
