@@ -1,4 +1,5 @@
 # AndroidCupsPrint
+
 Port of cups4j to Android.
 
 See it live on the Play Store: https://play.google.com/store/apps/details?id=io.github.benoitduffez.cupsprint  
@@ -19,6 +20,7 @@ This app was modified in several ways:
 * added support for Android PrintService so that it can print documents straight from almost all apps
 * removed all legacy code that allowed printing without the use of Android PrintService (this is removed because of `minSdkVersion=19`, meaning all targets of this app are `PrintService`-compliant)
 * fixed SSL code to properly handle serlf-signed certificates (as it is likely the case with home printers)
+* removed jars and added source code to be compatible with an f-droid.org publication
  
 ### Print Service
 
@@ -47,24 +49,24 @@ Also, you can subscribe on the Play Store to receive beta versions of this app: 
 
 * The `master` branch is code published to Google Play.
 * The `jonbanjo` branch is the app containing all the legacy code written by Jon Freeman
+* The `fdroid` branch was created in an effort to be compatible with f-droid.org; however, this effort was merged into develop and is intended to be merged into master.
 
 # License
 
 LGPL
 
 ```
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-MA 02110-1301  USA
+Android CUPS Print is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later
+version.
+
+Android CUPS Print is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
 
 Original license information by Jon Freeman:
@@ -87,4 +89,3 @@ other dealings in the software.
 
 * A modified version of cups4j 0.63. The original source code and further details about cups4j may be found at http://www.cups4j.org/ (licensed under the LGPL license)
 * JmDNS This is licensed under the Apache Licence
-

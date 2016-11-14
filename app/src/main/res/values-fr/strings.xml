@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Impression Android CUPS </string>
+    <string name="activity_add_label">Ajouter une imprimante CUPS</string>
+    <string name="add_autodetect">Vous pouvez soit détecter automatiquement les imprimantes de votre serveur en entrant son IP ou nom d\'hôte ci-dessous</string>
+    <string name="add_full_manual">Soit, vous pouvez renseigner l\'URI complète de l\'imprimante dans les champs ci-dessous</string>
+    <string name="add_button">Ajouter l\'imprimante</string>
+    <string name="add_name">Nom de l\'imprimante</string>
+    <string name="add_search_button">Rechercher des imprimantes</string>
+    <string name="add_server_ip">Adresse IP ou nom d\'hôte</string>
+    <string name="add_url">http://serveur-cups.domaine:631/printers/Nom_de_limprimante</string>
+    <plurals name="printer_discovery_result">
+        <item quantity="one">La recherche a trouvé %d imprimante</item>
+        <item quantity="other">La recherche a trouvé %d imprimantes</item>
+    </plurals>
+    <string name="printer_not_responding">L\'imprimante ne répond pas. Veuillez vérifier qu\'elle est allumée et disponible à l\'adresse %1$s</string>
+    <string name="err_document_fd_null">Impossible de lire le document à imprimer</string>
+    <string name="err_add_printer_empty_name">Le nom de l\'imprimante ne peut être vide</string>
+    <string name="err_add_printer_empty_url">L\'URL de l\'imprimante ne peut être vide</string>
+    <string name="basic_auth_button">Enregistrer les identifiants</string>
+    <string name="basic_auth_info">Votre serveur a demandé une authentification basique, mais nous avons besoin des identifiants. Veuillez les saisir ci-dessous :</string>
+    <string name="basic_auth_login">Nom d\'utilisateur</string>
+    <string name="basic_auth_password">Mot de passe</string>
+    <string name="basic_auth_title">Authentification basique HTTP</string>
+    <string name="err_http_upgrade">Cet hôte refuse les connexions HTTP, veuillez utiliser un accès HTTPS</string>
+    <string name="host_not_verified_abort_button">Annuler</string>
+    <string name="host_not_verified_activity_title">Hôte non vérifié</string>
+    <string name="host_not_verified_info">Cet hôte a présenté un certificat SSL pour lequel votre appareil n\'a pas pu vérifier le nom d\'hôte. Toutes les imprimantes localisées sur cet hôte seront refusées jusqu\'à ce que vous acceptiez explicitement cet hôte. Veuillez indiquer si vous souhaitez faire confiance à cet hôte :</string>
+    <string name="host_not_verified_title">Hôte %1$s non vérifié</string>
+    <string name="host_not_verified_trust_button">Faire confiance</string>
+    <string name="untrusted_abort_button">Annuler la connexion</string>
+    <string name="untrusted_couldnt_trust">Impossible d\'enregistrer le certificat du serveur. Veuillez consulter les logs de l\'application et soumettre une demande de bug au développeur.</string>
+    <string name="untrusted_info">Votre serveur a envoyé un certificat que votre appareil n\'a pas considéré comme de confirance. Veuillez constuler les détails du certificat ci-desous, et choisir si vous décidez d\'y faire confiance ou non :</string>
+    <string name="untrusted_title">Connexion SSL non fiable</string>
+    <string name="untrusted_trust_button">Accepter la connexion</string>
+    <string name="untrusted_trusted">Certificats ajoutés à la liste de confiance. Veuillez réessayer d\'imprimer.</string>
+    <string name="err_printer_null_when_printing">Impossible de trouver l\'imprimante, est-elle disponible ?</string>
+</resources>
