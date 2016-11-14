@@ -3,8 +3,6 @@ package io.github.benoitduffez.cupsprint;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-
 /**
  * Logging/crash reporting functions
  */
@@ -16,7 +14,6 @@ public class L {
      */
     public static void v(String msg) {
         Log.v(CupsPrintApp.LOG_TAG, msg);
-        Crashlytics.log("V: " + msg);
     }
 
     /**
@@ -26,7 +23,6 @@ public class L {
      */
     public static void i(String msg) {
         Log.i(CupsPrintApp.LOG_TAG, msg);
-        Crashlytics.log("I: " + msg);
     }
 
     /**
@@ -36,7 +32,6 @@ public class L {
      */
     public static void w(String msg) {
         Log.w(CupsPrintApp.LOG_TAG, msg);
-        Crashlytics.log("W: " + msg);
     }
 
     /**
@@ -46,7 +41,6 @@ public class L {
      */
     public static void d(String msg) {
         Log.d(CupsPrintApp.LOG_TAG, msg);
-        Crashlytics.log("D: " + msg);
     }
 
     /**
@@ -56,7 +50,6 @@ public class L {
      */
     public static void e(String msg) {
         Log.e(CupsPrintApp.LOG_TAG, msg);
-        Crashlytics.log("E: " + msg);
     }
 
     /**
@@ -69,7 +62,6 @@ public class L {
         e(msg);
         if (t != null) {
             e(t.getLocalizedMessage());
-            Crashlytics.logException(t);
         }
     }
 }
