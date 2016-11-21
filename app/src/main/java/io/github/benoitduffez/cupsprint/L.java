@@ -8,7 +8,7 @@ import android.util.Log;
  */
 public class L {
     /**
-     * Verbose log + crashlytics log
+     * Verbose log
      *
      * @param msg Log message
      */
@@ -17,7 +17,7 @@ public class L {
     }
 
     /**
-     * Info log + crashlytics log
+     * Info log
      *
      * @param msg Log message
      */
@@ -26,7 +26,7 @@ public class L {
     }
 
     /**
-     * Warning log + crashlytics log
+     * Warning log
      *
      * @param msg Log message
      */
@@ -35,7 +35,7 @@ public class L {
     }
 
     /**
-     * Debug log + crashlytics log
+     * Debug log
      *
      * @param msg Log message
      */
@@ -44,7 +44,7 @@ public class L {
     }
 
     /**
-     * Error log + crashlytics log
+     * Error log
      *
      * @param msg Log message
      */
@@ -53,10 +53,10 @@ public class L {
     }
 
     /**
-     * Error reporting + send exception to crashlytics
+     * Error reporting
      *
      * @param msg Log message
-     * @param t   Throwable to send to crashlytics, if not null
+     * @param t   Throwable to send for troubleshooting, if not null
      */
     public static void e(String msg, @Nullable Throwable t) {
         e(msg);
