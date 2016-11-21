@@ -16,8 +16,6 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
-
 import org.cups4j.CupsClient;
 import org.cups4j.CupsPrinter;
 import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation;
@@ -79,11 +77,11 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     private final PrintService mPrintService;
 
+    int mResponseCode;
+
     private X509Certificate[] mServerCerts; // If the server sends a non-trusted cert, it will be stored here
 
     private String mUnverifiedHost; // If the SSL hostname cannot be verified, this will be the hostname
-
-    int mResponseCode;
 
     CupsPrinterDiscoverySession(PrintService context) {
         mPrintService = context;
@@ -374,7 +372,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                 L.v("HTTP response code: " + mResponseCode);
                 if (mException != null) {
                     if (handlePrinterException(mException, printerId)) {
-                        Crashlytics.logException(mException);
+                        L.e("Couldn't start printer state tracking", mException);
                     }
                 } else {
                     onPrinterChecked(printerId, printerCapabilitiesInfo);
@@ -388,7 +386,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      *
      * @param exception The exception that occurred
      * @param printerId The printer on which the exception occurred
-     * @return true if the exception should be reported to Crashlytics, false otherwise
+     * @return true if the exception should be reported for a potential bug, false otherwise
      */
     boolean handlePrinterException(@NonNull Exception exception, @NonNull PrinterId printerId) {
         // Happens when the HTTP response code is in the 4xx range
@@ -422,7 +420,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      *
      * @param exception The exception that occurred
      * @param printerId The printer on which the exception occurred
-     * @return true if the exception should be reported to Crashlytics, false otherwise
+     * @return true if the exception should be reported for a potential bug, false otherwise
      */
     private boolean handleHttpError(@NonNull Exception exception, @NonNull PrinterId printerId) {
         switch (mResponseCode) {

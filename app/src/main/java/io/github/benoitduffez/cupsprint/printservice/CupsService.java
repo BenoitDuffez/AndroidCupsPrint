@@ -12,8 +12,6 @@ import android.printservice.PrinterDiscoverySession;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
-
 import org.cups4j.CupsClient;
 import org.cups4j.CupsPrinter;
 import org.cups4j.JobStateEnum;
@@ -58,7 +56,7 @@ public class CupsService extends PrintService {
         final PrintJobInfo jobInfo = printJob.getInfo();
         final PrinterId printerId = jobInfo.getPrinterId();
         if (printerId == null) {
-            Crashlytics.log("Tried to cancel a job, but the printer ID is null");
+            L.e("Tried to cancel a job, but the printer ID is null");
             return;
         }
 
@@ -66,12 +64,12 @@ public class CupsService extends PrintService {
 
         final PrintJobId id = printJob.getId();
         if (id == null) {
-            Crashlytics.log("Tried to cancel a job, but the print job ID is null");
+            L.e("Tried to cancel a job, but the print job ID is null");
             return;
         }
         final Integer jobId = mJobs.get(id);
         if (jobId == null) {
-            Crashlytics.log("Tried to cancel a job, but the print job ID is null");
+            L.e("Tried to cancel a job, but the print job ID is null");
             return;
         }
 
@@ -130,7 +128,7 @@ public class CupsService extends PrintService {
         final PrintJobInfo jobInfo = printJob.getInfo();
         final PrinterId printerId = jobInfo.getPrinterId();
         if (printerId == null) {
-            Crashlytics.log("Tried to queue a job, but the printer ID is null");
+            L.e("Tried to queue a job, but the printer ID is null");
             return;
         }
 
@@ -144,7 +142,7 @@ public class CupsService extends PrintService {
             final URL clientURL = new URL(schemeHostPort);
             final ParcelFileDescriptor data = printJob.getDocument().getData();
             if (data == null) {
-                Crashlytics.log("Tried to queue a job, but the document data (file descriptor) is null");
+                L.e("Tried to queue a job, but the document data (file descriptor) is null");
                 Toast.makeText(this, R.string.err_document_fd_null, Toast.LENGTH_LONG).show();
                 return;
             }
@@ -183,7 +181,7 @@ public class CupsService extends PrintService {
 
     /**
      * Called from the UI thread.
-     * Handle the exception (e.g. log or send it to crashlytics?), and inform the user of what happened
+     * Handle the exception (e.g. log or report it as a bug?), and inform the user of what happened
      *
      * @param jobId The print job
      * @param e     The exception that occurred
@@ -219,13 +217,13 @@ public class CupsService extends PrintService {
     boolean updateJobStatus(final PrintJob printJob) {
         // Check if the job is already gone
         if (!mJobs.containsKey(printJob.getId())) {
-            Crashlytics.log("Tried to request a job status, but the job couldn't be found in the jobs list");
+            L.e("Tried to request a job status, but the job couldn't be found in the jobs list");
             return false;
         }
 
         final PrinterId printerId = printJob.getInfo().getPrinterId();
         if (printerId == null) {
-            Crashlytics.log("Tried to request a job status, but the printer ID is null");
+            L.e("Tried to request a job status, but the printer ID is null");
             return false;
         }
         String url = printerId.getLocalId();
@@ -271,7 +269,7 @@ public class CupsService extends PrintService {
                     } else if (mException instanceof FileNotFoundException) {
                         Toast.makeText(CupsService.this, getString(R.string.err_job_not_found, jobId), Toast.LENGTH_LONG).show();
                     } else {
-                        Crashlytics.logException(mException);
+                        L.e("Couldn't get job: " + jobId + " state", mException);
                     }
                 } else if (state != null) {
                     onJobStateUpdate(printJob, state);

@@ -82,7 +82,7 @@ public class HttpConnectionManagement {
             trustStore.load(fis, KEYSTORE_PASSWORD.toCharArray());
             return trustStore;
         } catch (FileNotFoundException e) {
-            // This one can be ignored safely - at least not sent to crashlytics
+            // This one can be ignored safely - it's not a bug
             L.e("Couldn't open local key store: " + e.getLocalizedMessage());
         } catch (IOException | NoSuchAlgorithmException | CertificateException e) {
             L.e("Couldn't open local key store", e);
