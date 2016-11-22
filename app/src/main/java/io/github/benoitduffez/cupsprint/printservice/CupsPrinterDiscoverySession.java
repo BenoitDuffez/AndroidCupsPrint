@@ -112,6 +112,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     /**
      * Called when mDNS/manual printers are found
+     * Called on the UI thread
      *
      * @param printers The list of printers found, as a map of URL=>name
      */
@@ -260,6 +261,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     /**
      * Called when the printer has been checked over IPP(S)
+     * Called from the UI thread
      *
      * @param printerId               The printer
      * @param printerCapabilitiesInfo null if the printer isn't available anymore, otherwise contains the printer capabilities
