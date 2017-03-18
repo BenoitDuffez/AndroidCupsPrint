@@ -39,14 +39,14 @@ public class CupsGetPrintersOperation extends IppOperation {
         bufferSize = 8192;
     }
 
-    public List<CupsPrinter> getPrinters(URL url) throws Exception {
+    public List<CupsPrinter> getPrinters(URL url, String path) throws Exception {
         List<CupsPrinter> printers = new ArrayList<>();
 
         Map<String, String> map = new HashMap<>();
         map.put("requested-attributes",
                 "copies-supported page-ranges-supported printer-name printer-info printer-location printer-make-and-model printer-uri-supported");
 
-        IppResult result = request(new URL(url.toString() + "/printers/"), map);
+        IppResult result = request(new URL(url.toString() + path), map);
 
         //     IppResultPrinter.print(result);
 
@@ -60,7 +60,7 @@ public class CupsGetPrintersOperation extends IppOperation {
                 for (Attribute attr : group.getAttribute()) {
                     switch (attr.getName()) {
                         case "printer-uri-supported":
-                            printerURI = attr.getAttributeValue().get(0).getValue().replace("ipp://", url.getProtocol() + "://");
+                            printerURI = attr.getAttributeValue().get(0).getValue().replaceAll("ipps?://", url.getProtocol() + "://");
                             break;
                         case "printer-name":
                             printerName = attr.getAttributeValue().get(0).getValue();

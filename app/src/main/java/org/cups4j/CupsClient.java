@@ -63,6 +63,12 @@ public class CupsClient {
 
     private int mLastResponseCode;
 
+    /**
+     * Path to list of printers, like xxx://ip:port/printers/printer_name => will contain '/printers/'
+     * seen in issue: https://github.com/BenoitDuffez/AndroidCupsPrint/issues/40
+     */
+    private String path = "/printers/";
+
     public CupsClient() throws Exception {
         this(new URL(DEFAULT_URL), DEFAULT_USER);
     }
@@ -80,10 +86,10 @@ public class CupsClient {
         final CupsGetPrintersOperation cupsGetPrintersOperation = new CupsGetPrintersOperation();
         List<CupsPrinter> printers;
         try {
-            printers = cupsGetPrintersOperation.getPrinters(url);
+            printers = cupsGetPrintersOperation.getPrinters(url, path);
         } finally {
             mServerCerts = cupsGetPrintersOperation.getServerCerts();
-            mLastResponseCode=cupsGetPrintersOperation.getLastResponseCode();
+            mLastResponseCode = cupsGetPrintersOperation.getLastResponseCode();
         }
 
         // add default printer if available
@@ -99,7 +105,7 @@ public class CupsClient {
     }
 
     public CupsPrinter getDefaultPrinter() throws Exception {
-        return new CupsGetDefaultOperation().getDefaultPrinter(url);
+        return new CupsGetDefaultOperation().getDefaultPrinter(url, path);
     }
 
     public CupsPrinter getPrinter(URL printerURL) throws Exception {
@@ -174,5 +180,22 @@ public class CupsClient {
 
     public int getLastResponseCode() {
         return mLastResponseCode;
+    }
+
+    /**
+     * Ensure path starts and ends with a slash
+     *
+     * @param path Path to printers on server
+     * @return Self for easy chained calls
+     */
+    public CupsClient setPath(String path) {
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        if (!path.endsWith("/")) {
+            path += "/";
+        }
+        this.path = path;
+        return this;
     }
 }

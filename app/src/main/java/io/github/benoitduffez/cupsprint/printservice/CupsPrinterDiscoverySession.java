@@ -145,7 +145,17 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
         String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
         URL clientURL = new URL(schemeHostPort);
 
-        CupsClient client = new CupsClient(clientURL);
+        // Most servers have URLs like xxx://ip:port/printers/printer_name; however some may have xxx://ip:port/printer_name (see GitHub issue #40)
+        String path = null;
+        if (url.length() > schemeHostPort.length() + 1) {
+            path = url.substring(schemeHostPort.length() + 1);
+            int pos = path.indexOf('/');
+            if (pos > 0) {
+                path = path.substring(0, pos);
+            }
+        }
+
+        CupsClient client = new CupsClient(clientURL).setPath(path);
         CupsPrinter testPrinter;
 
         // Check if we need to save the server certs if we don't trust the connection
@@ -299,7 +309,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      */
     @NonNull
     Map<String, String> scanPrinters() {
-        final MdnsServices mdns = new MdnsServices();
+            final MdnsServices mdns = new MdnsServices();
         PrinterResult result = mdns.scan();
 
         //TODO: check for errors

@@ -43,7 +43,7 @@ public class PrinterRec implements Comparable<PrinterRec> {
 
     @Override
     public String toString() {
-        return nickname + " (" + protocol + ")";
+        return nickname + " (" + protocol + " on " + host + ")";
     }
 
     @Override
