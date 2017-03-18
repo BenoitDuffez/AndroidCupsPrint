@@ -45,4 +45,6 @@
     <string name="print_service_vendor">Client CUPS générique</string>
     <string name="err_400">Le serveur CUPS a indiqué que nous avons envoyé une mauvaise requête HTTP. Cela provient soit d\'une mauvaise configuration du serveur, ou une mauvaise URL. Veuillez vérifier les deux.</string>
     <string name="err_404">Le nom de l\'imprimante n\'a pas été trouvé sur le serveur (HTTP 404). Veuillez vérifier son nom.</string>
+    <string name="manage_printers_none">Il n\'y a aucune imprimante ajoutée manuellement. Vous pouvez en ajouter une dans l\'appli Paramètres, dans la section Impression.</string>
+    <string name="manage_printers_help">Voici la liste des imprimantes ajoutées manuellement. Cliquez sur l\'une pour la supprimer (pas de confirmation !)</string>
 </resources>

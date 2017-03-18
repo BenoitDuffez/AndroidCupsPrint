@@ -57,5 +57,7 @@
     <string name="err_job_socket_timeout">Couldn\'t print document: socket timeout. Please check network connectivity.</string>
     <string name="err_job_exception">Couldn\'t handle job: %1$s (%2$s)</string>
     <string name="print_service_vendor">Generic CUPS client</string>
+    <string name="manage_printers_none">There are no manually entered printers. You can add one from the Settings app, in the Printing section.</string>
+    <string name="manage_printers_help">Here are the manually added printers. Click on one item to remove it (no confirmation!)</string>
 
 </resources>
