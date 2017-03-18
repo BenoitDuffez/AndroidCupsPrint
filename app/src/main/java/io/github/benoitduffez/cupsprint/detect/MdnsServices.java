@@ -14,6 +14,8 @@ import javax.jmdns.ServiceInfo;
 import javax.jmdns.impl.DNSIncoming;
 import javax.jmdns.impl.DNSRecord;
 
+import io.github.benoitduffez.cupsprint.L;
+
 public class MdnsServices {
     private static final String IPP_SERVICE = "_ipp._tcp.local.";
 
@@ -121,8 +123,9 @@ public class MdnsServices {
                     rp = rps[rps.length - 1];
                 } catch (Exception e) {
                     rp = "";
+                    L.e("There was an error when trying to process rp in DNS answers", e);
                 }
-                //System.out.println(info.getQualifiedName());
+                L.d("process: qualified name: " + info.getQualifiedName());
                 String key = info.getKey();
                 if (key != null) {
                     PrinterRec p = getPrinterRec(
@@ -137,10 +140,9 @@ public class MdnsServices {
                     }
                 }
             }
-
-            //System.out.println();
         } catch (Exception e) {
             System.out.println(e.toString());
+            L.e("There was an error when trying to process a datagram packet: " + packet, e);
         }
     }
 
@@ -188,6 +190,7 @@ public class MdnsServices {
                     }
                 } catch (Exception e) {
                     error = true;
+                    L.e("There was an error when trying to receive mDNS response", e);
                 }
             }
             //System.out.println(passes);
