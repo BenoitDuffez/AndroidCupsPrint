@@ -79,11 +79,11 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     private final PrintService mPrintService;
 
+    int mResponseCode;
+
     private X509Certificate[] mServerCerts; // If the server sends a non-trusted cert, it will be stored here
 
     private String mUnverifiedHost; // If the SSL hostname cannot be verified, this will be the hostname
-
-    int mResponseCode;
 
     CupsPrinterDiscoverySession(PrintService context) {
         mPrintService = context;
@@ -267,12 +267,13 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      * @param printerCapabilitiesInfo null if the printer isn't available anymore, otherwise contains the printer capabilities
      */
     void onPrinterChecked(PrinterId printerId, PrinterCapabilitiesInfo printerCapabilitiesInfo) {
-        L.d("onPrinterChecked: " + printerId + " (printers: " + getPrinters() + ")");
+        L.d("onPrinterChecked: " + printerId + " (printers: " + getPrinters() + "), cap: " + printerCapabilitiesInfo);
         if (printerCapabilitiesInfo == null) {
             final ArrayList<PrinterId> printerIds = new ArrayList<>();
             printerIds.add(printerId);
             removePrinters(printerIds);
             Toast.makeText(mPrintService, mPrintService.getString(R.string.printer_not_responding, printerId.getLocalId()), Toast.LENGTH_LONG).show();
+            L.d("onPrinterChecked: Printer has no cap, removing it from the list");
         } else {
             List<PrinterInfo> printers = new ArrayList<>();
             for (PrinterInfo printer : getPrinters()) {
@@ -280,11 +281,13 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     PrinterInfo printerWithCaps = new PrinterInfo.Builder(printerId, printer.getName(), PrinterInfo.STATUS_IDLE)
                             .setCapabilities(printerCapabilitiesInfo)
                             .build();
+                    L.d("onPrinterChecked: adding printer: " + printerWithCaps);
                     printers.add(printerWithCaps);
                 } else {
                     printers.add(printer);
                 }
             }
+            L.d("onPrinterChecked: we had " + getPrinters().size() + "printers, we now have " + printers.size());
             addPrinters(printers);
         }
     }
