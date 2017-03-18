@@ -31,7 +31,12 @@ public class MdnsServices {
 
     private Exception exception = null;
 
+    private Map<String, String> hosts;
+    private Map<String, String[]> services;
+
     public MdnsServices() {
+            hosts = new HashMap<>();
+            services = new HashMap<>();
     }
 
     private byte[] makeQuestion(String data) {
@@ -78,7 +83,6 @@ public class MdnsServices {
             Iterator<? extends DNSRecord> iterator = answers.iterator();
             ServiceInfo info;
 
-            Map<String, String> hosts = new HashMap<>();
             while (iterator.hasNext()) {
                 DNSRecord record = iterator.next();
                 if (record instanceof DNSRecord.Address) {
@@ -88,7 +92,6 @@ public class MdnsServices {
                     iterator.remove();
                 }
             }
-            Map<String, String[]> services = new HashMap<>();
             iterator = answers.iterator();
             while (iterator.hasNext()) {
                 DNSRecord record = iterator.next();

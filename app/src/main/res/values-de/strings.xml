@@ -7,33 +7,32 @@
     <string name="add_button">Drucker hinzufügen</string>
     <string name="add_search_button">Nach Druckern suchen</string>
     <string name="activity_add_label">CUPS-Drucker hinzufügen</string>
-    <string name="add_full_manual">Wahlweise können Sie auch die komplette URI des Druckers in den folgenden Feldern eingeben.</string>
-    <string name="add_server_ip">IP-Adresse oder Hostname</string>
-    <string name="add_autodetect">Sie können die Drucker eines Servers auflisten lassen, indem Sie die IP-Adresse oder den Hostnamen des Servers angeben.</string>
+    <string name="add_full_manual">Wahlweise kannst du auch die komplette URI des Druckers in den folgenden Feldern eingeben.</string>
+    <string name="add_server_ip">IP-Nummer oder Hostname</string>
+    <string name="add_autodetect">Du kannst die Drucker eines Servers auflisten lassen, indem du die IP-Nummer oder den Hostnamen des Servers angibst.</string>
     <plurals name="printer_discovery_result">
         <item quantity="other">%d Drucker gefunden</item>
     </plurals>
-    <string name="printer_not_responding">Der ausgewählte Drucker reagiert nicht. Bitte prüfen Sie, ob er eingeschaltet ist und unter %1$s verfügbar ist.</string>
+    <string name="printer_not_responding">Der ausgewählte Drucker reagiert nicht. Prüfe ob er angeschaltet ist und unter %1$s verfügbar ist.</string>
     <string name="err_document_fd_null">Dokument konnte nicht gelesen werden</string>
     <string name="err_add_printer_empty_name">Der Druckername darf nicht leer sein</string>
     <string name="err_add_printer_empty_url">Die Drucker-URI darf nicht leer sein</string>
     <string name="basic_auth_button">Anmeldeinformationen speichern</string>
-    <string name="basic_auth_info">Ihr Server fordert eine Anmeldung mit Benutzernamen und Passwort an. Bitte füllen Sie folgende Felder aus:</string>
+    <string name="basic_auth_info">Dein Server hat eine Basis-Authentifizierung angefordert, aber du musst die Anmeldeinformationen eingeben. Bitte fülle folgende Felder aus:</string>
     <string name="basic_auth_login">Benutzername</string>
     <string name="basic_auth_password">Passwort</string>
     <string name="basic_auth_title">HTTP-Standardauthentifizierung</string>
-    <string name="err_http_upgrade">Dieser Host lehnt unverschlüsselten HTTP-Zugriff ab, verwenden Sie bitte den HTTPS-Zugriff</string>
-    <string name="host_not_verified_activity_title">Host nicht verifiziert</string>
+    <string name="err_http_upgrade">Dieser Host lehnt einfaches HTTP ab, verwende bitte den HTTPS-Zugriff</string>
+    <string name="host_not_verified_activity_title">Host nicht überprüft</string>
     <string name="host_not_verified_abort_button">Abbrechen</string>
-    <string name="host_not_verified_info">Der Server hat ein SSL-Zertifikat gesendet, dessen Hostnamen-Angabe nicht überprüft werden konnte. Alle von diesem Server zur Verfügung gestellten Drucker werden deaktiviert, bis Sie dem Zertifikat explizit vertrauen. Bitte bestätigen Sie, ob Sie diesem Server vertrauen möchten:</string>
+    <string name="host_not_verified_info">Dieser Host präsentierte ein SSL-Zertifikat, für das dein Gerät den Hostnamen nicht überprüfen konnte. Alle Drucker, die von diesem Host bedient werden, werden deaktiviert, bis du ihm explizit vertraust. Bitte gib an, ob du diesem Host vertrauen möchtest oder nicht:</string>
     <string name="host_not_verified_title">Hostname %1$s nicht bestätigt</string>
-    <string name="host_not_verified_trust_button">Server vertrauen</string>
+    <string name="host_not_verified_trust_button">Vertraue dem Host</string>
     <string name="untrusted_abort_button">Verbindung abbrechen</string>
-    <string name="untrusted_couldnt_trust">Serverzertifikate konnten nicht gespeichert werden. Bitte überprüfen Sie die Anwendungsprotokolle und senden Sie eine Bug-Anfrage an den Entwickler.</string>
-    <string name="untrusted_info">Ihr Server hat ein Zertifikat gesendet, welches nicht in der Liste vertrauenswürdiger Zertifikate enthalten ist. Bitte überprüfen Sie die unten aufgeführten Details des Zertifikats und wählen Sie aus, ob Sie es akzeptieren oder nicht:</string>
+    <string name="untrusted_couldnt_trust">Serverzertifikate konnten nicht gespeichert werden. Bitte überprüfe die Anwendungsprotokolle und sende einen Bug-Report an die Entwickler.</string>
+    <string name="untrusted_info">Dein Server hat ein Zertifikat gesendet, das von deinem Gerät nicht vertraut wurde. Bitte überprüfe die unten aufgeführten Zertifikate und wähle aus, ob du es akzeptierst oder nicht:</string>
     <string name="untrusted_title">Nicht vertrauenswürdige SSL-Verbindung</string>
     <string name="untrusted_trust_button">Verbindung vertrauen</string>
-    <string name="untrusted_trusted">Zertifikat wurde der List vertrauenswürdiger Zertifikate hinzugefügt. Bitte versuchen Sie den Verbindungsaufbau zu diesem Drucker noch einmal.</string>
-    <string name="err_printer_null_when_printing">Drucker konnte nicht gefunden werden, ist er verfügbar?</string>
+    <string name="untrusted_trusted">Zertifikate, die der vertrauenswürdigen Liste hinzugefügt wurden. Bitte versuche es erneut mit diesem Drucker.</string>
 
 </resources>
