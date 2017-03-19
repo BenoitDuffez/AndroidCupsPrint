@@ -1,0 +1,4 @@
+1.3.0 — Novembre 2016
+* support complet du SSL
+* compatible avec l'authentification HTTP Basic Auth
+* correction de bugs
