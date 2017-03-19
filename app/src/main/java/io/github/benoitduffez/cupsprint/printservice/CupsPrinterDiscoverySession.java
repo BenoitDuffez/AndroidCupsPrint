@@ -13,6 +13,7 @@ import android.print.PrinterInfo;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -135,6 +136,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      *
      * @return The printer capabilities if the printer is available, null otherwise
      */
+    @Nullable
     PrinterCapabilitiesInfo checkPrinter(final String url, final PrinterId printerId) throws Exception {
         if (url == null || (!url.startsWith("http://") && !url.startsWith("https://"))) {
             return null;
@@ -179,10 +181,21 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             IppGetPrinterAttributesOperation op = new IppGetPrinterAttributesOperation();
             PrinterCapabilitiesInfo.Builder builder = new PrinterCapabilitiesInfo.Builder(printerId);
             IppResult ippAttributes = op.request(printerURL, propertyMap);
+            if (ippAttributes == null) {
+                L.e("Couldn't get 'requested-attributes' from printer: " + url);
+                return null;
+            }
+
             int colorDefault = 0;
             int colorMode = 0;
             int marginMilsTop = 0, marginMilsRight = 0, marginMilsBottom = 0, marginMilsLeft = 0;
-            for (AttributeGroup attributeGroup : ippAttributes.getAttributeGroupList()) {
+            final List<AttributeGroup> attributes = ippAttributes.getAttributeGroupList();
+            if (attributes == null) {
+                L.e("Couldn't get attributes list from printer: " + url);
+                return null;
+            }
+
+            for (AttributeGroup attributeGroup : attributes) {
                 for (Attribute attribute : attributeGroup.getAttribute()) {
                     if ("media-default".equals(attribute.getName())) {
                         final PrintAttributes.MediaSize mediaSize = CupsPrinterDiscoveryUtils.getMediaSizeFromAttributeValue(attribute.getAttributeValue().get(0));
@@ -309,7 +322,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      */
     @NonNull
     Map<String, String> scanPrinters() {
-            final MdnsServices mdns = new MdnsServices();
+        final MdnsServices mdns = new MdnsServices();
         PrinterResult result = mdns.scan();
 
         //TODO: check for errors

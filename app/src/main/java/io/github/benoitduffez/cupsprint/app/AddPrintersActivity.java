@@ -133,7 +133,7 @@ public class AddPrintersActivity extends Activity {
             }
         }
 
-        /**
+        /*
          * 1: URL
          * 2: Name
          * 3: Description
@@ -156,6 +156,6 @@ public class AddPrintersActivity extends Activity {
             id++;
         }
         editor.putInt(PREF_NUM_PRINTERS, id);
-        editor.commit();
+        editor.apply();
     }
 }

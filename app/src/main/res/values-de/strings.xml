@@ -11,6 +11,8 @@
     <string name="add_server_ip">IP-Adresse oder Hostname</string>
     <string name="add_autodetect">Sie können die Drucker eines Servers auflisten lassen, indem Sie die IP-Adresse oder den Hostnamen des Servers angeben.</string>
     <plurals name="printer_discovery_result">
+        <item quantity="zero">Suche hat keinen Drucker gefunden</item>
+        <item quantity="one">Ein Drucker gefunden</item>
         <item quantity="other">%d Drucker gefunden</item>
     </plurals>
     <string name="printer_not_responding">Der ausgewählte Drucker reagiert nicht. Bitte prüfen Sie, ob er eingeschaltet ist und unter %1$s verfügbar ist.</string>
@@ -45,5 +47,7 @@
     <string name="print_service_vendor">Generischer CUPS-Client</string>
     <string name="err_400">Der CUPS-Server gab an, dass wir eine schlechte Anforderung gesendet haben. Dies ist entweder eine schlechte Konfiguration auf dem Server oder eine falsche URL. Bitte überprüfen Sie beide.</string>
     <string name="err_404">Der Druckername wurde auf dem Server nicht gefunden (HTTP 404). Bitte überprüfen Sie den Namen.</string>
+    <string name="manage_printers_none">Es sind keine manuell eingegebenen Drucker vorhanden. Sie können eine aus der App \"Einstellungen\" im Bereich \"Drucken\" hinzufügen.</string>
+    <string name="manage_printers_help">Hier sind die manuell hinzugefügten Drucker. Klicken Sie auf ein Element, um es zu entfernen (keine Bestätigung!)</string>
 
 </resources>

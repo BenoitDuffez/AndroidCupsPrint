@@ -11,6 +11,7 @@
     <string name="add_server_ip">Server IP or host name</string>
     <string name="add_autodetect">You can either auto-detect the printers from your server by entering its IP or host name below</string>
     <plurals name="printer_discovery_result">
+        <item quantity="zero">Search didn\'t find any printer</item>
         <item quantity="one">Search found %d printer</item>
         <item quantity="other">Search found %d printers</item>
     </plurals>
