@@ -1,6 +1,14 @@
-def keystorePropertiesFile = rootProject.file("signing.properties")
 def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+try {
+    def keystorePropertiesFile = rootProject.file("signing.properties")
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+} catch (FileNotFoundException e) {
+    println 'signing.properties file was not found, no release builds will be available'
+    // Put dummy values so that the debug builds work
+    keystoreProperties['storeFile'] = rootProject.file('build.gradle') // bogus file, I know
+    keystoreProperties['keyAlias'] = ''
+    keystoreProperties['storePassword'] = ''
+}
 
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
