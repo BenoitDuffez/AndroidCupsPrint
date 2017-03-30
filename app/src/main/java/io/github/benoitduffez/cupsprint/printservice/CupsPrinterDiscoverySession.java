@@ -195,24 +195,30 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                 return null;
             }
 
+            boolean mediaSizeSet = false;
+            boolean resolutionSet = false;
             for (AttributeGroup attributeGroup : attributes) {
                 for (Attribute attribute : attributeGroup.getAttribute()) {
                     if ("media-default".equals(attribute.getName())) {
                         final PrintAttributes.MediaSize mediaSize = CupsPrinterDiscoveryUtils.getMediaSizeFromAttributeValue(attribute.getAttributeValue().get(0));
                         if (mediaSize != null) {
+                            mediaSizeSet = true;
                             builder.addMediaSize(mediaSize, true);
                         }
                     } else if ("media-supported".equals(attribute.getName())) {
                         for (AttributeValue attributeValue : attribute.getAttributeValue()) {
                             final PrintAttributes.MediaSize mediaSize = CupsPrinterDiscoveryUtils.getMediaSizeFromAttributeValue(attributeValue);
                             if (mediaSize != null) {
+                                mediaSizeSet = true;
                                 builder.addMediaSize(mediaSize, false);
                             }
                         }
                     } else if ("printer-resolution-default".equals(attribute.getName())) {
+                        resolutionSet = true;
                         builder.addResolution(CupsPrinterDiscoveryUtils.getResolutionFromAttributeValue("0", attribute.getAttributeValue().get(0)), true);
                     } else if ("printer-resolution-supported".equals(attribute.getName())) {
                         for (AttributeValue attributeValue : attribute.getAttributeValue()) {
+                            resolutionSet = true;
                             builder.addResolution(CupsPrinterDiscoveryUtils.getResolutionFromAttributeValue(attributeValue.getTag(), attributeValue), false);
                         }
                     } else if ("print-color-mode-supported".equals(attribute.getName())) {
@@ -244,6 +250,15 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     }
                 }
             }
+
+            if (!mediaSizeSet) {
+                builder.addMediaSize(PrintAttributes.MediaSize.ISO_A4, true);
+            }
+
+            if (!resolutionSet) {
+                builder.addResolution(new PrintAttributes.Resolution("0", "300x300 dpi", 300, 300), true);
+            }
+
             // Workaround for KitKat (SDK 19)
             // see: https://developer.android.com/reference/android/print/PrinterCapabilitiesInfo.Builder.html
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && colorMode == PrintAttributes.COLOR_MODE_MONOCHROME) {
