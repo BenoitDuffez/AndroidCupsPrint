@@ -1,0 +1,19 @@
+Vous avez une imprimante partagée sur le réseau local via CUPS ou IPP ? Cette appli vous permet d'imprimer directement depuis votre mobile.
+
+Cette appli fournit un Service d'Impression pour Android, ainsi lorsque vous l'installez il faut activer le service d'impression CUPS (voir captures d'écran). Une fois ceci réalisé, vous pourrez imprimer depuis n'importe quelle application !
+Vos imprimantes sont détectées automatiquement en utilisant le protocole mDNS.
+
+Bien entendu, l'impression de documents est une chose importante. Vos documents représentent une information très privée, et vous ne voulez pas que quiconque y ait accès.
+C'est pourquoi cette appli est complètement open-source et libre d'utilisation, modification et distribution (selon les termes de la licence LGPL). Vous pouvez obtenir plus d'informations sur le site de l'appli et la page GitHub : http://benoitduffez.github.io/AndroidCupsPrint
+
+Cette appli n'a été testée que sur un seul serveur CUPS (tournant sur une Debian 8), avec une seule imprimante (une HP Deskjet via http).
+Vous avez donc de grandes chances de tomber sur un éventuel bug, auquel cas vous êtes invités à ouvrir un bug sur la page GitHub : https://github.com/BenoitDuffez/AndroidCupsPrint/issues/new
+
+Vous pouvez aussi forker le projet et contribuer de la façon que vous souhaitez.
+
+Ce logiciel utilise jmdns, sous licence Apache.
+Ce logiciel utilise une version modifiée de la bibliothèque cups4j, sous licence GNU LGPL.
+Ce logiciel est basé sur le travail de Jon Freeman. Plus de détails sur http://mobd.jonbanjo.com/jfcupsprint/ et http://benoitduffez.github.io/AndroidCupsPrint
+
+Texte de licence original écrit par Jon Freeman (laissé tel que) :
+Redistribution and use of this app in source and binary forms, with or without modification, is permitted provided this notice is retained in source code redistributions and that recipients agree that JfCupsPrint is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, title and non-infringement. In no event shall the copyright holders or anyone distributing the software be liable for any damages or other liability, whether in contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.

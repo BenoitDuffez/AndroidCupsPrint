@@ -3,6 +3,7 @@ package io.github.benoitduffez.cupsprint.detect;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +14,8 @@ import java.util.Map;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.impl.DNSIncoming;
 import javax.jmdns.impl.DNSRecord;
+
+import io.github.benoitduffez.cupsprint.L;
 
 public class MdnsServices {
     private static final String IPP_SERVICE = "_ipp._tcp.local.";
@@ -32,11 +35,12 @@ public class MdnsServices {
     private Exception exception = null;
 
     private Map<String, String> hosts;
+
     private Map<String, String[]> services;
 
     public MdnsServices() {
-            hosts = new HashMap<>();
-            services = new HashMap<>();
+        hosts = new HashMap<>();
+        services = new HashMap<>();
     }
 
     private byte[] makeQuestion(String data) {
@@ -77,6 +81,7 @@ public class MdnsServices {
         try {
             DNSIncoming in = new DNSIncoming(packet);
             if (in.getNumberOfAnswers() < 1) {
+                L.v("No answer in mDNS response: " + packet);
                 return;
             }
             Collection<? extends DNSRecord> answers = in.getAllAnswers();
@@ -124,8 +129,9 @@ public class MdnsServices {
                     rp = rps[rps.length - 1];
                 } catch (Exception e) {
                     rp = "";
+                    L.e("There was an error when trying to process rp in DNS answers", e);
                 }
-                //System.out.println(info.getQualifiedName());
+                L.d("process: qualified name: " + info.getQualifiedName());
                 String key = info.getKey();
                 if (key != null) {
                     PrinterRec p = getPrinterRec(
@@ -136,14 +142,19 @@ public class MdnsServices {
                             rp);
 
                     if (p != null) {
+                        L.d("A new printer responded to an mDNS query: " + p);
                         list.put(key, p);
+                    } else {
+                        L.e("A new printer responded to an mDNS query, but it has no PrinterRec: ignore" +
+                                " (info: " + info + ", protocol: " + protocol + ", service: " + services.get(key)[0] + ", port: " + Integer.parseInt(services.get(key)[1]) + ", queue: " + rp);
                     }
+                } else {
+                    L.e("Couldn't find printer from mDNS datagram: " + info.getApplication() + ", " + info.getDomain() + ", " + info.getKey());
                 }
             }
-
-            //System.out.println();
         } catch (Exception e) {
             System.out.println(e.toString());
+            L.e("There was an error when trying to process a datagram packet: " + packet, e);
         }
     }
 
@@ -191,6 +202,10 @@ public class MdnsServices {
                     }
                 } catch (Exception e) {
                     error = true;
+                    // Socket timeout occur all the time, don't send them back to crashlytics
+                    if (!(e instanceof SocketTimeoutException)) {
+                        L.e("There was an error when trying to receive mDNS response", e);
+                    }
                 }
             }
             //System.out.println(passes);

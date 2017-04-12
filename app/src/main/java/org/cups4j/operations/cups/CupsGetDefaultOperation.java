@@ -36,14 +36,14 @@ public class CupsGetDefaultOperation extends IppOperation {
         bufferSize = 8192;
     }
 
-    public CupsPrinter getDefaultPrinter(URL url) throws Exception {
+    public CupsPrinter getDefaultPrinter(URL url, String path) throws Exception {
         CupsPrinter defaultPrinter = null;
         CupsGetDefaultOperation command = new CupsGetDefaultOperation();
 
         HashMap<String, String> map = new HashMap<>();
         map.put("requested-attributes", "printer-name printer-uri-supported printer-location");
 
-        IppResult result = command.request(new URL(url.toString() + "/printers/"), map);
+        IppResult result = command.request(new URL(url.toString() + path), map);
         for (AttributeGroup group : result.getAttributeGroupList()) {
             if (group.getTagName().equals("printer-attributes-tag")) {
                 String printerURL = null;
@@ -52,7 +52,7 @@ public class CupsGetDefaultOperation extends IppOperation {
                 for (Attribute attr : group.getAttribute()) {
                     switch (attr.getName()) {
                         case "printer-uri-supported":
-                            printerURL = attr.getAttributeValue().get(0).getValue().replace("ipp://", "http://");
+                            printerURL = attr.getAttributeValue().get(0).getValue().replaceAll("ipps?://", url.getProtocol() + "://");
                             break;
                         case "printer-name":
                             printerName = attr.getAttributeValue().get(0).getValue();

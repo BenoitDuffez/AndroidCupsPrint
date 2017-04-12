@@ -13,6 +13,7 @@ import android.print.PrinterInfo;
 import android.printservice.PrintService;
 import android.printservice.PrinterDiscoverySession;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -79,11 +80,11 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     private final PrintService mPrintService;
 
+    int mResponseCode;
+
     private X509Certificate[] mServerCerts; // If the server sends a non-trusted cert, it will be stored here
 
     private String mUnverifiedHost; // If the SSL hostname cannot be verified, this will be the hostname
-
-    int mResponseCode;
 
     CupsPrinterDiscoverySession(PrintService context) {
         mPrintService = context;
@@ -112,6 +113,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     /**
      * Called when mDNS/manual printers are found
+     * Called on the UI thread
      *
      * @param printers The list of printers found, as a map of URL=>name
      */
@@ -134,6 +136,7 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
      *
      * @return The printer capabilities if the printer is available, null otherwise
      */
+    @Nullable
     PrinterCapabilitiesInfo checkPrinter(final String url, final PrinterId printerId) throws Exception {
         if (url == null || (!url.startsWith("http://") && !url.startsWith("https://"))) {
             return null;
@@ -144,7 +147,17 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
         String schemeHostPort = tmpUri.getScheme() + "://" + tmpUri.getHost() + ":" + tmpUri.getPort();
         URL clientURL = new URL(schemeHostPort);
 
-        CupsClient client = new CupsClient(clientURL);
+        // Most servers have URLs like xxx://ip:port/printers/printer_name; however some may have xxx://ip:port/printer_name (see GitHub issue #40)
+        String path = null;
+        if (url.length() > schemeHostPort.length() + 1) {
+            path = url.substring(schemeHostPort.length() + 1);
+            int pos = path.indexOf('/');
+            if (pos > 0) {
+                path = path.substring(0, pos);
+            }
+        }
+
+        CupsClient client = new CupsClient(clientURL).setPath(path);
         CupsPrinter testPrinter;
 
         // Check if we need to save the server certs if we don't trust the connection
@@ -168,27 +181,44 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
             IppGetPrinterAttributesOperation op = new IppGetPrinterAttributesOperation();
             PrinterCapabilitiesInfo.Builder builder = new PrinterCapabilitiesInfo.Builder(printerId);
             IppResult ippAttributes = op.request(printerURL, propertyMap);
+            if (ippAttributes == null) {
+                L.e("Couldn't get 'requested-attributes' from printer: " + url);
+                return null;
+            }
+
             int colorDefault = 0;
             int colorMode = 0;
             int marginMilsTop = 0, marginMilsRight = 0, marginMilsBottom = 0, marginMilsLeft = 0;
-            for (AttributeGroup attributeGroup : ippAttributes.getAttributeGroupList()) {
+            final List<AttributeGroup> attributes = ippAttributes.getAttributeGroupList();
+            if (attributes == null) {
+                L.e("Couldn't get attributes list from printer: " + url);
+                return null;
+            }
+
+            boolean mediaSizeSet = false;
+            boolean resolutionSet = false;
+            for (AttributeGroup attributeGroup : attributes) {
                 for (Attribute attribute : attributeGroup.getAttribute()) {
                     if ("media-default".equals(attribute.getName())) {
                         final PrintAttributes.MediaSize mediaSize = CupsPrinterDiscoveryUtils.getMediaSizeFromAttributeValue(attribute.getAttributeValue().get(0));
                         if (mediaSize != null) {
+                            mediaSizeSet = true;
                             builder.addMediaSize(mediaSize, true);
                         }
                     } else if ("media-supported".equals(attribute.getName())) {
                         for (AttributeValue attributeValue : attribute.getAttributeValue()) {
                             final PrintAttributes.MediaSize mediaSize = CupsPrinterDiscoveryUtils.getMediaSizeFromAttributeValue(attributeValue);
                             if (mediaSize != null) {
+                                mediaSizeSet = true;
                                 builder.addMediaSize(mediaSize, false);
                             }
                         }
                     } else if ("printer-resolution-default".equals(attribute.getName())) {
+                        resolutionSet = true;
                         builder.addResolution(CupsPrinterDiscoveryUtils.getResolutionFromAttributeValue("0", attribute.getAttributeValue().get(0)), true);
                     } else if ("printer-resolution-supported".equals(attribute.getName())) {
                         for (AttributeValue attributeValue : attribute.getAttributeValue()) {
+                            resolutionSet = true;
                             builder.addResolution(CupsPrinterDiscoveryUtils.getResolutionFromAttributeValue(attributeValue.getTag(), attributeValue), false);
                         }
                     } else if ("print-color-mode-supported".equals(attribute.getName())) {
@@ -220,6 +250,15 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     }
                 }
             }
+
+            if (!mediaSizeSet) {
+                builder.addMediaSize(PrintAttributes.MediaSize.ISO_A4, true);
+            }
+
+            if (!resolutionSet) {
+                builder.addResolution(new PrintAttributes.Resolution("0", "300x300 dpi", 300, 300), true);
+            }
+
             // Workaround for KitKat (SDK 19)
             // see: https://developer.android.com/reference/android/print/PrinterCapabilitiesInfo.Builder.html
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && colorMode == PrintAttributes.COLOR_MODE_MONOCHROME) {
@@ -260,17 +299,19 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
 
     /**
      * Called when the printer has been checked over IPP(S)
+     * Called from the UI thread
      *
      * @param printerId               The printer
      * @param printerCapabilitiesInfo null if the printer isn't available anymore, otherwise contains the printer capabilities
      */
     void onPrinterChecked(PrinterId printerId, PrinterCapabilitiesInfo printerCapabilitiesInfo) {
-        L.d("onPrinterChecked: " + printerId + " (printers: " + getPrinters() + ")");
+        L.d("onPrinterChecked: " + printerId + " (printers: " + getPrinters() + "), cap: " + printerCapabilitiesInfo);
         if (printerCapabilitiesInfo == null) {
             final ArrayList<PrinterId> printerIds = new ArrayList<>();
             printerIds.add(printerId);
             removePrinters(printerIds);
             Toast.makeText(mPrintService, mPrintService.getString(R.string.printer_not_responding, printerId.getLocalId()), Toast.LENGTH_LONG).show();
+            L.d("onPrinterChecked: Printer has no cap, removing it from the list");
         } else {
             List<PrinterInfo> printers = new ArrayList<>();
             for (PrinterInfo printer : getPrinters()) {
@@ -278,11 +319,13 @@ class CupsPrinterDiscoverySession extends PrinterDiscoverySession {
                     PrinterInfo printerWithCaps = new PrinterInfo.Builder(printerId, printer.getName(), PrinterInfo.STATUS_IDLE)
                             .setCapabilities(printerCapabilitiesInfo)
                             .build();
+                    L.d("onPrinterChecked: adding printer: " + printerWithCaps);
                     printers.add(printerWithCaps);
                 } else {
                     printers.add(printer);
                 }
             }
+            L.d("onPrinterChecked: we had " + getPrinters().size() + "printers, we now have " + printers.size());
             addPrinters(printers);
         }
     }

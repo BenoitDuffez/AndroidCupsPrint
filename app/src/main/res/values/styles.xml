@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="AndroidCupsPrint"
+           parent="@style/Theme.AppCompat.Light"/>
     <style name="AndroidCupsPrint.AlertDialog"
            parent="@style/Theme.AppCompat.Light.Dialog.Alert"/>
 </resources>

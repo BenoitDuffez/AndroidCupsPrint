@@ -21,6 +21,7 @@ package org.cups4j.operations;
  */
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -62,7 +63,7 @@ public abstract class IppOperation {
      * @param from Data to be read
      * @param to   Destination
      * @return Number of copied bytes
-     * @throws IOException
+     * @throws IOException If the stream can't be read/written from/to
      */
     public static long copy(@NonNull InputStream from, @NonNull OutputStream to) throws IOException {
         final int BUF_SIZE = 0x1000; // 4K
@@ -84,16 +85,19 @@ public abstract class IppOperation {
      *
      * @param url Printer URL
      * @return IPP header
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException If the ipp data can't be generated
      */
+    @Nullable
     public ByteBuffer getIppHeader(URL url) throws UnsupportedEncodingException {
         return getIppHeader(url, null);
     }
 
+    @Nullable
     public IppResult request(URL url, Map<String, String> map) throws Exception {
         return sendRequest(url, getIppHeader(url, map));
     }
 
+    @Nullable
     public IppResult request(URL url, Map<String, String> map, InputStream document) throws Exception {
         return sendRequest(url, getIppHeader(url, map), document);
     }
@@ -104,8 +108,9 @@ public abstract class IppOperation {
      * @param url Printer URL
      * @param map Print attributes
      * @return IPP header
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException If the ipp data can't be generated
      */
+    @Nullable
     public ByteBuffer getIppHeader(URL url, Map<String, String> map) throws UnsupportedEncodingException {
         if (url == null) {
             System.err.println("IppOperation.getIppHeader(): uri is null");
@@ -153,9 +158,9 @@ public abstract class IppOperation {
      * @param url    Printer URL
      * @param ippBuf IPP buffer
      * @return result
-     * @throws IOException
-     * @throws Exception
+     * @throws Exception If any network error occurs
      */
+    @Nullable
     private IppResult sendRequest(URL url, ByteBuffer ippBuf) throws Exception {
         return sendRequest(url, ippBuf, null);
     }
@@ -167,8 +172,9 @@ public abstract class IppOperation {
      * @param ippBuf         IPP buffer
      * @param documentStream Printed document input stream
      * @return result
-     * @throws Exception
+     * @throws Exception If any network error occurs
      */
+    @Nullable
     private IppResult sendRequest(URL url, ByteBuffer ippBuf, InputStream documentStream) throws Exception {
         IppResult ippResult;
         if (ippBuf == null) {
@@ -242,8 +248,9 @@ public abstract class IppOperation {
      *
      * @param is Input data to be read
      * @return Input data read and stored into a byte array
-     * @throws IOException
+     * @throws IOException if the IS couldn't be read or the buffer couldn't be written to
      */
+    @NonNull
     private byte[] readInputStream(InputStream is) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -259,14 +266,17 @@ public abstract class IppOperation {
         return buffer.toByteArray();
     }
 
-    protected String stripPortNumber(URL url) {
+    @NonNull
+    protected String stripPortNumber(@NonNull URL url) {
         return url.getProtocol() + "://" + url.getHost() + url.getPath();
     }
 
-    protected String getAttributeValue(Attribute attr) {
+    @NonNull
+    protected String getAttributeValue(@NonNull Attribute attr) {
         return attr.getAttributeValue().get(0).getValue();
     }
 
+    @Nullable
     public X509Certificate[] getServerCerts() {
         return mServerCerts;
     }

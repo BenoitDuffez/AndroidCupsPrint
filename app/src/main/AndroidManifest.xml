@@ -53,7 +53,14 @@
             android:name="io.fabric.ApiKey"
             android:value="ab18fbc78d644944a4a41367f1098b1734a74f77"/>
 
+        <activity
+            android:name=".app.ManageManualPrintersActivity"
+            android:theme="@style/AndroidCupsPrint">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
-
