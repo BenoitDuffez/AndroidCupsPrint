@@ -1,0 +1,19 @@
+Have a local printer shared over CUPS or IPP? Then this app allows you to directly print to it from your Android device.
+
+This app just provides a Print Service to Android. This means that once it's installed, you have to enable it from your 'Print' section of the settings app of you device.
+Once the service is enabled, the printers are automatically discovered using the mDNS protocol.
+You can print anything you want from any app, as long as the print service is enabled.
+
+Of course, printing document is an important matter. Because your documents are your most private information, you don't want anybody to have access to this information.
+This is why this app is completely open sourced and free to use, modify and redistribute (under the LGPL license). You can check more on the app website or GitHub repository: http://benoitduffez.github.io/AndroidCupsPrint
+
+This app was only tested with a single CUPS server, running on Debian 8; and with a single printer, an HP Deskjet connected over http.
+This means that there is a high probability that you may encounter bugs; in which case you are quite welcome to submit an issue on the GitHub project page: https://github.com/BenoitDuffez/AndroidCupsPrint/issues/new
+
+You can also fork the project and contribute in any way you want.
+
+This software uses jmdns, licensed under the Apache Licence.
+This software uses a modified version of the cups4j library under the GNU LGPL license.
+This software is based off of Jon Freeman's work. Further details may be found at http://mobd.jonbanjo.com/jfcupsprint/ and http://benoitduffez.github.io/AndroidCupsPrint
+
+Redistribution and use of this app in source and binary forms, with or without modification, is permitted provided this notice is retained in source code redistributions and that recipients agree that JfCupsPrint is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, title and non-infringement. In no event shall the copyright holders or anyone distributing the software be liable for any damages or other liability, whether in contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
