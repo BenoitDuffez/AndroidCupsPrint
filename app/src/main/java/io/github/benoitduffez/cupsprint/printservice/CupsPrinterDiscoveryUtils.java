@@ -4,6 +4,8 @@ import android.print.PrintAttributes;
 import android.support.annotation.NonNull;
 
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ch.ethz.vppserver.schema.ippclient.AttributeValue;
 
@@ -201,6 +203,27 @@ class CupsPrinterDiscoveryUtils {
         } else if (value.toLowerCase(Locale.ENGLISH).startsWith("UNKNOWN_PORTRAIT".toLowerCase(Locale.ENGLISH))) {
             return PrintAttributes.MediaSize.UNKNOWN_PORTRAIT;
         } else {
+            Matcher m = Pattern.compile("_((\\d*\\.?\\d+)x(\\d*\\.?\\d+)([a-z]+))$").matcher(value);
+            if (m.find()) {
+                try {
+                    float x = Float.parseFloat(m.group(2));
+                    float y = Float.parseFloat(m.group(3));
+                    switch (m.group(4)) {
+                        case "mm":
+                            x /= 25.4f;
+                            y /= 25.4f;
+                            // fall thru
+                        case "in":
+                            x *= 1000;
+                            y *= 1000;
+                            break;
+                        default:
+                            return null;
+                    }
+                    return new PrintAttributes.MediaSize(value, m.group(1), Math.round(x), Math.round(y));
+                } catch (NumberFormatException ignored) {
+                }
+            }
             return null;
         }
     }
