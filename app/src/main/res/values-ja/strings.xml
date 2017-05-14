@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Android CUPS Print</string>
+    <string name="add_url">http://server.tld:631/printers/Printer_Name</string>
+    <string name="add_name">プリンター名</string>
+    <string name="add_button">プリンターを追加</string>
+    <string name="add_search_button">プリンターの検索</string>
+    <string name="activity_add_label">CUPS プリンターを追加</string>
+    <string name="add_full_manual">または、以下のフィールドに完全な URI とプリンター名を入力することもできます</string>
+    <string name="add_server_ip">サーバー IP またはホスト名</string>
+    <string name="add_autodetect">以下の IP またはホスト名を入力して、サーバーからプリンターを自動検出することができます</string>
+    <plurals name="printer_discovery_result">
+        <item quantity="zero">プリンターが見つかりませんでした</item>
+        <item quantity="one">%d プリンターが見つかりました</item>
+        <item quantity="other">%d プリンターが見つかりました</item>
+    </plurals>
+    <string name="printer_not_responding">プリンターが応答していません。 電源がオンになっていて、%1$s で利用可能であることを確認してください</string>
+    <string name="err_document_fd_null">印刷するドキュメントが読み取りできません</string>
+    <string name="err_add_printer_empty_name">プリンター名は空にできません</string>
+    <string name="err_add_printer_empty_url">プリンター URL は空にできません</string>
+    <string name="untrusted_title">信頼できない SSL 接続</string>
+    <string name="untrusted_info">デバイスによって信頼されていない証明書をサーバーが送信しました。 以下の証明書の詳細を確認し、信頼するかどうかを選択してください:</string>
+
+    <string name="untrusted_trust_button">信頼できる接続</string>
+    <string name="untrusted_abort_button">接続を中断</string>
+    <string name="untrusted_trusted">証明書を信頼できるリストに追加しました。 このプリンターでもう一度試してください。</string>
+    <string name="untrusted_couldnt_trust">サーバー証明書を保存できませんでした。 アプリケーションログを確認し、開発者にバグリクエストを提出してください。</string>
+    <string name="basic_auth_title">HTTP ベーシック認証</string>
+    <string name="basic_auth_info">サーバーがベーシック認証のリクエストを送信しましたが、資格情報を提供する必要があります。 以下に入力してください:</string>
+    <string name="basic_auth_login">ユーザー名</string>
+    <string name="basic_auth_password">パスワード</string>
+    <string name="basic_auth_button">資格情報を保存</string>
+    <string name="host_not_verified_title">ホスト名 %1$s は確認されていません</string>
+    <string name="host_not_verified_info">このホストは、デバイスがホスト名を確認できない SSL 証明書を提示しました。 このホストによって提供されるすべてのプリンターは、明示的に信頼するまで無効になります。 このホストを信頼するかどうかを教えてください:</string>
+    <string name="host_not_verified_trust_button">ホストを信頼する</string>
+    <string name="host_not_verified_abort_button">中断</string>
+    <string name="host_not_verified_activity_title">ホストは確認されていません</string>
+    <string name="err_http_upgrade">このホストはプレーンな HTTP を拒否します。 HTTPSアクセスを使用してください</string>
+    <string name="err_printer_null_when_printing">プリンターを見つけることができません。 利用可能ですか?</string>
+    <string name="err_printer_socket_timeout">プリンターのステータスを問い合わせできません: ソケットタイムアウト。 ネットワーク接続を確認してください。</string>
+    <string name="err_printer_unknown_host">プリンターのステータスを問い合わできません: 不明なホスト。 ネットワーク接続を確認してください。</string>
+    <string name="err_printer_network_unreachable">プリンターのステータスを問い合わせできません: ネットワークに到達できません。 ネットワーク接続を確認してください。</string>
+    <string name="err_400">CUPS サーバーが、Bad リクエストを送信したことを示しました。 これはサーバー上の構成が正しくないか、URL が間違っています。 両方を確認してください。</string>
+    <string name="err_404">サーバーにプリンター名が見つかりませんでした (HTTP 404)。 名前を確認してください。</string>
+    <string name="err_job_econnreset">CUPS サーバーとの接続がリセットされたため、ジョブ #%1$d のステータスを確認できませんでした</string>
+    <string name="err_job_not_found">ジョブ #%1$d が見つかりません。 すでに完了していませんか?</string>
+    <string name="err_job_socket_timeout">ドキュメントを印刷できません: ソケットタイムアウト。 ネットワーク接続を確認してください。</string>
+    <string name="err_job_exception">ジョブを処理できません: %1$s (%2$s)</string>
+    <string name="print_service_vendor">汎用 CUPS クライアント</string>
+    <string name="manage_printers_none">手動で入力したプリンターはありません。 アプリ設定の印刷セクションで追加できます。</string>
+    <string name="manage_printers_help">ここに手動で追加されたプリンターがあります。 削除するアイテムを 1 つクリックしてください (確認は表示されません!)</string>
+
+</resources>
