@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/add_server_ip"
-        android:inputType="textUri|number"/>
+        android:inputType="textUri"/>
 
     <Button
         android:layout_width="wrap_content"
