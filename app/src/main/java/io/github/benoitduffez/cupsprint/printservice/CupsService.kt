@@ -22,6 +22,7 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.net.URL
 import java.util.HashMap
+import javax.net.ssl.SSLException
 
 /**
  * When a print job is active, the app will poll the printer to retrieve the job status. This is the polling interval.
@@ -155,7 +156,12 @@ class CupsService : PrintService() {
             is NullPrinterException -> Toast.makeText(this, R.string.err_printer_null_when_printing, Toast.LENGTH_LONG).show()
             else -> {
                 Toast.makeText(this, getString(R.string.err_job_exception, jobId.toString(), e.localizedMessage), Toast.LENGTH_LONG).show()
-                Timber.e(e, "Couldn't query job $jobId")
+                if (e is SSLException && e.message?.contains("I/O error during system call, Broken pipe") == true) {
+                    // Don't send this crash report: https://github.com/BenoitDuffez/AndroidCupsPrint/issues/70
+                    Timber.e("Couldn't query job $jobId")
+                } else {
+                    Timber.e(e, "Couldn't query job $jobId")
+                }
             }
         }
     }
