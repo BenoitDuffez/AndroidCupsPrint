@@ -164,7 +164,11 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             for (attributeGroup in attributes) {
                 for (attribute in attributeGroup.attribute) {
                     if ("media-default" == attribute.name) {
-                        val mediaSize = CupsPrinterDiscoveryUtils.getMediaSizeFromAttributeValue(attribute.attributeValue[0])
+                        val mediaSize = if (attribute.attributeValue.size > 0) {
+                            CupsPrinterDiscoveryUtils.getMediaSizeFromAttributeValue(attribute.attributeValue[0])
+                        } else {
+                            PrintAttributes.MediaSize.ISO_A4
+                        }
                         if (mediaSize != null) {
                             mediaSizeSet = true
                             builder.addMediaSize(mediaSize, true)
