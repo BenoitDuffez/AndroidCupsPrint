@@ -77,12 +77,7 @@ abstract class IppOperation(val context: Context) {
      * @throws UnsupportedEncodingException If the ipp data can't be generated
      */
     @Throws(UnsupportedEncodingException::class)
-    open fun getIppHeader(url: URL?, map: Map<String, String>?): ByteBuffer? {
-        if (url == null) {
-            System.err.println("IppOperation.getIppHeader(): uri is null")
-            return null
-        }
-
+    open fun getIppHeader(url: URL, map: Map<String, String>?): ByteBuffer {
         var ippBuf = ByteBuffer.allocateDirect(bufferSize.toInt())
         ippBuf = IppTag.getOperation(ippBuf, operationID)
         ippBuf = IppTag.getUri(ippBuf, "printer-uri", stripPortNumber(url))
@@ -122,16 +117,8 @@ abstract class IppOperation(val context: Context) {
      * @throws Exception If any network error occurs
      */
     @Throws(Exception::class)
-    private fun sendRequest(url: URL?, ippBuf: ByteBuffer?, documentStream: InputStream? = null): IppResult? {
+    private fun sendRequest(url: URL, ippBuf: ByteBuffer, documentStream: InputStream? = null): IppResult? {
         val ippResult: IppResult
-        if (ippBuf == null) {
-            return null
-        }
-
-        if (url == null) {
-            return null
-        }
-
         val connection = url.openConnection() as HttpURLConnection
         lastResponseCode = 0
 

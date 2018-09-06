@@ -49,14 +49,14 @@ class IppGetJobsOperation(context: Context) : IppOperation(context) {
     }
 
     @Throws(UnsupportedEncodingException::class)
-    override fun getIppHeader(url: URL?, map: Map<String, String>?): ByteBuffer? {
+    override fun getIppHeader(url: URL, map: Map<String, String>?): ByteBuffer {
         var ippBuf = ByteBuffer.allocateDirect(bufferSize.toInt())
 
         //not sure why next line is here, it overwrites job attributes in map parameter - JF
         //map.put("requested-attributes", "job-name job-id job-state job-originating-user-name job-printer-uri copies");
 
         ippBuf = IppTag.getOperation(ippBuf, operationID)
-        ippBuf = IppTag.getUri(ippBuf, "printer-uri", stripPortNumber(url!!))
+        ippBuf = IppTag.getUri(ippBuf, "printer-uri", stripPortNumber(url))
 
         ippBuf = IppTag.getNameWithoutLanguage(ippBuf, "requesting-user-name", map!!["requesting-user-name"])
 

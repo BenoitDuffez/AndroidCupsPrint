@@ -45,11 +45,7 @@ class IppPrintJobOperation(context: Context) : IppOperation(context) {
      * @throws UnsupportedEncodingException
      */
     @Throws(UnsupportedEncodingException::class)
-    private fun getJobAttributes(inputIppBuf: ByteBuffer?, attributeBlocks: Array<String>?): ByteBuffer? {
-        if (inputIppBuf == null) {
-            System.err.println("IppPrintJobOperation.getJobAttributes(): ippBuf is null")
-            return null
-        }
+    private fun getJobAttributes(inputIppBuf: ByteBuffer, attributeBlocks: Array<String>?): ByteBuffer {
         if (attributeBlocks == null) {
             return inputIppBuf
         }
@@ -119,12 +115,7 @@ class IppPrintJobOperation(context: Context) : IppOperation(context) {
     }
 
     @Throws(UnsupportedEncodingException::class)
-    override fun getIppHeader(url: URL?, map: Map<String, String>?): ByteBuffer? {
-        if (url == null) {
-            System.err.println("IppPrintJobOperation.getIppHeader(): uri is null")
-            return null
-        }
-
+    override fun getIppHeader(url: URL, map: Map<String, String>?): ByteBuffer {
         var ippBuf = ByteBuffer.allocateDirect(bufferSize.toInt())
         ippBuf = IppTag.getOperation(ippBuf, operationID)
         ippBuf = IppTag.getUri(ippBuf, "printer-uri", stripPortNumber(url))

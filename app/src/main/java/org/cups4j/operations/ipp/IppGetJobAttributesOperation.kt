@@ -41,22 +41,22 @@ class IppGetJobAttributesOperation(context: Context) : IppOperation(context) {
     }
 
     @Throws(UnsupportedEncodingException::class)
-    override fun getIppHeader(url: URL?, map: Map<String, String>?): ByteBuffer? {
+    override fun getIppHeader(url: URL, map: Map<String, String>?): ByteBuffer {
         var ippBuf = ByteBuffer.allocateDirect(bufferSize.toInt())
         ippBuf = IppTag.getOperation(ippBuf, operationID)
 
         if (map == null) {
-            ippBuf = IppTag.getUri(ippBuf, "job-uri", stripPortNumber(url!!))
+            ippBuf = IppTag.getUri(ippBuf, "job-uri", stripPortNumber(url))
             ippBuf = IppTag.getEnd(ippBuf)
-            ippBuf?.flip()
+            ippBuf.flip()
             return ippBuf
         }
 
         map["job-id"]?.let {
-            ippBuf = IppTag.getUri(ippBuf, "printer-uri", stripPortNumber(url!!))
+            ippBuf = IppTag.getUri(ippBuf, "printer-uri", stripPortNumber(url))
             ippBuf = IppTag.getInteger(ippBuf, "job-id", it.toInt())
         } ?: run {
-            ippBuf = IppTag.getUri(ippBuf, "job-uri", stripPortNumber(url!!))
+            ippBuf = IppTag.getUri(ippBuf, "job-uri", stripPortNumber(url))
         }
 
         ippBuf = IppTag.getNameWithoutLanguage(ippBuf, "requesting-user-name", map["requesting-user-name"])
