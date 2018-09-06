@@ -5,12 +5,12 @@ import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import java.util.ArrayList
 import java.util.Arrays
-
-import javax.net.ssl.TrustManager
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
 
-internal class AdditionalKeyStoresTrustManager(vararg additionalkeyStores: KeyStore) : X509TrustManager {
+private const val UNTRUSTED_CERTIFICATE = "Untrusted Certificate"
+
+internal class AdditionalKeyStoresTrustManager(vararg additionalKeyStores: KeyStore) : X509TrustManager {
     private val x509TrustManagers = ArrayList<X509TrustManager>()
     var certChain: Array<X509Certificate>? = null
         private set
@@ -24,7 +24,7 @@ internal class AdditionalKeyStoresTrustManager(vararg additionalkeyStores: KeySt
             original.init(null as KeyStore?)
             factories.add(original)
 
-            for (keyStore in additionalkeyStores) {
+            for (keyStore in additionalKeyStores) {
                 val additionalCerts = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
                 additionalCerts.init(keyStore)
                 factories.add(additionalCerts)
@@ -82,9 +82,5 @@ internal class AdditionalKeyStoresTrustManager(vararg additionalkeyStores: KeySt
             list.addAll(Arrays.asList(*tm.acceptedIssuers))
         }
         return list.toTypedArray()
-    }
-
-    companion object {
-        private val UNTRUSTED_CERTIFICATE = "Untrusted Certificate"
     }
 }

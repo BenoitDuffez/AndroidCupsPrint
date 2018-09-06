@@ -137,9 +137,9 @@ class CupsService : PrintService() {
                 }
             }
         } catch (e: MalformedURLException) {
-            Timber.e(e, "Couldn't queue print job: $printJob")
+            Timber.e("Couldn't queue print job: $printJob")
         } catch (e: URISyntaxException) {
-            Timber.e(e, "Couldn't parse URI: $url")
+            Timber.e("Couldn't parse URI: $url")
         }
     }
 
