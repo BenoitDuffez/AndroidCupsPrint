@@ -1,5 +1,6 @@
 package io.github.benoitduffez.cupsprint
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import com.crashlytics.android.Crashlytics
@@ -10,7 +11,7 @@ import timber.log.Timber
 class CupsPrintApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        instance = this
+        context = applicationContext
         val core = CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()
         Fabric.with(this, Crashlytics.Builder().core(core).build())
 
@@ -22,11 +23,8 @@ class CupsPrintApp : Application() {
     }
 
     companion object {
-        var instance: CupsPrintApp? = null
-            private set
-
-        val context: Context
-            get() = instance!!.applicationContext
+        @SuppressLint("StaticFieldLeak")
+        lateinit var context: Context
     }
 
     /** A tree which logs important information for crash reporting.  */

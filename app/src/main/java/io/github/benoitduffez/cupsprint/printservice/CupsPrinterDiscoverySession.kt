@@ -15,7 +15,6 @@ import android.widget.Toast
 import ch.ethz.vppserver.schema.ippclient.Attribute
 import ch.ethz.vppserver.schema.ippclient.AttributeValue
 import com.crashlytics.android.Crashlytics
-import io.github.benoitduffez.cupsprint.CupsPrintApp
 import io.github.benoitduffez.cupsprint.R
 import io.github.benoitduffez.cupsprint.app.AddPrintersActivity
 import io.github.benoitduffez.cupsprint.app.BasicAuthActivity
@@ -76,7 +75,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      * @param printers The list of printers found, as a map of URL=>name
      */
     fun onPrintersDiscovered(printers: Map<String, String>) {
-        val res = CupsPrintApp.instance!!.resources
+        val res = printService.applicationContext.resources
         val toast = res.getQuantityString(R.plurals.printer_discovery_result, printers.size, printers.size)
         Toast.makeText(printService, toast, Toast.LENGTH_SHORT).show()
         Timber.d("onPrintersDiscovered($printers)")
@@ -336,7 +335,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                     // Now, add printer
                     printers[url] = name
                 } catch (e: URISyntaxException) {
-                    Timber.e(e,"Unable to parse manually-entered URI: $url")
+                    Timber.e(e, "Unable to parse manually-entered URI: $url")
                 }
             }
         }

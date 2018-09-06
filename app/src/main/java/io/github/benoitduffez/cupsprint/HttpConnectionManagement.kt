@@ -27,7 +27,6 @@ private const val KEYSTORE_FILE = "cupsprint-trustfile"
 private const val KEYSTORE_PASSWORD = "i6:[(mW*xh~=Ni;S|?8lz8eZ;!SU(S"
 
 object HttpConnectionManagement {
-
     /**
      * Will handle SSL related stuff to this connection so that certs are properly managed
      *
