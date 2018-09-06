@@ -45,6 +45,9 @@ class ManageManualPrintersActivity : AppCompatActivity() {
     }
 
     private fun getPrinters(prefs: SharedPreferences, numPrinters: Int): List<ManualPrinterInfo> {
+        if (numPrinters <= 0) {
+            return ArrayList()
+        }
         val printers = ArrayList<ManualPrinterInfo>(numPrinters)
         var url: String?
         var name: String?
