@@ -1,9 +1,7 @@
 package io.github.benoitduffez.cupsprint.detect
 
+import timber.log.Timber
 import java.util.ArrayList
-import java.util.Collections
-
-import io.github.benoitduffez.cupsprint.L
 
 internal class Merger {
     fun merge(httpRecs: List<PrinterRec>, httpsRecs: MutableList<PrinterRec>) {
@@ -19,7 +17,7 @@ internal class Merger {
                         break
                     }
                 } catch (e: Exception) {
-                    L.e("Invalid record in merge", e)
+                    Timber.e(e, "Invalid record in merge")
                 }
             }
             if (!match) {

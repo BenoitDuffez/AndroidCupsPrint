@@ -24,8 +24,8 @@ import java.net.URISyntaxException
 import java.net.URL
 import java.util.HashMap
 
-import io.github.benoitduffez.cupsprint.L
 import io.github.benoitduffez.cupsprint.R
+import timber.log.Timber
 
 /**
  * CUPS print service
@@ -40,7 +40,7 @@ class CupsService : PrintService() {
         val jobInfo = printJob.info
         val printerId = jobInfo.printerId
         if (printerId == null) {
-            Crashlytics.log("Tried to cancel a job, but the printer ID is null")
+            Timber.d("Tried to cancel a job, but the printer ID is null")
             return
         }
 
@@ -48,12 +48,12 @@ class CupsService : PrintService() {
 
         val id = printJob.id
         if (id == null) {
-            Crashlytics.log("Tried to cancel a job, but the print job ID is null")
+            Timber.d("Tried to cancel a job, but the print job ID is null")
             return
         }
         val jobId = jobs[id]
         if (jobId == null) {
-            Crashlytics.log("Tried to cancel a job, but the print job ID is null")
+            Timber.d("Tried to cancel a job, but the print job ID is null")
             return
         }
 
@@ -73,9 +73,9 @@ class CupsService : PrintService() {
                 }
             }.execute()
         } catch (e: MalformedURLException) {
-            L.e("Couldn't cancel print job: $printJob, jobId: $jobId", e)
+            Timber.e(e,"Couldn't cancel print job: $printJob, jobId: $jobId")
         } catch (e: URISyntaxException) {
-            L.e("Couldn't parse URI: $url", e)
+            Timber.e(e,"Couldn't parse URI: $url")
         }
     }
 
@@ -90,7 +90,7 @@ class CupsService : PrintService() {
             val client = CupsClient(clientURL)
             client.cancelJob(jobId)
         } catch (e: Exception) {
-            L.e("Couldn't cancel job: $jobId", e)
+            Timber.e(e,"Couldn't cancel job: $jobId")
         }
     }
 
@@ -109,7 +109,7 @@ class CupsService : PrintService() {
         val jobInfo = printJob.info
         val printerId = jobInfo.printerId
         if (printerId == null) {
-            Crashlytics.log("Tried to queue a job, but the printer ID is null")
+            Timber.d("Tried to queue a job, but the printer ID is null")
             return
         }
 
@@ -123,7 +123,7 @@ class CupsService : PrintService() {
             val clientURL = URL(schemeHostPort)
             val data = printJob.document.data
             if (data == null) {
-                Crashlytics.log("Tried to queue a job, but the document data (file descriptor) is null")
+                Timber.d("Tried to queue a job, but the document data (file descriptor) is null")
                 Toast.makeText(this, R.string.err_document_fd_null, Toast.LENGTH_LONG).show()
                 return
             }
@@ -153,9 +153,9 @@ class CupsService : PrintService() {
                 }
             }.execute()
         } catch (e: MalformedURLException) {
-            L.e("Couldn't queue print job: $printJob", e)
+            Timber.e(e,"Couldn't queue print job: $printJob")
         } catch (e: URISyntaxException) {
-            L.e("Couldn't parse URI: $url", e)
+            Timber.e(e,"Couldn't parse URI: $url")
         }
     }
 
@@ -173,7 +173,7 @@ class CupsService : PrintService() {
             Toast.makeText(this, R.string.err_printer_null_when_printing, Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(this, getString(R.string.err_job_exception, jobId.toString(), e.localizedMessage), Toast.LENGTH_LONG).show()
-            L.e("Couldn't query job $jobId", e)
+            Timber.e(e,"Couldn't query job $jobId")
         }
     }
 
@@ -196,13 +196,13 @@ class CupsService : PrintService() {
     internal fun updateJobStatus(printJob: PrintJob): Boolean {
         // Check if the job is already gone
         if (!jobs.containsKey(printJob.id)) {
-            Crashlytics.log("Tried to request a job status, but the job couldn't be found in the jobs list")
+            Timber.d("Tried to request a job status, but the job couldn't be found in the jobs list")
             return false
         }
 
         val printerId = printJob.info.printerId
         if (printerId == null) {
-            Crashlytics.log("Tried to request a job status, but the printer ID is null")
+            Timber.d("Tried to request a job status, but the printer ID is null")
             return false
         }
         val url = printerId.localId
@@ -217,10 +217,10 @@ class CupsService : PrintService() {
             clientURL = URL(schemeHostPort)
             jobId = jobs[printJob.id]!!
         } catch (e: MalformedURLException) {
-            L.e("Couldn't get job: $printJob state", e)
+            Timber.e(e,"Couldn't get job: $printJob state")
             return false
         } catch (e: URISyntaxException) {
-            L.e("Couldn't parse URI: $url", e)
+            Timber.e(e,"Couldn't parse URI: $url")
             return false
         }
 
@@ -240,14 +240,14 @@ class CupsService : PrintService() {
 
             override fun onPostExecute(state: JobStateEnum?) {
                 if (exception != null) {
-                    L.e("Couldn't get job: $jobId state because: $exception")
+                    Timber.e("Couldn't get job: $jobId state because: $exception")
 
                     if (exception is SocketException && exception?.message?.contains("ECONNRESET")==true) {
                         Toast.makeText(this@CupsService, getString(R.string.err_job_econnreset, jobId), Toast.LENGTH_LONG).show()
                     } else if (exception is FileNotFoundException) {
                         Toast.makeText(this@CupsService, getString(R.string.err_job_not_found, jobId), Toast.LENGTH_LONG).show()
                     } else {
-                        Crashlytics.logException(exception)
+                        Timber.e(exception)
                     }
                 } else if (state != null) {
                     onJobStateUpdate(printJob, state)

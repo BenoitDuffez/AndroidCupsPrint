@@ -6,7 +6,7 @@ import android.security.KeyChain
 import android.security.KeyChainException
 import android.text.TextUtils
 import io.github.benoitduffez.cupsprint.CupsPrintApp
-import io.github.benoitduffez.cupsprint.L
+import timber.log.Timber
 import java.net.Socket
 import java.security.Principal
 import java.security.PrivateKey
@@ -95,8 +95,7 @@ class AdditionalKeyManager private constructor(private val clientAlias: String, 
             return privateKey
         }
 
-        private fun logError(alias: String, type: String, ex: Exception) {
-            L.e("Unable to retrieve $type for [$alias]", ex)
-        }
+        private fun logError(alias: String, type: String, e: Exception) =
+                Timber.e(e, "Unable to retrieve $type for [$alias]")
     }
 }

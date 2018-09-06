@@ -1,5 +1,6 @@
 package io.github.benoitduffez.cupsprint.detect
 
+import timber.log.Timber
 import java.net.DatagramPacket
 import java.net.InetAddress
 import java.net.MulticastSocket
@@ -12,7 +13,12 @@ import javax.jmdns.ServiceInfo
 import javax.jmdns.impl.DNSIncoming
 import javax.jmdns.impl.DNSRecord
 
-import io.github.benoitduffez.cupsprint.L
+private const val IPP_SERVICE = "_ipp._tcp.local."
+private const val IPPS_SERVICE = "_ipps._tcp.local."
+private const val MAX_PASSES = 50
+private val HEADER = byteArrayOf(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+private val FOOTER = byteArrayOf(0, 0, 12, 0, 1)
+private const val TIMEOUT = 1000
 
 class MdnsServices {
     private var error = false
@@ -69,7 +75,7 @@ class MdnsServices {
         try {
             val `in` = DNSIncoming(packet)
             if (`in`.numberOfAnswers < 1) {
-                L.v("No answer in mDNS response: $packet")
+                Timber.v("No answer in mDNS response: $packet")
                 return
             }
             val answers = `in`.allAnswers
@@ -111,10 +117,10 @@ class MdnsServices {
                     rp = rps[rps.size - 1]
                 } catch (e: Exception) {
                     rp = ""
-                    L.e("There was an error when trying to process rp in DNS answers", e)
+                    Timber.e(e, "There was an error when trying to process rp in DNS answers")
                 }
 
-                L.d("process: qualified name: " + info.qualifiedName)
+                Timber.d("process: qualified name: ${info.qualifiedName}")
                 val key = info.key
                 if (key != null) {
                     val p = getPrinterRec(
@@ -125,22 +131,22 @@ class MdnsServices {
                             rp)
 
                     if (p != null) {
-                        L.d("A new printer responded to an mDNS query: $p")
+                        Timber.d("A new printer responded to an mDNS query: $p")
                         list[key] = p
                     } else {
-                        L.e("""
+                        Timber.e("""
                             A new printer responded to an mDNS query, but it has no PrinterRec: ignore
                             (info: $info, protocol: $protocol, service: ${services[key]!![0]},
                             port: ${Integer.parseInt(services[key]!![1])}, queue: $rp
                             """.trimIndent())
                     }
                 } else {
-                    L.e("Couldn't find printer from mDNS datagram: ${info.application}, ${info.domain}, ${info.key}")
+                    Timber.e("Couldn't find printer from mDNS datagram: ${info.application}, ${info.domain}, ${info.key}")
                 }
             }
         } catch (e: Exception) {
             println(e.toString())
-            L.e("There was an error when trying to process a datagram packet: $packet", e)
+            Timber.e(e, "There was an error when trying to process a datagram packet: $packet")
         }
     }
 
@@ -187,7 +193,7 @@ class MdnsServices {
                     error = true
                     // Socket timeout occur all the time, don't send them back to crashlytics
                     if (e !is SocketTimeoutException) {
-                        L.e("There was an error when trying to receive mDNS response", e)
+                        Timber.e(e, "There was an error when trying to receive mDNS response")
                     }
                 }
             }
@@ -204,8 +210,8 @@ class MdnsServices {
     fun scan(): PrinterResult {
         val httpRecs = ArrayList<PrinterRec>()
         val httpsRecs = ArrayList<PrinterRec>()
-        httpRecs.addAll(getPrinters(MdnsServices.IPP_SERVICE).values)
-        httpsRecs.addAll(getPrinters(MdnsServices.IPPS_SERVICE).values)
+        httpRecs.addAll(getPrinters(IPP_SERVICE).values)
+        httpsRecs.addAll(getPrinters(IPPS_SERVICE).values)
         Merger().merge(httpRecs, httpsRecs)
 
         val result = PrinterResult()
@@ -215,19 +221,5 @@ class MdnsServices {
 
     fun stop() {
         error = true
-    }
-
-    companion object {
-        private val IPP_SERVICE = "_ipp._tcp.local."
-
-        private val IPPS_SERVICE = "_ipps._tcp.local."
-
-        private val MAX_PASSES = 50
-
-        private val HEADER = byteArrayOf(0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
-
-        private val FOOTER = byteArrayOf(0, 0, 12, 0, 1)
-
-        private val TIMEOUT = 1000
     }
 }

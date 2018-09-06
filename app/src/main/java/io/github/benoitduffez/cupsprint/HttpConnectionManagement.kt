@@ -1,10 +1,12 @@
 package io.github.benoitduffez.cupsprint
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.Base64
-
-import java.io.FileInputStream
+import io.github.benoitduffez.cupsprint.app.BasicAuthActivity
+import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyManager
+import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory
+import io.github.benoitduffez.cupsprint.ssl.AndroidCupsHostnameVerifier
+import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
@@ -18,19 +20,13 @@ import java.security.NoSuchAlgorithmException
 import java.security.UnrecoverableKeyException
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
-
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.KeyManager
 
-import io.github.benoitduffez.cupsprint.app.BasicAuthActivity
-import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyManager
-import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory
-import io.github.benoitduffez.cupsprint.ssl.AndroidCupsHostnameVerifier
+private const val KEYSTORE_FILE = "cupsprint-trustfile"
+private const val KEYSTORE_PASSWORD = "i6:[(mW*xh~=Ni;S|?8lz8eZ;!SU(S"
 
 object HttpConnectionManagement {
-    private val KEYSTORE_FILE = "cupsprint-trustfile"
-
-    private val KEYSTORE_PASSWORD = "i6:[(mW*xh~=Ni;S|?8lz8eZ;!SU(S"
 
     /**
      * Will handle SSL related stuff to this connection so that certs are properly managed
@@ -47,18 +43,18 @@ object HttpConnectionManagement {
             try {
                 keyManager = AdditionalKeyManager.fromAlias()
             } catch (e: CertificateException) {
-                L.e("Couldn't load system key store: " + e.localizedMessage, e)
+                Timber.e(e, "Couldn't load system key store: ${e.localizedMessage}")
             }
 
             connection.sslSocketFactory = AdditionalKeyStoresSSLSocketFactory(keyManager, trustStore)
         } catch (e: NoSuchAlgorithmException) {
-            L.e("Couldn't handle SSL URL connection: " + e.localizedMessage, e)
+            Timber.e(e, "Couldn't handle SSL URL connection: ${e.localizedMessage}")
         } catch (e: UnrecoverableKeyException) {
-            L.e("Couldn't handle SSL URL connection: " + e.localizedMessage, e)
+            Timber.e(e, "Couldn't handle SSL URL connection: ${e.localizedMessage}")
         } catch (e: KeyStoreException) {
-            L.e("Couldn't handle SSL URL connection: " + e.localizedMessage, e)
+            Timber.e(e, "Couldn't handle SSL URL connection: ${e.localizedMessage}")
         } catch (e: KeyManagementException) {
-            L.e("Couldn't handle SSL URL connection: " + e.localizedMessage, e)
+            Timber.e(e, "Couldn't handle SSL URL connection: ${e.localizedMessage}")
         }
     }
 
@@ -72,7 +68,7 @@ object HttpConnectionManagement {
         try {
             trustStore = KeyStore.getInstance(KeyStore.getDefaultType())
         } catch (e: KeyStoreException) {
-            L.e("Couldn't open local key store", e)
+            Timber.e(e, "Couldn't open local key store")
             return null
         }
 
@@ -83,24 +79,24 @@ object HttpConnectionManagement {
             return trustStore
         } catch (e: FileNotFoundException) {
             // This one can be ignored safely - at least not sent to crashlytics
-            L.e("Couldn't open local key store: " + e.localizedMessage)
+            Timber.e("Couldn't open local key store: ${e.localizedMessage}")
         } catch (e: IOException) {
-            L.e("Couldn't open local key store", e)
+            Timber.e(e, "Couldn't open local key store")
         } catch (e: NoSuchAlgorithmException) {
-            L.e("Couldn't open local key store", e)
+            Timber.e(e, "Couldn't open local key store")
         } catch (e: CertificateException) {
-            L.e("Couldn't open local key store", e)
+            Timber.e(e, "Couldn't open local key store")
         }
 
         // if we couldn't load local keystore file, create an new empty one
         try {
             trustStore.load(null, null)
         } catch (e: IOException) {
-            L.e("Couldn't create new key store", e)
+            Timber.e(e, "Couldn't create new key store")
         } catch (e: NoSuchAlgorithmException) {
-            L.e("Couldn't create new key store", e)
+            Timber.e(e, "Couldn't create new key store")
         } catch (e: CertificateException) {
-            L.e("Couldn't create new key store", e)
+            Timber.e(e, "Couldn't create new key store")
         }
 
         return trustStore
@@ -122,7 +118,7 @@ object HttpConnectionManagement {
                 trustStore.setCertificateEntry(c.subjectDN.toString(), c)
             }
         } catch (e: KeyStoreException) {
-            L.e("Couldn't store cert chain into key store", e)
+            Timber.e(e, "Couldn't store cert chain into key store")
             return false
         }
 
@@ -133,13 +129,13 @@ object HttpConnectionManagement {
             trustStore.store(fos, KEYSTORE_PASSWORD.toCharArray())
             fos!!.close()
         } catch (e: Exception) {
-            L.e("Unable to save key store", e)
+            Timber.e(e, "Unable to save key store")
         } finally {
             if (fos != null) {
                 try {
                     fos.close()
                 } catch (e: IOException) {
-                    L.e("Couldn't close key store", e)
+                    Timber.e(e, "Couldn't close key store")
                 }
             }
         }
@@ -164,10 +160,10 @@ object HttpConnectionManagement {
         val username = prefs.getString(BasicAuthActivity.KEY_BASIC_AUTH_LOGIN + id, "")
         val password = prefs.getString(BasicAuthActivity.KEY_BASIC_AUTH_PASSWORD + id, "")
         try {
-            val encoded = Base64.encodeToString((username + ":" + password).toByteArray(charset("UTF-8")), Base64.NO_WRAP)
+            val encoded = Base64.encodeToString(("$username:$password").toByteArray(charset("UTF-8")), Base64.NO_WRAP)
             connection.setRequestProperty("Authorization", "Basic $encoded")
         } catch (e: UnsupportedEncodingException) {
-            L.e("Couldn't base64 encode basic auth credentials", e)
+            Timber.e(e, "Couldn't base64 encode basic auth credentials")
         }
     }
 }

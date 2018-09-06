@@ -12,13 +12,21 @@ import android.printservice.PrintService
 import android.printservice.PrinterDiscoverySession
 import android.text.TextUtils
 import android.widget.Toast
-
+import ch.ethz.vppserver.schema.ippclient.Attribute
+import ch.ethz.vppserver.schema.ippclient.AttributeValue
 import com.crashlytics.android.Crashlytics
-
+import io.github.benoitduffez.cupsprint.CupsPrintApp
+import io.github.benoitduffez.cupsprint.R
+import io.github.benoitduffez.cupsprint.app.AddPrintersActivity
+import io.github.benoitduffez.cupsprint.app.BasicAuthActivity
+import io.github.benoitduffez.cupsprint.app.HostNotVerifiedActivity
+import io.github.benoitduffez.cupsprint.app.UntrustedCertActivity
+import io.github.benoitduffez.cupsprint.detect.MdnsServices
+import io.github.benoitduffez.cupsprint.detect.PrinterRec
 import org.cups4j.CupsClient
 import org.cups4j.CupsPrinter
 import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation
-
+import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.net.ConnectException
@@ -32,21 +40,8 @@ import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import java.util.ArrayList
 import java.util.HashMap
-
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLPeerUnverifiedException
-
-import ch.ethz.vppserver.schema.ippclient.Attribute
-import ch.ethz.vppserver.schema.ippclient.AttributeValue
-import io.github.benoitduffez.cupsprint.CupsPrintApp
-import io.github.benoitduffez.cupsprint.L
-import io.github.benoitduffez.cupsprint.R
-import io.github.benoitduffez.cupsprint.app.AddPrintersActivity
-import io.github.benoitduffez.cupsprint.app.BasicAuthActivity
-import io.github.benoitduffez.cupsprint.app.HostNotVerifiedActivity
-import io.github.benoitduffez.cupsprint.app.UntrustedCertActivity
-import io.github.benoitduffez.cupsprint.detect.MdnsServices
-import io.github.benoitduffez.cupsprint.detect.PrinterRec
 
 /**
  * CUPS printer discovery class
@@ -84,7 +79,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         val res = CupsPrintApp.instance!!.resources
         val toast = res.getQuantityString(R.plurals.printer_discovery_result, printers.size, printers.size)
         Toast.makeText(printService, toast, Toast.LENGTH_SHORT).show()
-        L.d("onPrintersDiscovered($printers)")
+        Timber.d("onPrintersDiscovered($printers)")
         val printersInfo = ArrayList<PrinterInfo>(printers.size)
         for (url in printers.keys) {
             val printerId = printService.generatePrinterId(url)
@@ -140,7 +135,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         }
 
         if (testPrinter == null) {
-            L.e("Printer not responding. Printer on fire?")
+            Timber.e("Printer not responding. Printer on fire?")
         } else {
             val propertyMap = HashMap<String, String>()
             propertyMap["requested-attributes"] = TextUtils.join(" ", REQUIRED_ATTRIBUTES)
@@ -149,7 +144,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             val builder = PrinterCapabilitiesInfo.Builder(printerId)
             val ippAttributes = op.request(printerURL, propertyMap)
             if (ippAttributes == null) {
-                L.e("Couldn't get 'requested-attributes' from printer: $url")
+                Timber.e("Couldn't get 'requested-attributes' from printer: $url")
                 return null
             }
 
@@ -161,7 +156,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             var marginMilsLeft = 0
             val attributes = ippAttributes.attributeGroupList
             if (attributes == null) {
-                L.e("Couldn't get attributes list from printer: $url")
+                Timber.e("Couldn't get attributes list from printer: $url")
                 return null
             }
 
@@ -232,7 +227,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             // see: https://developer.android.com/reference/android/print/PrinterCapabilitiesInfo.Builder.html
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT && colorMode == PrintAttributes.COLOR_MODE_MONOCHROME) {
                 colorMode = PrintAttributes.COLOR_MODE_MONOCHROME or PrintAttributes.COLOR_MODE_COLOR
-                L.w("Workaround for Kitkat enabled.")
+                Timber.w("Workaround for Kitkat enabled.")
             }
 
             // May happen. Fallback to monochrome by default
@@ -274,13 +269,13 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      * @param printerCapabilitiesInfo null if the printer isn't available anymore, otherwise contains the printer capabilities
      */
     fun onPrinterChecked(printerId: PrinterId, printerCapabilitiesInfo: PrinterCapabilitiesInfo?) {
-        L.d("onPrinterChecked: $printerId (printers: $printers), cap: $printerCapabilitiesInfo")
+        Timber.d("onPrinterChecked: $printerId (printers: $printers), cap: $printerCapabilitiesInfo")
         if (printerCapabilitiesInfo == null) {
             val printerIds = ArrayList<PrinterId>()
             printerIds.add(printerId)
             removePrinters(printerIds)
             Toast.makeText(printService, printService.getString(R.string.printer_not_responding, printerId.localId), Toast.LENGTH_LONG).show()
-            L.d("onPrinterChecked: Printer has no cap, removing it from the list")
+            Timber.d("onPrinterChecked: Printer has no cap, removing it from the list")
         } else {
             val printers = ArrayList<PrinterInfo>()
             for (printer in getPrinters()) {
@@ -288,13 +283,13 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                     val printerWithCaps = PrinterInfo.Builder(printerId, printer.name, PrinterInfo.STATUS_IDLE)
                             .setCapabilities(printerCapabilitiesInfo)
                             .build()
-                    L.d("onPrinterChecked: adding printer: $printerWithCaps")
+                    Timber.d("onPrinterChecked: adding printer: $printerWithCaps")
                     printers.add(printerWithCaps)
                 } else {
                     printers.add(printer)
                 }
             }
-            L.d("onPrinterChecked: we had " + getPrinters().size + "printers, we now have " + printers.size)
+            Timber.d("onPrinterChecked: we had " + getPrinters().size + "printers, we now have " + printers.size)
             addPrinters(printers)
         }
     }
@@ -341,7 +336,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                     // Now, add printer
                     printers[url] = name
                 } catch (e: URISyntaxException) {
-                    L.e("Unable to parse manually-entered URI: $url", e)
+                    Timber.e(e,"Unable to parse manually-entered URI: $url")
                 }
             }
         }
@@ -363,13 +358,13 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      * @param printerId The printer to check
      */
     override fun onStartPrinterStateTracking(printerId: PrinterId) {
-        L.d("onStartPrinterStateTracking: $printerId")
+        Timber.d("onStartPrinterStateTracking: $printerId")
         object : AsyncTask<Void, Void, PrinterCapabilitiesInfo>() {
             var exception: Exception? = null
 
             override fun doInBackground(vararg voids: Void): PrinterCapabilitiesInfo? {
                 try {
-                    L.i("Checking printer status: $printerId")
+                    Timber.i("Checking printer status: $printerId")
                     return checkPrinter(printerId.localId, printerId)
                 } catch (e: Exception) {
                     exception = e
@@ -379,7 +374,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             }
 
             override fun onPostExecute(printerCapabilitiesInfo: PrinterCapabilitiesInfo) {
-                L.v("HTTP response code: $responseCode")
+                Timber.v("HTTP response code: $responseCode")
                 if (exception != null) {
                     if (handlePrinterException(exception!!, printerId)) {
                         Crashlytics.logException(exception)
@@ -446,7 +441,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                 dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 printService.startActivity(dialog)
             } catch (e: URISyntaxException) {
-                L.e("Couldn't parse URI: " + printerId.localId, e)
+                Timber.e(e, "Couldn't parse URI: ${printerId.localId}")
                 return true
             }
 
@@ -474,10 +469,19 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
     override fun onDestroy() {}
 
     companion object {
-        private val HTTP_UPGRADE_REQUIRED = 426
-
-        private val MM_IN_MILS = 39.3700787
-
-        private val REQUIRED_ATTRIBUTES = arrayOf("media-default", "media-supported", "printer-resolution-default", "printer-resolution-supported", "print-color-mode-default", "print-color-mode-supported", "media-left-margin-supported", "media-bottom-right-supported", "media-top-margin-supported", "media-bottom-margin-supported")
+        private const val HTTP_UPGRADE_REQUIRED = 426
+        private const val MM_IN_MILS = 39.3700787
+        private val REQUIRED_ATTRIBUTES = arrayOf(
+                "media-default",
+                "media-supported",
+                "printer-resolution-default",
+                "printer-resolution-supported",
+                "print-color-mode-default",
+                "print-color-mode-supported",
+                "media-left-margin-supported",
+                "media-bottom-right-supported",
+                "media-top-margin-supported",
+                "media-bottom-margin-supported"
+        )
     }
 }

@@ -28,8 +28,8 @@ import ch.ethz.vppserver.ippclient.IppResult
 import ch.ethz.vppserver.ippclient.IppTag
 import ch.ethz.vppserver.schema.ippclient.Attribute
 import io.github.benoitduffez.cupsprint.HttpConnectionManagement
-import io.github.benoitduffez.cupsprint.L
 import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory
+import timber.log.Timber
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -88,7 +88,7 @@ abstract class IppOperation {
 
         if (map == null) {
             ippBuf = IppTag.getEnd(ippBuf)
-            ippBuf?.flip()
+            ippBuf.flip()
             return ippBuf
         }
 
@@ -174,7 +174,7 @@ abstract class IppOperation {
             ippResult.httpStatusResponse = connection.responseMessage
         } catch (e: Exception) {
             lastResponseCode = connection.responseCode
-            L.e("Caught exception while connecting to printer " + url + ": " + e.localizedMessage)
+            Timber.e("Caught exception while connecting to printer $url: ${e.localizedMessage}")
             throw e
         } finally {
             if (connection is HttpsURLConnection) {
@@ -233,8 +233,8 @@ abstract class IppOperation {
          */
         @Throws(IOException::class)
         fun copy(from: InputStream, to: OutputStream): Long {
-            val BUF_SIZE = 0x1000 // 4K
-            val buf = ByteArray(BUF_SIZE)
+            val bufSize = 0x1000 // 4K
+            val buf = ByteArray(bufSize)
             var total: Long = 0
             while (true) {
                 val r = from.read(buf)
