@@ -198,10 +198,10 @@ public abstract class IppOperation {
             connection.setRequestProperty("Content-Type", IPP_MIME_TYPE);
 
             if (url.getProtocol().equals("https")) {
-                HttpConnectionManagement.handleHttpsUrlConnection((HttpsURLConnection) connection);
+                HttpConnectionManagement.INSTANCE.handleHttpsUrlConnection((HttpsURLConnection) connection);
             }
 
-            HttpConnectionManagement.handleBasicAuth(url, connection);
+            HttpConnectionManagement.INSTANCE.handleBasicAuth(url, connection);
 
             byte[] bytes = new byte[ippBuf.limit()];
             ippBuf.get(bytes);
@@ -228,7 +228,7 @@ public abstract class IppOperation {
             ippResult.setHttpStatusResponse(connection.getResponseMessage());
         } catch (Exception e) {
             mLastResponseCode = connection.getResponseCode();
-            L.e("Caught exception while connecting to printer " + url + ": " + e.getLocalizedMessage());
+            L.INSTANCE.e("Caught exception while connecting to printer " + url + ": " + e.getLocalizedMessage());
             throw e;
         } finally {
             if (connection instanceof HttpsURLConnection) {

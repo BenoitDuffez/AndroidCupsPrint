@@ -53,7 +53,7 @@ public class CupsGetPrintersOperation extends IppOperation {
         IppResult result = request(new URL(url.toString() + path), map);
 
         if (result == null) {
-            L.e("Couldn't get printers from URL: " + url + " with path: " + path);
+            L.INSTANCE.e("Couldn't get printers from URL: " + url + " with path: " + path);
             return printers;
         }
 
