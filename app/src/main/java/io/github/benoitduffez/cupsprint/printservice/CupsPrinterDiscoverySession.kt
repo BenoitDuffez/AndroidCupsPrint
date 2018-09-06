@@ -30,6 +30,7 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.net.ConnectException
 import java.net.HttpURLConnection
+import java.net.MalformedURLException
 import java.net.SocketTimeoutException
 import java.net.URI
 import java.net.URISyntaxException
@@ -373,7 +374,10 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             } catch (e: Exception) {
                 appExecutors.mainThread.execute {
                     if (handlePrinterException(e, printerId)) {
-                        Timber.e(e, "Start printer state tracking failed")
+                        when (e) {
+                            is MalformedURLException, is URISyntaxException -> Timber.e("Start printer state tracking failed")
+                            else -> Timber.e(e, "Start printer state tracking failed")
+                        }
                     }
                 }
             }
