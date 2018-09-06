@@ -54,7 +54,9 @@ class ManageManualPrintersActivity : AppCompatActivity() {
         for (i in 0 until numPrinters) {
             name = prefs.getString(AddPrintersActivity.PREF_NAME + i, null)
             url = prefs.getString(AddPrintersActivity.PREF_URL + i, null)
-            printers.add(ManualPrinterInfo(name, url))
+            if (name != null && url != null) {
+                printers.add(ManualPrinterInfo(name, url))
+            }
         }
         return printers
     }

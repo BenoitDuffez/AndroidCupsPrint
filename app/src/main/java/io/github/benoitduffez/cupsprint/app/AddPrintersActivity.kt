@@ -11,10 +11,10 @@ import android.widget.Toast
 import io.github.benoitduffez.cupsprint.AppExecutors
 import io.github.benoitduffez.cupsprint.R
 import org.koin.android.ext.android.inject
+import timber.log.Timber
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.Locale
 import java.util.regex.Pattern
 
 /**
@@ -55,6 +55,7 @@ class AddPrintersActivity : Activity() {
         val prefs = getSharedPreferences(SHARED_PREFS_MANUAL_PRINTERS, Context.MODE_PRIVATE)
         val editor = prefs.edit()
         val id = prefs.getInt(PREF_NUM_PRINTERS, 0)
+        Timber.d("saving printer from input: $url")
         editor.putString(PREF_URL + id, url)
         editor.putString(PREF_NAME + id, name)
         editor.putInt(PREF_NUM_PRINTERS, id + 1)
@@ -85,7 +86,8 @@ class AddPrintersActivity : Activity() {
         if (!server.contains(":")) {
             server += ":631"
         }
-        val baseUrl = String.format(Locale.ENGLISH, "%s://%s/printers/", scheme, server)
+        val baseHost = "$scheme://$server"
+        val baseUrl = "$baseHost/printers/"
         try {
             urlConnection = URL(baseUrl).openConnection() as HttpURLConnection
             val isw = InputStreamReader(urlConnection.inputStream)
@@ -119,7 +121,13 @@ class AddPrintersActivity : Activity() {
         val editor = prefs.edit()
         var id = prefs.getInt(PREF_NUM_PRINTERS, 0)
         while (matcher.find()) {
-            url = (baseUrl + matcher.group(1)).replace("//", "/")
+            val path = matcher.group(1)
+            url = if (path.startsWith("/")) {
+                baseHost + path
+            } else {
+                baseUrl + path
+            }
+            Timber.d("saving printer from search on $scheme: $url")
             name = matcher.group(3)
             editor.putString(PREF_URL + id, url)
             editor.putString(PREF_NAME + id, name)
