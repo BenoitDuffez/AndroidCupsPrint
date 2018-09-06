@@ -16,6 +16,7 @@ try {
     keystoreProperties['storePassword'] = ''
 }
 
+apply from: 'versioning.gradle'
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'io.fabric'
@@ -39,8 +40,8 @@ android {
         applicationId "io.github.benoitduffez.cupsprint"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 9
-        versionName "1.4.0"
+        versionCode buildVersionCode()
+        versionName version
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
