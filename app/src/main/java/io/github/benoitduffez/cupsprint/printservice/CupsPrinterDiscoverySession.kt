@@ -374,8 +374,9 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             } catch (e: Exception) {
                 appExecutors.mainThread.execute {
                     if (handlePrinterException(e, printerId)) {
-                        when (e) {
-                            is MalformedURLException, is URISyntaxException -> Timber.e("Start printer state tracking failed")
+                        when {
+                            e is MalformedURLException || e is URISyntaxException ||
+                                    e.message?.contains("ETIMEDOUT") == true -> Timber.e("Start printer state tracking failed")
                             else -> Timber.e(e, "Start printer state tracking failed")
                         }
                     }
