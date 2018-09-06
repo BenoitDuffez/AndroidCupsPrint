@@ -19,8 +19,8 @@ repositories {
 }
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 28
+    buildToolsVersion '28.0.2'
 
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
@@ -30,7 +30,7 @@ android {
     defaultConfig {
         applicationId "io.github.benoitduffez.cupsprint"
         minSdkVersion 19
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 9
         versionName "1.4.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
