@@ -120,7 +120,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             }
         }
 
-        val client = CupsClient(clientURL).setPath(path)
+        val client = CupsClient(clientURL).setPath(path ?: "/")
         val testPrinter: CupsPrinter?
 
         // Check if we need to save the server certs if we don't trust the connection
@@ -189,7 +189,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                     } else if ("printer-resolution-supported" == attribute.name) {
                         for (attributeValue in attribute.attributeValue) {
                             resolutionSet = true
-                            builder.addResolution(CupsPrinterDiscoveryUtils.getResolutionFromAttributeValue(attributeValue.tag, attributeValue), false)
+                            builder.addResolution(CupsPrinterDiscoveryUtils.getResolutionFromAttributeValue(attributeValue.tag!!, attributeValue), false)
                         }
                     } else if ("print-color-mode-supported" == attribute.name) {
                         for (attributeValue in attribute.attributeValue) {

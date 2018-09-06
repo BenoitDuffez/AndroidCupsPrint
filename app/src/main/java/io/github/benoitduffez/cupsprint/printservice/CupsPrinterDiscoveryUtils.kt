@@ -1,11 +1,9 @@
 package io.github.benoitduffez.cupsprint.printservice
 
 import android.print.PrintAttributes
-
+import ch.ethz.vppserver.schema.ippclient.AttributeValue
 import java.util.Locale
 import java.util.regex.Pattern
-
-import ch.ethz.vppserver.schema.ippclient.AttributeValue
 
 /**
  * Misc util methods
@@ -19,7 +17,7 @@ internal object CupsPrinterDiscoveryUtils {
      * @return resolution parsed into a [android.print.PrintAttributes.Resolution]
      */
     fun getResolutionFromAttributeValue(id: String, attributeValue: AttributeValue): PrintAttributes.Resolution {
-        val resolution = attributeValue.value.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val resolution = attributeValue.value!!.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         val horizontal: Int
         val vertical: Int
         horizontal = Integer.parseInt(resolution[0])
@@ -34,7 +32,7 @@ internal object CupsPrinterDiscoveryUtils {
      * @return media size parsed into a [PrintAttributes.MediaSize]
      */
     fun getMediaSizeFromAttributeValue(attributeValue: AttributeValue): PrintAttributes.MediaSize? {
-        val value = attributeValue.value.toLowerCase(Locale.ENGLISH)
+        val value = attributeValue.value?.toLowerCase(Locale.ENGLISH) ?: ""
         when {
             value.startsWith("ISO_A0".toLowerCase(Locale.ENGLISH)) -> return PrintAttributes.MediaSize.ISO_A0
             value.startsWith("ISO_A1".toLowerCase(Locale.ENGLISH)) -> return PrintAttributes.MediaSize.ISO_A1

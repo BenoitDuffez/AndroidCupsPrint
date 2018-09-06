@@ -271,7 +271,7 @@ class CupsService : PrintService() {
     internal fun getJobState(jobId: Int, clientURL: URL): JobStateEnum {
         val client = CupsClient(clientURL)
         val attr = client.getJobAttributes(jobId)
-        return attr.jobState
+        return attr.jobState!!
     }
 
     /**
