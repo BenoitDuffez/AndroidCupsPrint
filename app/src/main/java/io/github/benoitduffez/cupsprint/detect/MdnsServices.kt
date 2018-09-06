@@ -123,12 +123,17 @@ class MdnsServices {
                 Timber.d("process: qualified name: ${info.qualifiedName}")
                 val key = info.key
                 if (key != null) {
-                    val p = getPrinterRec(
-                            info.name,
-                            protocol,
-                            services[key]!![0],
-                            Integer.parseInt(services[key]!![1]),
-                            rp)
+                    val p = try {
+                        getPrinterRec(
+                                info.name,
+                                protocol,
+                                services[key]!![0],
+                                Integer.parseInt(services[key]!![1]),
+                                rp)
+                    } catch (e: NullPointerException) {
+                        Timber.e("Attempted to parse an invalid mDNS packet: $info, $protocol, $services, $rp; abort.")
+                        continue
+                    }
 
                     if (p != null) {
                         Timber.d("A new printer responded to an mDNS query: $p")
