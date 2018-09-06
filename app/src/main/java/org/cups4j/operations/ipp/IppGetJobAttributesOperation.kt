@@ -23,6 +23,7 @@ package org.cups4j.operations.ipp
  * Jon Freeman - 2013
  */
 
+import android.content.Context
 import ch.ethz.vppserver.ippclient.IppTag
 import org.cups4j.JobStateEnum
 import org.cups4j.PrintJobAttributes
@@ -33,7 +34,7 @@ import java.nio.ByteBuffer
 import java.util.Date
 import java.util.HashMap
 
-class IppGetJobAttributesOperation : IppOperation() {
+class IppGetJobAttributesOperation(context: Context) : IppOperation(context) {
     init {
         operationID = 0x0009
         bufferSize = 8192

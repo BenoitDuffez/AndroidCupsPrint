@@ -43,7 +43,7 @@ class HostNotVerifiedActivity : Activity() {
     companion object {
         val KEY_HOST = "${HostNotVerifiedActivity::class.java.name}.ErrorText"
 
-        private val HOSTS_FILE = "hosts_trust"
+        private const val HOSTS_FILE = "hosts_trust"
 
         /**
          * Check whether host is known and trusted

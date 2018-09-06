@@ -23,6 +23,7 @@ package org.cups4j.operations.ipp
  * Jon Freeman - 2013
  */
 
+import android.content.Context
 import ch.ethz.vppserver.ippclient.IppTag
 import org.cups4j.CupsClient
 import org.cups4j.PrintRequestResult
@@ -32,7 +33,7 @@ import java.net.URL
 import java.nio.ByteBuffer
 import java.util.HashMap
 
-class IppHoldJobOperation : IppOperation() {
+class IppHoldJobOperation(context: Context) : IppOperation(context) {
     init {
         operationID = 0x000C
         bufferSize = 8192
@@ -51,7 +52,7 @@ class IppHoldJobOperation : IppOperation() {
 
         if (map == null) {
             ippBuf = IppTag.getEnd(ippBuf)
-            ippBuf?.flip()
+            ippBuf.flip()
             return ippBuf
         }
 
@@ -64,7 +65,7 @@ class IppHoldJobOperation : IppOperation() {
         ippBuf = IppTag.getNameWithoutLanguage(ippBuf, "requesting-user-name", map["requesting-user-name"])
 
         ippBuf = IppTag.getEnd(ippBuf)
-        ippBuf?.flip()
+        ippBuf.flip()
         return ippBuf
     }
 

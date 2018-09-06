@@ -2,14 +2,15 @@ package io.github.benoitduffez.cupsprint.app
 
 import android.app.Activity
 import android.content.Context
-import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
+import io.github.benoitduffez.cupsprint.AppExecutors
 import io.github.benoitduffez.cupsprint.R
+import org.koin.android.ext.android.inject
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
@@ -23,6 +24,7 @@ class AddPrintersActivity : Activity() {
     private var mUrl: EditText? = null
     private var mName: EditText? = null
     private var mServerIp: EditText? = null
+    private val executors: AppExecutors by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,13 +67,10 @@ class AddPrintersActivity : Activity() {
     }
 
     fun searchPrinters(button: View) {
-        object : AsyncTask<Void, Void, Void>() {
-            override fun doInBackground(vararg params: Void): Void? {
-                searchPrinters("http")
-                searchPrinters("https")
-                return null
-            }
-        }.execute()
+        executors.networkIO.execute {
+            searchPrinters("http")
+            searchPrinters("https")
+        }
     }
 
     /**
@@ -79,7 +78,7 @@ class AddPrintersActivity : Activity() {
      *
      * @param scheme The target scheme, http or https
      */
-    internal fun searchPrinters(scheme: String) {
+    private fun searchPrinters(scheme: String) {
         var urlConnection: HttpURLConnection? = null
         val sb = StringBuilder()
         var server = mServerIp!!.text.toString()
@@ -134,21 +133,21 @@ class AddPrintersActivity : Activity() {
         /**
          * Shared preferences file name
          */
-        val SHARED_PREFS_MANUAL_PRINTERS = "printers"
+        const val SHARED_PREFS_MANUAL_PRINTERS = "printers"
 
         /**
          * Will store the number of printers manually added
          */
-        val PREF_NUM_PRINTERS = "num"
+        const val PREF_NUM_PRINTERS = "num"
 
         /**
          * Will be suffixed by the printer ID. Contains the URL.
          */
-        val PREF_URL = "url"
+        const val PREF_URL = "url"
 
         /**
          * Will be suffixed by the printer ID. Contains the name.
          */
-        val PREF_NAME = "name"
+        const val PREF_NAME = "name"
     }
 }

@@ -25,12 +25,13 @@ package org.cups4j.operations.ipp
  * Jon Freeman - 2013
  */
 
+import android.content.Context
 import ch.ethz.vppserver.ippclient.IppTag
 import org.cups4j.operations.IppOperation
 import java.io.UnsupportedEncodingException
 import java.nio.ByteBuffer
 
-class IppGetPrinterAttributesOperation : IppOperation() {
+class IppGetPrinterAttributesOperation(context: Context) : IppOperation(context) {
     init {
         operationID = 0x000b
         bufferSize = 8192
@@ -47,7 +48,7 @@ class IppGetPrinterAttributesOperation : IppOperation() {
         if (map == null) {
             ippBuf = IppTag.getKeyword(ippBuf, "requested-attributes", "all")
             ippBuf = IppTag.getEnd(ippBuf)
-            ippBuf?.flip()
+            ippBuf.flip()
             return ippBuf
         }
 

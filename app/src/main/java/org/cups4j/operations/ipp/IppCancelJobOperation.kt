@@ -23,6 +23,7 @@ package org.cups4j.operations.ipp
  * Jon Freeman - 2013
  */
 
+import android.content.Context
 import org.cups4j.CupsClient
 import org.cups4j.PrintRequestResult
 import org.cups4j.operations.IppOperation
@@ -34,7 +35,7 @@ import java.util.HashMap
 
 import ch.ethz.vppserver.ippclient.IppTag
 
-class IppCancelJobOperation : IppOperation() {
+class IppCancelJobOperation(context: Context) : IppOperation(context) {
     init {
         operationID = 0x0008
         bufferSize = 8192

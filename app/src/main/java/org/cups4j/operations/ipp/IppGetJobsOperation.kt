@@ -27,6 +27,7 @@ package org.cups4j.operations.ipp
  * Job Creation Time added Jon Freeman 2013
  */
 
+import android.content.Context
 import ch.ethz.vppserver.ippclient.IppTag
 import org.cups4j.CupsClient
 import org.cups4j.CupsPrinter
@@ -41,7 +42,7 @@ import java.util.ArrayList
 import java.util.Date
 import java.util.HashMap
 
-class IppGetJobsOperation : IppOperation() {
+class IppGetJobsOperation(context: Context) : IppOperation(context) {
     init {
         operationID = 0x000a
         bufferSize = 8192

@@ -23,6 +23,7 @@ package org.cups4j.operations
  * Jon Freeman - 2013
  */
 
+import android.content.Context
 import ch.ethz.vppserver.ippclient.IppResponse
 import ch.ethz.vppserver.ippclient.IppResult
 import ch.ethz.vppserver.ippclient.IppTag
@@ -43,7 +44,7 @@ import java.nio.ByteBuffer
 import java.security.cert.X509Certificate
 import javax.net.ssl.HttpsURLConnection
 
-abstract class IppOperation {
+abstract class IppOperation(val context: Context) {
     protected var operationID: Short = -1 // IPP operation ID
     protected var bufferSize: Short = 8192 // BufferSize for this operation
     var serverCerts: Array<X509Certificate>? = null
@@ -144,10 +145,10 @@ abstract class IppOperation {
             connection.setRequestProperty("Content-Type", IPP_MIME_TYPE)
 
             if (url.protocol == "https") {
-                HttpConnectionManagement.handleHttpsUrlConnection(connection as HttpsURLConnection)
+                HttpConnectionManagement.handleHttpsUrlConnection(context, connection as HttpsURLConnection)
             }
 
-            HttpConnectionManagement.handleBasicAuth(url, connection)
+            HttpConnectionManagement.handleBasicAuth(context, url, connection)
 
             val bytes = ByteArray(ippBuf.limit())
             ippBuf.get(bytes)

@@ -23,13 +23,14 @@ package org.cups4j.operations.ipp
  * Jon Freeman - 2013
  */
 
+import android.content.Context
 import ch.ethz.vppserver.ippclient.IppTag
 import org.cups4j.operations.IppOperation
 import java.io.UnsupportedEncodingException
 import java.net.URL
 import java.nio.ByteBuffer
 
-class IppPrintJobOperation : IppOperation() {
+class IppPrintJobOperation(context: Context) : IppOperation(context) {
     init {
         operationID = 0x0002
         bufferSize = 8192

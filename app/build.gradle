@@ -1,3 +1,9 @@
+ext {
+    versions = [
+            koin: "1.0.0-beta-7"
+    ]
+}
+
 def keystoreProperties = new Properties()
 try {
     def keystorePropertiesFile = rootProject.file("signing.properties")
@@ -74,6 +80,10 @@ dependencies {
     androidTestImplementation 'junit:junit:4.12'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    // Koin DI
+    implementation "org.koin:koin-core:${versions.koin}"
+    implementation "org.koin:koin-android:${versions.koin}"
 }
 
 apply plugin: 'jacoco'

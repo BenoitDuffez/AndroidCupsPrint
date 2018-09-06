@@ -17,7 +17,7 @@ import javax.net.ssl.X509KeyManager
 /**
  * Uses the system keystore
  */
-class AdditionalKeyManager private constructor(private val clientAlias: String, private val certificateChain: Array<X509Certificate>, private val privateKey: PrivateKey) : X509KeyManager {
+class AdditionalKeyManager private constructor(val context: Context, private val clientAlias: String, private val certificateChain: Array<X509Certificate>, private val privateKey: PrivateKey) : X509KeyManager {
     override fun chooseClientAlias(keyType: Array<String>, issuers: Array<Principal>, socket: Socket): String = clientAlias
     override fun getCertificateChain(alias: String): Array<X509Certificate> = certificateChain
     override fun getPrivateKey(alias: String): PrivateKey = privateKey
@@ -45,8 +45,7 @@ class AdditionalKeyManager private constructor(private val clientAlias: String, 
          * @throws CertificateException
          */
         @Throws(CertificateException::class)
-        fun fromAlias(): AdditionalKeyManager? {
-            val context = CupsPrintApp.context
+        fun fromAlias(context: Context): AdditionalKeyManager? {
             val alias = PreferenceManager.getDefaultSharedPreferences(context).getString(KEY_CERTIFICATE_ALIAS, null)
 
             if (TextUtils.isEmpty(alias) || alias == null) {
@@ -60,7 +59,7 @@ class AdditionalKeyManager private constructor(private val clientAlias: String, 
                 throw CertificateException("Can't access certificate from keystore")
             }
 
-            return AdditionalKeyManager(alias, certificateChain, privateKey)
+            return AdditionalKeyManager(context, alias, certificateChain, privateKey)
         }
 
         @Throws(CertificateException::class)

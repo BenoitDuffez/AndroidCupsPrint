@@ -23,19 +23,16 @@ package org.cups4j.operations.cups
  * Jon Freeman - 2013
  */
 
+import android.content.Context
 import org.cups4j.CupsPrinter
 import org.cups4j.operations.IppOperation
 
 import java.net.URL
 import java.util.HashMap
 
-import ch.ethz.vppserver.ippclient.IppResult
-import ch.ethz.vppserver.schema.ippclient.Attribute
-import ch.ethz.vppserver.schema.ippclient.AttributeGroup
-
 const val DEFAULT_PRINTER_NAME = "Unknown printer"
 
-class CupsGetDefaultOperation : IppOperation() {
+class CupsGetDefaultOperation(context: Context) : IppOperation(context) {
     init {
         operationID = 0x4001
         bufferSize = 8192
@@ -44,7 +41,7 @@ class CupsGetDefaultOperation : IppOperation() {
     @Throws(Exception::class)
     fun getDefaultPrinter(url: URL, path: String): CupsPrinter? {
         var defaultPrinter: CupsPrinter? = null
-        val command = CupsGetDefaultOperation()
+        val command = CupsGetDefaultOperation(context)
 
         val map = HashMap<String, String>()
         map["requested-attributes"] = "printer-name printer-uri-supported printer-location"

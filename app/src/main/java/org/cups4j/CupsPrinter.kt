@@ -18,6 +18,7 @@ package org.cups4j
  * <http:></http:>//www.gnu.org/licenses/>.
  */
 
+import android.content.Context
 import org.cups4j.operations.ipp.IppGetJobAttributesOperation
 import org.cups4j.operations.ipp.IppGetJobsOperation
 import org.cups4j.operations.ipp.IppPrintJobOperation
@@ -70,7 +71,7 @@ class CupsPrinter(
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun print(printJob: PrintJob): PrintRequestResult {
+    fun print(printJob: PrintJob, context: Context): PrintRequestResult {
         var ippJobID = -1
         val document = printJob.document
         var userName = printJob.userName
@@ -119,7 +120,7 @@ class CupsPrinter(
         if (printJob.isDuplex) {
             addAttribute(attributes, "job-attributes", "sides:keyword:two-sided-long-edge")
         }
-        val command = IppPrintJobOperation()
+        val command = IppPrintJobOperation(context)
         val ippResult = command.request(printerURL, attributes, document)
         //    IppResultPrinter.print(ippResult);
 
@@ -166,8 +167,8 @@ class CupsPrinter(
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun getJobs(whichJobs: WhichJobsEnum, user: String, myJobs: Boolean): List<PrintJobAttributes> =
-            IppGetJobsOperation().getPrintJobs(this, whichJobs, user, myJobs)
+    fun getJobs(whichJobs: WhichJobsEnum, user: String, myJobs: Boolean, context: Context): List<PrintJobAttributes> =
+            IppGetJobsOperation(context).getPrintJobs(this, whichJobs, user, myJobs)
 
     /**
      * Get current status for the print job with the given ID.
@@ -177,7 +178,7 @@ class CupsPrinter(
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun getJobStatus(jobID: Int): JobStateEnum? = getJobStatus(CupsClient.DEFAULT_USER, jobID)
+    fun getJobStatus(jobID: Int, context: Context): JobStateEnum? = getJobStatus(CupsClient.DEFAULT_USER, jobID, context)
 
     /**
      * Get current status for the print job with the given ID
@@ -188,8 +189,8 @@ class CupsPrinter(
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun getJobStatus(userName: String, jobID: Int): JobStateEnum? {
-        val command = IppGetJobAttributesOperation()
+    fun getJobStatus(userName: String, jobID: Int, context: Context): JobStateEnum? {
+        val command = IppGetJobAttributesOperation(context)
         val job = command.getPrintJobAttributes(printerURL, userName, jobID)
 
         return job.jobState

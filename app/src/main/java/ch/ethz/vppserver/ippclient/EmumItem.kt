@@ -22,6 +22,7 @@ class EnumItem {
 
     constructor(name: String) {
         this.name = name
+        this.description = name
     }
 
     constructor(name: String, description: String) {

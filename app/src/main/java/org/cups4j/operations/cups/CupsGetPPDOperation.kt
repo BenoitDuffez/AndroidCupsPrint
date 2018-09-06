@@ -25,16 +25,15 @@ package org.cups4j.operations.cups
  * of a patch to cups4j suggested by Frank Carnevale
  */
 
+import android.content.Context
+import ch.ethz.vppserver.ippclient.IppTag
 import org.cups4j.operations.IppOperation
-
 import java.io.UnsupportedEncodingException
 import java.net.URL
 import java.nio.ByteBuffer
 import java.util.HashMap
 
-import ch.ethz.vppserver.ippclient.IppTag
-
-class CupsGetPPDOperation : IppOperation() {
+class CupsGetPPDOperation(context: Context) : IppOperation(context) {
     init {
         operationID = 0x400F
         bufferSize = 8192

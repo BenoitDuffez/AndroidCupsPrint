@@ -23,6 +23,7 @@ package org.cups4j.operations.cups
  * Jon Freeman - 2013
  */
 
+import android.content.Context
 import ch.ethz.vppserver.ippclient.IppTag
 import org.cups4j.CupsClient
 import org.cups4j.PrintRequestResult
@@ -32,7 +33,7 @@ import java.net.URL
 import java.nio.ByteBuffer
 import java.util.HashMap
 
-class CupsMoveJobOperation : IppOperation() {
+class CupsMoveJobOperation(context: Context) : IppOperation(context) {
     init {
         operationID = 0x400D
         bufferSize = 8192

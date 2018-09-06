@@ -32,15 +32,15 @@ object HttpConnectionManagement {
      *
      * @param connection The target https connection
      */
-    fun handleHttpsUrlConnection(connection: HttpsURLConnection) {
-        connection.hostnameVerifier = AndroidCupsHostnameVerifier()
+    fun handleHttpsUrlConnection(context: Context, connection: HttpsURLConnection) {
+        connection.hostnameVerifier = AndroidCupsHostnameVerifier(context)
 
         try {
-            val trustStore = loadKeyStore() ?: return
+            val trustStore = loadKeyStore(context) ?: return
 
             var keyManager: KeyManager? = null
             try {
-                keyManager = AdditionalKeyManager.fromAlias()
+                keyManager = AdditionalKeyManager.fromAlias(context)
             } catch (e: CertificateException) {
                 Timber.e(e, "Couldn't load system key store: ${e.localizedMessage}")
             }
@@ -62,7 +62,7 @@ object HttpConnectionManagement {
      *
      * @return A valid KeyStore object if nothing went wrong, null otherwise
      */
-    private fun loadKeyStore(): KeyStore? {
+    private fun loadKeyStore(context: Context): KeyStore? {
         val trustStore: KeyStore
         try {
             trustStore = KeyStore.getInstance(KeyStore.getDefaultType())
@@ -73,7 +73,7 @@ object HttpConnectionManagement {
 
         // Load the local keystore into memory
         try {
-            val fis = CupsPrintApp.context.openFileInput(KEYSTORE_FILE)
+            val fis = context.openFileInput(KEYSTORE_FILE)
             trustStore.load(fis, KEYSTORE_PASSWORD.toCharArray())
             return trustStore
         } catch (e: FileNotFoundException) {
@@ -107,9 +107,9 @@ object HttpConnectionManagement {
      * @param chain The chain of certs to trust
      * @return true if it was saved, false otherwise
      */
-    fun saveCertificates(chain: Array<X509Certificate>): Boolean {
+    fun saveCertificates(context: Context, chain: Array<X509Certificate>): Boolean {
         // Load existing certs
-        val trustStore = loadKeyStore() ?: return false
+        val trustStore = loadKeyStore(context) ?: return false
 
         // Add new certs
         try {
@@ -124,7 +124,7 @@ object HttpConnectionManagement {
         // Save new keystore
         var fos: FileOutputStream? = null
         try {
-            fos = CupsPrintApp.context.openFileOutput(KEYSTORE_FILE, Context.MODE_PRIVATE)
+            fos = context.openFileOutput(KEYSTORE_FILE, Context.MODE_PRIVATE)
             trustStore.store(fos, KEYSTORE_PASSWORD.toCharArray())
             fos!!.close()
         } catch (e: Exception) {
@@ -148,8 +148,8 @@ object HttpConnectionManagement {
      * @param url        URL we're about to request
      * @param connection The connection to be configured
      */
-    fun handleBasicAuth(url: URL, connection: HttpURLConnection) {
-        val prefs = CupsPrintApp.context.getSharedPreferences(BasicAuthActivity.CREDENTIALS_FILE, Context.MODE_PRIVATE)
+    fun handleBasicAuth(context: Context, url: URL, connection: HttpURLConnection) {
+        val prefs = context.getSharedPreferences(BasicAuthActivity.CREDENTIALS_FILE, Context.MODE_PRIVATE)
 
         val id = BasicAuthActivity.findSavedCredentialsId(url.toString(), prefs)
         if (id < 0) {

@@ -35,7 +35,7 @@ class UntrustedCertActivity : Activity() {
         certInfo.text = sb
 
         findViewById<View>(R.id.untrusted_trust_button).setOnClickListener {
-            if (HttpConnectionManagement.saveCertificates(arrayOf(cert))) {
+            if (HttpConnectionManagement.saveCertificates(this, arrayOf(cert))) {
                 Toast.makeText(this@UntrustedCertActivity, R.string.untrusted_trusted, Toast.LENGTH_LONG).show()
             } else {
                 Toast.makeText(this@UntrustedCertActivity, R.string.untrusted_couldnt_trust, Toast.LENGTH_LONG).show()

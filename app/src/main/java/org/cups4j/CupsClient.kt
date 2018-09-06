@@ -24,6 +24,7 @@ package org.cups4j
  */
 
 
+import android.content.Context
 import org.cups4j.operations.cups.CupsGetDefaultOperation
 import org.cups4j.operations.cups.CupsGetPrintersOperation
 import org.cups4j.operations.cups.CupsMoveJobOperation
@@ -43,7 +44,11 @@ import java.security.cert.X509Certificate
  * - get job attributes
  * - ...
  */
-class CupsClient @JvmOverloads constructor(private val url: URL = URL(DEFAULT_URL), private val userName: String = DEFAULT_USER) {
+class CupsClient @JvmOverloads constructor(
+        val context: Context,
+        private val url: URL = URL(DEFAULT_URL),
+        private val userName: String = DEFAULT_USER
+) {
     var serverCerts: Array<X509Certificate>? = null
         private set // Storage for server certificates if they're not trusted
 
@@ -60,7 +65,7 @@ class CupsClient @JvmOverloads constructor(private val url: URL = URL(DEFAULT_UR
     val printers: List<CupsPrinter>
         @Throws(Exception::class)
         get() {
-            val cupsGetPrintersOperation = CupsGetPrintersOperation()
+            val cupsGetPrintersOperation = CupsGetPrintersOperation(context)
             val printers: List<CupsPrinter>
             try {
                 printers = cupsGetPrintersOperation.getPrinters(url, path)
@@ -81,7 +86,7 @@ class CupsClient @JvmOverloads constructor(private val url: URL = URL(DEFAULT_UR
 
     private val defaultPrinter: CupsPrinter?
         @Throws(Exception::class)
-        get() = CupsGetDefaultOperation().getDefaultPrinter(url, path)
+        get() = CupsGetDefaultOperation(context).getDefaultPrinter(url, path)
 
     val host: String
         get() = url.host
@@ -105,38 +110,38 @@ class CupsClient @JvmOverloads constructor(private val url: URL = URL(DEFAULT_UR
 
     @Throws(Exception::class)
     private fun getJobAttributes(url: URL, userName: String, jobID: Int): PrintJobAttributes =
-            IppGetJobAttributesOperation().getPrintJobAttributes(url, userName, jobID)
+            IppGetJobAttributesOperation(context).getPrintJobAttributes(url, userName, jobID)
 
     @Throws(Exception::class)
     fun getJobs(printer: CupsPrinter, whichJobs: WhichJobsEnum, userName: String, myJobs: Boolean): List<PrintJobAttributes> =
-            IppGetJobsOperation().getPrintJobs(printer, whichJobs, userName, myJobs)
+            IppGetJobsOperation(context).getPrintJobs(printer, whichJobs, userName, myJobs)
 
     @Throws(Exception::class)
-    fun cancelJob(jobID: Int): Boolean = IppCancelJobOperation().cancelJob(url, userName, jobID)
+    fun cancelJob(jobID: Int): Boolean = IppCancelJobOperation(context).cancelJob(url, userName, jobID)
 
     @Throws(Exception::class)
     fun cancelJob(url: URL, userName: String, jobID: Int): Boolean =
-            IppCancelJobOperation().cancelJob(url, userName, jobID)
+            IppCancelJobOperation(context).cancelJob(url, userName, jobID)
 
     @Throws(Exception::class)
-    fun holdJob(jobID: Int): Boolean = IppHoldJobOperation().holdJob(url, userName, jobID)
+    fun holdJob(jobID: Int): Boolean = IppHoldJobOperation(context).holdJob(url, userName, jobID)
 
     @Throws(Exception::class)
     fun holdJob(url: URL, userName: String, jobID: Int): Boolean =
-            IppHoldJobOperation().holdJob(url, userName, jobID)
+            IppHoldJobOperation(context).holdJob(url, userName, jobID)
 
     @Throws(Exception::class)
-    fun releaseJob(jobID: Int): Boolean = IppReleaseJobOperation().releaseJob(url, userName, jobID)
+    fun releaseJob(jobID: Int): Boolean = IppReleaseJobOperation(context).releaseJob(url, userName, jobID)
 
     @Throws(Exception::class)
     fun releaseJob(url: URL, userName: String, jobID: Int): Boolean =
-            IppReleaseJobOperation().releaseJob(url, userName, jobID)
+            IppReleaseJobOperation(context).releaseJob(url, userName, jobID)
 
     @Throws(Exception::class)
     fun moveJob(jobID: Int, userName: String, currentPrinter: CupsPrinter, targetPrinter: CupsPrinter): Boolean {
         val currentHost = currentPrinter.printerURL.host
 
-        return CupsMoveJobOperation().moveJob(currentHost, userName, jobID, targetPrinter.printerURL)
+        return CupsMoveJobOperation(context).moveJob(currentHost, userName, jobID, targetPrinter.printerURL)
     }
 
     /**

@@ -2,7 +2,6 @@ package io.github.benoitduffez.cupsprint.printservice
 
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Build
 import android.print.PrintAttributes
 import android.print.PrinterCapabilitiesInfo
@@ -14,7 +13,7 @@ import android.text.TextUtils
 import android.widget.Toast
 import ch.ethz.vppserver.schema.ippclient.Attribute
 import ch.ethz.vppserver.schema.ippclient.AttributeValue
-import com.crashlytics.android.Crashlytics
+import io.github.benoitduffez.cupsprint.AppExecutors
 import io.github.benoitduffez.cupsprint.R
 import io.github.benoitduffez.cupsprint.app.AddPrintersActivity
 import io.github.benoitduffez.cupsprint.app.BasicAuthActivity
@@ -25,6 +24,7 @@ import io.github.benoitduffez.cupsprint.detect.PrinterRec
 import org.cups4j.CupsClient
 import org.cups4j.CupsPrinter
 import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation
+import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -49,6 +49,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
     var responseCode: Int = 0
     private var serverCerts: Array<X509Certificate>? = null // If the server sends a non-trusted cert, it will be stored here
     private var unverifiedHost: String? = null // If the SSL hostname cannot be verified, this will be the hostname
+    private val appExecutors: AppExecutors by printService.inject()
 
     /**
      * Called when the framework wants to find/discover printers
@@ -57,15 +58,12 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      * @param priorityList The list of printers that the user selected sometime in the past, that need to be checked first
      */
     override fun onStartPrinterDiscovery(priorityList: List<PrinterId>) {
-        object : AsyncTask<Void, Void, Map<String, String>>() {
-            override fun doInBackground(vararg params: Void): Map<String, String> {
-                return scanPrinters()
-            }
-
-            override fun onPostExecute(printers: Map<String, String>) {
+        appExecutors.networkIO.execute {
+            val printers = scanPrinters()
+            appExecutors.mainThread.execute {
                 onPrintersDiscovered(printers)
             }
-        }.execute()
+        }
     }
 
     /**
@@ -74,11 +72,13 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      *
      * @param printers The list of printers found, as a map of URL=>name
      */
-    fun onPrintersDiscovered(printers: Map<String, String>) {
+    private fun onPrintersDiscovered(printers: Map<String, String>) {
+        Timber.d("onPrintersDiscovered($printers)")
+
         val res = printService.applicationContext.resources
         val toast = res.getQuantityString(R.plurals.printer_discovery_result, printers.size, printers.size)
         Toast.makeText(printService, toast, Toast.LENGTH_SHORT).show()
-        Timber.d("onPrintersDiscovered($printers)")
+
         val printersInfo = ArrayList<PrinterInfo>(printers.size)
         for (url in printers.keys) {
             val printerId = printService.generatePrinterId(url)
@@ -114,7 +114,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             }
         }
 
-        val client = CupsClient(clientURL).setPath(path ?: "/")
+        val client = CupsClient(printService, clientURL).setPath(path ?: "/")
         val testPrinter: CupsPrinter?
 
         // Check if we need to save the server certs if we don't trust the connection
@@ -139,7 +139,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             val propertyMap = HashMap<String, String>()
             propertyMap["requested-attributes"] = TextUtils.join(" ", REQUIRED_ATTRIBUTES)
 
-            val op = IppGetPrinterAttributesOperation()
+            val op = IppGetPrinterAttributesOperation(printService)
             val builder = PrinterCapabilitiesInfo.Builder(printerId)
             val ippAttributes = op.request(printerURL, propertyMap)
             if (ippAttributes == null) {
@@ -254,7 +254,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
 
         var margin = Integer.MAX_VALUE
         for (value in attribute.attributeValue) {
-            val valueMargin = (MM_IN_MILS * Integer.parseInt(value.value) / 100).toInt()
+            val valueMargin = (MM_IN_MILS * (value.value?.toInt() ?: 0) / 100).toInt()
             margin = Math.min(margin, valueMargin)
         }
         return margin
@@ -267,7 +267,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      * @param printerId               The printer
      * @param printerCapabilitiesInfo null if the printer isn't available anymore, otherwise contains the printer capabilities
      */
-    fun onPrinterChecked(printerId: PrinterId, printerCapabilitiesInfo: PrinterCapabilitiesInfo?) {
+    private fun onPrinterChecked(printerId: PrinterId, printerCapabilitiesInfo: PrinterCapabilitiesInfo?) {
         Timber.d("onPrinterChecked: $printerId (printers: $printers), cap: $printerCapabilitiesInfo")
         if (printerCapabilitiesInfo == null) {
             val printerIds = ArrayList<PrinterId>()
@@ -288,7 +288,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                     printers.add(printer)
                 }
             }
-            Timber.d("onPrinterChecked: we had " + getPrinters().size + "printers, we now have " + printers.size)
+            Timber.d("onPrinterChecked: we had ${getPrinters().size}printers, we now have ${printers.size}")
             addPrinters(printers)
         }
     }
@@ -298,9 +298,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      *
      * @return The list of printers as [PrinterRec]
      */
-    fun scanPrinters(): Map<String, String> {
-        val mdns = MdnsServices()
-        val result = mdns.scan()
+    private fun scanPrinters(): Map<String, String> {
+        Timber.d("Scanning for printers using mDNS, and add manual printers...")
 
         //TODO: check for errors
         val printers = HashMap<String, String>()
@@ -308,6 +307,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         var name: String?
 
         // Add the printers found by mDNS
+        val mdns = MdnsServices()
+        val result = mdns.scan()
         for (rec in result.printers!!) {
             url = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
             printers[url] = rec.nickname
@@ -323,11 +324,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                 // Ensure a port is set, and set it to 631 if unset
                 try {
                     val uri = URI(url)
-                    if (uri.port < 0) {
-                        url = uri.scheme + "://" + uri.host + ":" + 631
-                    } else {
-                        url = uri.scheme + "://" + uri.host + ":" + uri.port
-                    }
+                    val port = if (uri.port < 0) 631 else uri.port
+                    url = uri.scheme + "://" + uri.host + ":" + port
                     if (uri.path != null) {
                         url += uri.path
                     }
@@ -358,31 +356,24 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      */
     override fun onStartPrinterStateTracking(printerId: PrinterId) {
         Timber.d("onStartPrinterStateTracking: $printerId")
-        object : AsyncTask<Void, Void, PrinterCapabilitiesInfo>() {
-            var exception: Exception? = null
 
-            override fun doInBackground(vararg voids: Void): PrinterCapabilitiesInfo? {
-                try {
-                    Timber.i("Checking printer status: $printerId")
-                    return checkPrinter(printerId.localId, printerId)
-                } catch (e: Exception) {
-                    exception = e
-                }
+        appExecutors.networkIO.execute {
+            Timber.i("Checking printer status: $printerId")
 
-                return null
-            }
-
-            override fun onPostExecute(printerCapabilitiesInfo: PrinterCapabilitiesInfo) {
+            try {
+                val printerCapabilitiesInfo = checkPrinter(printerId.localId, printerId)
                 Timber.v("HTTP response code: $responseCode")
-                if (exception != null) {
-                    if (handlePrinterException(exception!!, printerId)) {
-                        Crashlytics.logException(exception)
-                    }
-                } else {
+                appExecutors.mainThread.execute {
                     onPrinterChecked(printerId, printerCapabilitiesInfo)
                 }
+            } catch (e: Exception) {
+                appExecutors.mainThread.execute {
+                    if (handlePrinterException(e, printerId)) {
+                        Timber.e(e, "Start printer state tracking failed")
+                    }
+                }
             }
-        }.execute()
+        }
     }
 
     /**
@@ -392,28 +383,26 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      * @param printerId The printer on which the exception occurred
      * @return true if the exception should be reported to Crashlytics, false otherwise
      */
-    fun handlePrinterException(exception: Exception, printerId: PrinterId): Boolean {
+    private fun handlePrinterException(exception: Exception, printerId: PrinterId): Boolean {
         // Happens when the HTTP response code is in the 4xx range
-        if (exception is FileNotFoundException) {
-            return handleHttpError(exception, printerId)
-        } else if (exception is SSLPeerUnverifiedException || exception is IOException && exception.message != null && exception.message?.contains("not verified") == true) {
-            val dialog = Intent(printService, HostNotVerifiedActivity::class.java)
-            dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, unverifiedHost)
-            dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            printService.startActivity(dialog)
-        } else if (exception is SSLException && serverCerts != null) {
-            val dialog = Intent(printService, UntrustedCertActivity::class.java)
-            dialog.putExtra(UntrustedCertActivity.KEY_CERT, serverCerts!![0])
-            dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            printService.startActivity(dialog)
-        } else if (exception is SocketTimeoutException) {
-            Toast.makeText(printService, R.string.err_printer_socket_timeout, Toast.LENGTH_LONG).show()
-        } else if (exception is UnknownHostException) {
-            Toast.makeText(printService, R.string.err_printer_unknown_host, Toast.LENGTH_LONG).show()
-        } else if (exception is ConnectException && exception.getLocalizedMessage().contains("ENETUNREACH")) {
-            Toast.makeText(printService, R.string.err_printer_network_unreachable, Toast.LENGTH_LONG).show()
-        } else {
-            return handleHttpError(exception, printerId)
+        when {
+            exception is FileNotFoundException -> return handleHttpError(exception, printerId)
+            exception is SSLPeerUnverifiedException || exception is IOException && exception.message != null && exception.message?.contains("not verified") == true -> {
+                val dialog = Intent(printService, HostNotVerifiedActivity::class.java)
+                dialog.putExtra(HostNotVerifiedActivity.KEY_HOST, unverifiedHost)
+                dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                printService.startActivity(dialog)
+            }
+            exception is SSLException && serverCerts != null -> {
+                val dialog = Intent(printService, UntrustedCertActivity::class.java)
+                dialog.putExtra(UntrustedCertActivity.KEY_CERT, serverCerts!![0])
+                dialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                printService.startActivity(dialog)
+            }
+            exception is SocketTimeoutException -> Toast.makeText(printService, R.string.err_printer_socket_timeout, Toast.LENGTH_LONG).show()
+            exception is UnknownHostException -> Toast.makeText(printService, R.string.err_printer_unknown_host, Toast.LENGTH_LONG).show()
+            exception is ConnectException && exception.getLocalizedMessage().contains("ENETUNREACH") -> Toast.makeText(printService, R.string.err_printer_network_unreachable, Toast.LENGTH_LONG).show()
+            else -> return handleHttpError(exception, printerId)
         }
         return false
     }
@@ -429,9 +418,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         when (responseCode) {
             // happens when basic auth is required but not sent
             HttpURLConnection.HTTP_NOT_FOUND -> Toast.makeText(printService, R.string.err_404, Toast.LENGTH_LONG).show()
-
             HttpURLConnection.HTTP_BAD_REQUEST -> Toast.makeText(printService, R.string.err_400, Toast.LENGTH_LONG).show()
-
             HttpURLConnection.HTTP_UNAUTHORIZED -> try {
                 val printerUri = URI(printerId.localId)
                 val printersUrl = printerUri.scheme + "://" + printerUri.host + ":" + printerUri.port + "/printers/"

@@ -23,6 +23,7 @@ package org.cups4j.operations.cups
  * Jon Freeman - 2013
  */
 
+import android.content.Context
 import org.cups4j.CupsPrinter
 import org.cups4j.operations.IppOperation
 import timber.log.Timber
@@ -30,7 +31,7 @@ import java.net.URL
 import java.util.ArrayList
 import java.util.HashMap
 
-class CupsGetPrintersOperation : IppOperation() {
+class CupsGetPrintersOperation(context: Context) : IppOperation(context) {
     init {
         operationID = 0x4002
         bufferSize = 8192
