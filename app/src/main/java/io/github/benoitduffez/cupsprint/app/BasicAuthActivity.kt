@@ -50,15 +50,11 @@ class BasicAuthActivity : Activity() {
     }
 
     companion object {
-        val CREDENTIALS_FILE = "basic_auth"
-
-        val KEY_BASIC_AUTH_PRINTERS_URL = BasicAuthActivity::class.java!!.getName() + ".PrinterUrl"
-
-        val KEY_BASIC_AUTH_LOGIN = BasicAuthActivity::class.java!!.getName() + ".Login"
-
-        val KEY_BASIC_AUTH_PASSWORD = BasicAuthActivity::class.java!!.getName() + ".Password"
-
-        internal val KEY_BASIC_AUTH_NUMBER = BasicAuthActivity::class.java!!.getName() + ".Number"
+        const val CREDENTIALS_FILE = "basic_auth"
+        val KEY_BASIC_AUTH_PRINTERS_URL = "${BasicAuthActivity::class.java.name}.PrinterUrl"
+        val KEY_BASIC_AUTH_LOGIN = "${BasicAuthActivity::class.java.name}.Login"
+        val KEY_BASIC_AUTH_PASSWORD = "${BasicAuthActivity::class.java.name}.Password"
+        internal val KEY_BASIC_AUTH_NUMBER = "${BasicAuthActivity::class.java.name}.Number"
 
         /**
          * See if we have already saved credentials for this server
