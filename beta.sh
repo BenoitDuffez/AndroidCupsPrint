@@ -66,7 +66,7 @@ git status
 git add gradle.properties ${whatsnew}
 git commit -m "beta $version --> $newVersion"
 git push
-git tag -a "$newVersion"
+git tag -a "$newVersion" -m "$newVersion"
 git push --tags
 git checkout develop
 
