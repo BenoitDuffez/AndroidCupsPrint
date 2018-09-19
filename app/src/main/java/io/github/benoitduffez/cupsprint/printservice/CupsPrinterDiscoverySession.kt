@@ -307,6 +307,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         Timber.d("Scanning for printers using mDNS, and add manual printers...")
 
         //TODO: check for errors
+        val printerServers = HashSet<String>()
         val printers = HashMap<String, String>()
         var url: String?
         var name: String?
@@ -315,8 +316,31 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         val mdns = MdnsServices()
         val result = mdns.scan()
         for (rec in result.printers!!) {
-            url = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
+            url = rec.protocol + "://" + rec.host + ":" + rec.port
+            printerServers.add(url)
+
+            url += "/printers/" + rec.queue
             printers[url] = rec.nickname
+        }
+
+        var clientURL: URL
+        var client: CupsClient
+        var testPrinters: List<CupsPrinter>
+        val cupsPrinters = HashMap<String, String>()
+
+        for (murl in printerServers) {
+            try {
+                clientURL = URL(murl)
+                client = CupsClient(printService, clientURL)
+                testPrinters = client.printers
+
+                for (testPrinter in testPrinters) {
+                    url = testPrinter.printerURL.toString()
+                    if (printers.containsKey(url)) {
+                        cupsPrinters[url] = printers[url]!!
+                    }
+                }
+            } catch (e: Exception) {}
         }
 
         // Add the printers manually added
@@ -336,14 +360,14 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                     }
 
                     // Now, add printer
-                    printers[url] = name
+                    cupsPrinters[url] = name
                 } catch (e: URISyntaxException) {
                     Timber.e(e, "Unable to parse manually-entered URI: $url")
                 }
             }
         }
 
-        return printers
+        return cupsPrinters
     }
 
     override fun onStopPrinterDiscovery() {
