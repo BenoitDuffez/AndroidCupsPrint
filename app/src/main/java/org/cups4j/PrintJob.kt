@@ -64,7 +64,9 @@ class PrintJob internal constructor(builder: Builder) {
         var copies = 1
         var pageRanges: String? = null
         var userName: String? = null
-        lateinit var jobName: String
+        // ToDo: lateinit don't works
+        //lateinit var jobName: String
+        var jobName: String = ""
         var duplex = false
         var attributes: MutableMap<String, String>? = null
 

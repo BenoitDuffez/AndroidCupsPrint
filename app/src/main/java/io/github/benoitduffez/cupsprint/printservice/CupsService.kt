@@ -23,6 +23,9 @@ import java.net.URISyntaxException
 import java.net.URL
 import java.util.HashMap
 import javax.net.ssl.SSLException
+import android.os.ParcelFileDescriptor
+import java.io.IOException
+
 
 /**
  * When a print job is active, the app will poll the printer to retrieve the job status. This is the polling interval.
@@ -102,7 +105,7 @@ class CupsService : PrintService() {
     }
 
     override fun onPrintJobQueued(printJob: PrintJob) {
-        startPolling(printJob)
+        printJob.start()
         val jobInfo = printJob.info
         val printerId = jobInfo.printerId
         if (printerId == null) {
@@ -124,21 +127,31 @@ class CupsService : PrintService() {
                 Toast.makeText(this, R.string.err_document_fd_null, Toast.LENGTH_LONG).show()
                 return
             }
-            val fd = data.fileDescriptor
             val jobId = printJob.id
 
             // Send print job
             executors.networkIO.execute {
                 try {
-                    printDocument(jobId, clientURL, printerURL, fd)
+                    printDocument(jobId, clientURL, printerURL, data)
                     executors.mainThread.execute { onPrintJobSent(printJob) }
                 } catch (e: Exception) {
-                    executors.mainThread.execute { handleJobException(jobId, e) }
+                    executors.mainThread.execute { handleJobException(printJob, e) }
+                } finally {
+                    // Close the file descriptor, after printing
+                    try {
+                        data.close();
+                    } catch (e: IOException) {
+                        Timber.e("Job document data (file descriptor) couldn't close.")
+                    }
                 }
             }
         } catch (e: MalformedURLException) {
+            // ToDO: Make a resource for the error message
+            printJob.fail("Couldn't queue print job: $printJob")
             Timber.e("Couldn't queue print job: $printJob")
         } catch (e: URISyntaxException) {
+            // ToDO: Make a resource for the error message
+            printJob.fail("Couldn't parse URI: $url")
             Timber.e("Couldn't parse URI: $url")
         }
     }
@@ -150,12 +163,22 @@ class CupsService : PrintService() {
      * @param jobId The print job
      * @param e     The exception that occurred
      */
-    private fun handleJobException(jobId: PrintJobId, e: Exception) {
+    private fun handleJobException(printJob: PrintJob , e: Exception) {
         when (e) {
-            is SocketTimeoutException -> Toast.makeText(this, R.string.err_job_socket_timeout, Toast.LENGTH_LONG).show()
-            is NullPrinterException -> Toast.makeText(this, R.string.err_printer_null_when_printing, Toast.LENGTH_LONG).show()
+            is SocketTimeoutException -> {
+                printJob.fail(getString(R.string.err_job_socket_timeout))
+                Toast.makeText(this, R.string.err_job_socket_timeout, Toast.LENGTH_LONG).show()
+            }
+            is NullPrinterException -> {
+                printJob.fail(getString(R.string.err_printer_null_when_printing));
+                Toast.makeText(this, R.string.err_printer_null_when_printing, Toast.LENGTH_LONG).show()
+            }
             else -> {
-                Toast.makeText(this, getString(R.string.err_job_exception, jobId.toString(), e.localizedMessage), Toast.LENGTH_LONG).show()
+                val jobId = printJob.id
+                val errorMsg = getString(R.string.err_job_exception, jobId.toString(), e.localizedMessage)
+
+                printJob.fail(errorMsg)
+                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
                 if (e is SSLException && e.message?.contains("I/O error during system call, Broken pipe") == true) {
                     // Don't send this crash report: https://github.com/BenoitDuffez/AndroidCupsPrint/issues/70
                     Timber.e("Couldn't query job $jobId")
@@ -278,14 +301,15 @@ class CupsService : PrintService() {
      *
      * @param clientURL  The client URL
      * @param printerURL The printer URL
-     * @param fd         The document to print, as a [FileDescriptor]
+     * @param fd         The document to print, as a [ParcelFileDescriptor]
      */
     @Throws(Exception::class)
-    internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, fd: FileDescriptor) {
+    internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, fd: ParcelFileDescriptor) {
         val client = CupsClient(this, clientURL)
         val printer = client.getPrinter(printerURL) ?: throw NullPrinterException()
 
-        val job = org.cups4j.PrintJob.Builder(FileInputStream(fd)).build()
+        val doc = ParcelFileDescriptor.AutoCloseInputStream(fd)
+        val job = org.cups4j.PrintJob.Builder(doc).build()
         val result = printer.print(job, this)
         jobs[jobId] = result.jobId
     }
@@ -296,7 +320,7 @@ class CupsService : PrintService() {
      * @param printJob The print job
      */
     private fun onPrintJobSent(printJob: PrintJob) {
-        printJob.start()
+        startPolling(printJob)
     }
 
     private class NullPrinterException internal constructor() : Exception("Printer is null when trying to print: printer no longer available?")
