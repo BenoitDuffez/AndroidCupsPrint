@@ -42,7 +42,7 @@ android {
         targetSdkVersion 28
         versionCode buildVersionCode()
         versionName version
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -68,13 +68,13 @@ android {
 
 dependencies {
     implementation 'javax.jmdns:jmdns:3.4.1'
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'androidx.appcompat:appcompat:1.0.0-rc02'
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true
     }
 
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     testImplementation 'junit:junit:4.12'
@@ -85,6 +85,7 @@ dependencies {
     // Koin DI
     implementation "org.koin:koin-core:${versions.koin}"
     implementation "org.koin:koin-android:${versions.koin}"
+    apply plugin: 'kotlin-android-extensions'
 }
 
 apply plugin: 'jacoco'

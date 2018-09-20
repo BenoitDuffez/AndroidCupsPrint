@@ -3,25 +3,23 @@ package io.github.benoitduffez.cupsprint.app
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.annotation.LayoutRes
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ListView
 import android.widget.TextView
+import androidx.annotation.LayoutRes
+import androidx.appcompat.app.AppCompatActivity
 import io.github.benoitduffez.cupsprint.R
+import kotlinx.android.synthetic.main.activity_manage_manual_printers.*
+import kotlinx.android.synthetic.main.manage_printers_list_item.view.*
 import java.util.ArrayList
 
 class ManageManualPrintersActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manage_manual_printers)
-
-        val printersList = findViewById<View>(R.id.manage_printers_list) as ListView
-        val emptyView = findViewById<View>(R.id.manage_printers_empty)
 
         // Build adapter
         val prefs = getSharedPreferences(AddPrintersActivity.SHARED_PREFS_MANUAL_PRINTERS, Context.MODE_PRIVATE)
@@ -30,8 +28,8 @@ class ManageManualPrintersActivity : AppCompatActivity() {
         val adapter = ManualPrintersAdapter(this, R.layout.manage_printers_list_item, printers)
 
         // Setup adapter with click to remove
-        printersList.adapter = adapter
-        printersList.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+        manage_printers_list.adapter = adapter
+        manage_printers_list.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val editor = prefs.edit()
             val actualNumPrinters = prefs.getInt(AddPrintersActivity.PREF_NUM_PRINTERS, 0)
             editor.putInt(AddPrintersActivity.PREF_NUM_PRINTERS, actualNumPrinters - 1)
@@ -41,7 +39,7 @@ class ManageManualPrintersActivity : AppCompatActivity() {
             adapter.removeItem(position)
         }
 
-        emptyView.visibility = if (numPrinters <= 0) View.VISIBLE else View.GONE
+        manage_printers_empty.visibility = if (numPrinters <= 0) View.VISIBLE else View.GONE
     }
 
     private fun getPrinters(prefs: SharedPreferences, numPrinters: Int): List<ManualPrinterInfo> {
@@ -69,10 +67,7 @@ class ManageManualPrintersActivity : AppCompatActivity() {
             val view = when (convertView) {
                 null -> {
                     val inflate = LayoutInflater.from(parent.context).inflate(R.layout.manage_printers_list_item, parent, false)
-                    inflate.tag = ManualPrinterInfoViews(
-                            inflate.findViewById<View>(R.id.manual_printer_name) as TextView,
-                            inflate.findViewById<View>(R.id.manual_printer_url) as TextView
-                    )
+                    inflate.tag = ManualPrinterInfoViews(inflate.manual_printer_name, inflate.manual_printer_url)
                     inflate
                 }
                 else -> convertView

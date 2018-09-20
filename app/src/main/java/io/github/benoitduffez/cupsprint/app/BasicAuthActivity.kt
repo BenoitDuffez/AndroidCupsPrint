@@ -6,9 +6,8 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-
 import io.github.benoitduffez.cupsprint.R
+import kotlinx.android.synthetic.main.basic_auth.*
 
 /**
  * Ask for the HTTP basic auth credentials
@@ -19,11 +18,7 @@ class BasicAuthActivity : Activity() {
         setContentView(R.layout.basic_auth)
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        val userName = findViewById<View>(R.id.basic_auth_login) as EditText
-        val password = findViewById<View>(R.id.basic_auth_password) as EditText
-
         val printersUrl = intent.getStringExtra(KEY_BASIC_AUTH_PRINTERS_URL)
-
         val prefs = getSharedPreferences(CREDENTIALS_FILE, Context.MODE_PRIVATE)
 
         val numCredentials = prefs.getInt(KEY_BASIC_AUTH_NUMBER, 0)
@@ -31,16 +26,16 @@ class BasicAuthActivity : Activity() {
         val targetId: Int
         if (foundId >= 0) {
             targetId = foundId
-            userName.setText(prefs.getString(KEY_BASIC_AUTH_LOGIN + foundId, ""))
-            password.setText(prefs.getString(KEY_BASIC_AUTH_PASSWORD + foundId, ""))
+            basic_auth_login.setText(prefs.getString(KEY_BASIC_AUTH_LOGIN + foundId, ""))
+            basic_auth_password.setText(prefs.getString(KEY_BASIC_AUTH_PASSWORD + foundId, ""))
         } else {
             targetId = numCredentials
         }
 
-        findViewById<View>(R.id.basic_auth_button).setOnClickListener {
+        basic_auth_button.setOnClickListener {
             val editPrefs = getSharedPreferences(CREDENTIALS_FILE, Context.MODE_PRIVATE).edit()
-            editPrefs.putString(KEY_BASIC_AUTH_LOGIN + targetId, userName.text.toString())
-            editPrefs.putString(KEY_BASIC_AUTH_PASSWORD + targetId, password.text.toString())
+            editPrefs.putString(KEY_BASIC_AUTH_LOGIN + targetId, basic_auth_login.text.toString())
+            editPrefs.putString(KEY_BASIC_AUTH_PASSWORD + targetId, basic_auth_password.text.toString())
             editPrefs.putString(KEY_BASIC_AUTH_PRINTERS_URL + targetId, printersUrl)
             editPrefs.putInt(KEY_BASIC_AUTH_NUMBER, numCredentials + 1)
             editPrefs.apply()
