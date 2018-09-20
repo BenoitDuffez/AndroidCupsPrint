@@ -1,6 +1,7 @@
 package io.github.benoitduffez.cupsprint.printservice
 
 import android.os.Handler
+import android.os.ParcelFileDescriptor
 import android.print.PrintJobId
 import android.printservice.PrintJob
 import android.printservice.PrintService
@@ -12,8 +13,6 @@ import org.cups4j.CupsClient
 import org.cups4j.JobStateEnum
 import org.koin.android.ext.android.inject
 import timber.log.Timber
-import java.io.FileDescriptor
-import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.net.MalformedURLException
 import java.net.SocketException
@@ -124,13 +123,12 @@ class CupsService : PrintService() {
                 Toast.makeText(this, R.string.err_document_fd_null, Toast.LENGTH_LONG).show()
                 return
             }
-            val fd = data.fileDescriptor
             val jobId = printJob.id
 
             // Send print job
             executors.networkIO.execute {
                 try {
-                    printDocument(jobId, clientURL, printerURL, fd)
+                    printDocument(jobId, clientURL, printerURL, data)
                     executors.mainThread.execute { onPrintJobSent(printJob) }
                 } catch (e: Exception) {
                     executors.mainThread.execute { handleJobException(jobId, e) }
@@ -278,14 +276,15 @@ class CupsService : PrintService() {
      *
      * @param clientURL  The client URL
      * @param printerURL The printer URL
-     * @param fd         The document to print, as a [FileDescriptor]
+     * @param fd         The document to print, as a [ParcelFileDescriptor]
      */
     @Throws(Exception::class)
-    internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, fd: FileDescriptor) {
+    internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, fd: ParcelFileDescriptor) {
         val client = CupsClient(this, clientURL)
         val printer = client.getPrinter(printerURL) ?: throw NullPrinterException()
 
-        val job = org.cups4j.PrintJob.Builder(FileInputStream(fd)).build()
+        val doc = ParcelFileDescriptor.AutoCloseInputStream(fd)
+        val job = org.cups4j.PrintJob.Builder(doc).build()
         val result = printer.print(job, this)
         jobs[jobId] = result.jobId
     }
