@@ -308,20 +308,21 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
 
         //TODO: check for errors
         val printers = HashMap<String, String>()
-        var url: String?
-        var name: String?
 
         // Add the printers found by mDNS
         val mdns = MdnsServices()
         val result = mdns.scan()
-        for (rec in result.printers!!) {
-            url = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
-            printers[url] = rec.nickname
+        result.printers?.forEach {rec ->
+            val mDnsUrl = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
+            printers[mDnsUrl] = rec.nickname
+            Timber.d("mDNS scan found printer ${rec.nickname} at URL: $mDnsUrl")
         }
 
         // Add the printers manually added
         val prefs = printService.getSharedPreferences(AddPrintersActivity.SHARED_PREFS_MANUAL_PRINTERS, Context.MODE_PRIVATE)
         val numPrinters = prefs.getInt(AddPrintersActivity.PREF_NUM_PRINTERS, 0)
+        var name: String?
+        var url: String?
         for (i in 0 until numPrinters) {
             url = prefs.getString(AddPrintersActivity.PREF_URL + i, null)
             name = prefs.getString(AddPrintersActivity.PREF_NAME + i, null)
