@@ -29,7 +29,7 @@ class PrintJob internal constructor(builder: Builder) {
     val copies: Int
     val pageRanges: String?
     val userName: String?
-    val jobName: String
+    val jobName: String?
     var isDuplex = false
     var attributes: MutableMap<String, String>? = null
 
@@ -64,7 +64,7 @@ class PrintJob internal constructor(builder: Builder) {
         var copies = 1
         var pageRanges: String? = null
         var userName: String? = null
-        lateinit var jobName: String
+        var jobName: String? = null
         var duplex = false
         var attributes: MutableMap<String, String>? = null
 

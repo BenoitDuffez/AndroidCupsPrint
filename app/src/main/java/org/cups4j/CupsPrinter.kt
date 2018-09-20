@@ -75,7 +75,7 @@ class CupsPrinter(
         var ippJobID = -1
         val document = printJob.document
         var userName = printJob.userName
-        val jobName = printJob.jobName
+        val jobName = printJob.jobName ?: "Unknown"
         val copies = printJob.copies
         val pageRanges = printJob.pageRanges
 
