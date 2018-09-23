@@ -14,6 +14,7 @@ import org.cups4j.JobStateEnum
 import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.net.MalformedURLException
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -132,6 +133,13 @@ class CupsService : PrintService() {
                     executors.mainThread.execute { onPrintJobSent(printJob) }
                 } catch (e: Exception) {
                     executors.mainThread.execute { handleJobException(jobId, e) }
+                } finally {
+                    // Close the file descriptor, after printing
+                    try {
+                        data.close()
+                    } catch (e: IOException) {
+                        Timber.e("Job document data (file descriptor) couldn't close.")
+                    }
                 }
             }
         } catch (e: MalformedURLException) {
