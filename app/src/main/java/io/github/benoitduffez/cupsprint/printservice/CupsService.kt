@@ -101,7 +101,7 @@ class CupsService : PrintService() {
     }
 
     override fun onPrintJobQueued(printJob: PrintJob) {
-        startPolling(printJob)
+        printJob.start()
         val jobInfo = printJob.info
         val printerId = jobInfo.printerId
         if (printerId == null) {
@@ -131,12 +131,16 @@ class CupsService : PrintService() {
                     printDocument(jobId, clientURL, printerURL, data)
                     executors.mainThread.execute { onPrintJobSent(printJob) }
                 } catch (e: Exception) {
-                    executors.mainThread.execute { handleJobException(jobId, e) }
+                    executors.mainThread.execute { handleJobException(printJob, e) }
                 }
             }
         } catch (e: MalformedURLException) {
+            // ToDO: Make a resource for the error message
+            printJob.fail("Couldn't queue print job: $printJob")
             Timber.e("Couldn't queue print job: $printJob")
         } catch (e: URISyntaxException) {
+            // ToDO: Make a resource for the error message
+            printJob.fail("Couldn't parse URI: $url")
             Timber.e("Couldn't parse URI: $url")
         }
     }
@@ -145,15 +149,24 @@ class CupsService : PrintService() {
      * Called from the UI thread.
      * Handle the exception (e.g. log or send it to crashlytics?), and inform the user of what happened
      *
-     * @param jobId The print job
+     * @param printJob The print job
      * @param e     The exception that occurred
      */
-    private fun handleJobException(jobId: PrintJobId, e: Exception) {
+    private fun handleJobException(printJob: PrintJob, e: Exception) {
         when (e) {
-            is SocketTimeoutException -> Toast.makeText(this, R.string.err_job_socket_timeout, Toast.LENGTH_LONG).show()
-            is NullPrinterException -> Toast.makeText(this, R.string.err_printer_null_when_printing, Toast.LENGTH_LONG).show()
+            is SocketTimeoutException -> {
+                printJob.fail(getString(R.string.err_job_socket_timeout))
+                Toast.makeText(this, R.string.err_job_socket_timeout, Toast.LENGTH_LONG).show()
+            }
+            is NullPrinterException -> {
+                printJob.fail(getString(R.string.err_printer_null_when_printing))
+                Toast.makeText(this, R.string.err_printer_null_when_printing, Toast.LENGTH_LONG).show()
+            }
             else -> {
-                Toast.makeText(this, getString(R.string.err_job_exception, jobId.toString(), e.localizedMessage), Toast.LENGTH_LONG).show()
+                val jobId = printJob.id
+                val errorMsg = getString(R.string.err_job_exception, jobId.toString(), e.localizedMessage)
+                printJob.fail(errorMsg)
+                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
                 if (e is SSLException && e.message?.contains("I/O error during system call, Broken pipe") == true) {
                     // Don't send this crash report: https://github.com/BenoitDuffez/AndroidCupsPrint/issues/70
                     Timber.e("Couldn't query job $jobId")
@@ -295,7 +308,7 @@ class CupsService : PrintService() {
      * @param printJob The print job
      */
     private fun onPrintJobSent(printJob: PrintJob) {
-        printJob.start()
+        startPolling(printJob)
     }
 
     private class NullPrinterException internal constructor() : Exception("Printer is null when trying to print: printer no longer available?")
