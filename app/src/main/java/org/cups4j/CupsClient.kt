@@ -36,6 +36,7 @@ import org.cups4j.operations.ipp.IppReleaseJobOperation
 
 import java.net.URL
 import java.security.cert.X509Certificate
+import timber.log.Timber
 
 /**
  * Main Client for accessing CUPS features like
@@ -62,27 +63,26 @@ class CupsClient @JvmOverloads constructor(
     private var path = "/printers/"
 
     // add default printer if available
-    val printers: List<CupsPrinter>
-        @Throws(Exception::class)
-        get() {
-            val cupsGetPrintersOperation = CupsGetPrintersOperation(context)
-            val printers: List<CupsPrinter>
-            try {
-                printers = cupsGetPrintersOperation.getPrinters(url, path)
-            } finally {
-                serverCerts = cupsGetPrintersOperation.serverCerts
-                lastResponseCode = cupsGetPrintersOperation.lastResponseCode
-            }
-            val defaultPrinter = defaultPrinter
-
-            for (p in printers) {
-                if (defaultPrinter != null && p.printerURL.toString() == defaultPrinter.printerURL.toString()) {
-                    p.isDefault = true
-                }
-            }
-
-            return printers
+    @Throws(Exception::class)
+    fun getPrinters(name: String? = null): List<CupsPrinter> {
+        val cupsGetPrintersOperation = CupsGetPrintersOperation(context)
+        val printers: List<CupsPrinter>
+        try {
+            printers = cupsGetPrintersOperation.getPrinters(url, path, name)
+        } finally {
+            serverCerts = cupsGetPrintersOperation.serverCerts
+            lastResponseCode = cupsGetPrintersOperation.lastResponseCode
         }
+        val defaultPrinter = defaultPrinter
+
+        for (p in printers) {
+            if (defaultPrinter != null && p.printerURL.toString() == defaultPrinter.printerURL.toString()) {
+                p.isDefault = true
+            }
+        }
+
+        return printers
+    }
 
     private val defaultPrinter: CupsPrinter?
         @Throws(Exception::class)
@@ -93,7 +93,16 @@ class CupsClient @JvmOverloads constructor(
 
     @Throws(Exception::class)
     fun getPrinter(printerURL: URL): CupsPrinter? {
-        val printers = printers
+        // Extract the printer name
+        var name = printerURL.path
+        val pos = name.indexOf('/', 1)
+        if (pos > 0) {
+            name = name.substring(pos + 1)
+        }
+
+        val printers = getPrinters(name)
+
+        Timber.d("getPrinter: Found ${printers.size} possible CupsPrinters")
         for (p in printers) {
             if (p.printerURL.path == printerURL.path)
                 return p
