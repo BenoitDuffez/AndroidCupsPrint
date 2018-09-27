@@ -144,12 +144,10 @@ class CupsService : PrintService() {
                 }
             }
         } catch (e: MalformedURLException) {
-            // ToDO: Make a resource for the error message
-            printJob.fail("Couldn't queue print job: $printJob")
+            printJob.fail(getString(R.string.print_job_queue_fail_malformed_url, printJob))
             Timber.e("Couldn't queue print job: $printJob")
         } catch (e: URISyntaxException) {
-            // ToDO: Make a resource for the error message
-            printJob.fail("Couldn't parse URI: $url")
+            printJob.fail(getString(R.string.print_job_queue_fail_uri_syntax, url))
             Timber.e("Couldn't parse URI: $url")
         }
     }
