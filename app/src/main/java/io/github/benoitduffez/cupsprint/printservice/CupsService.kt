@@ -22,7 +22,7 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.net.URL
 import java.util.HashMap
-import javax.net.s
+import javax.net.ssl.SSLException
 
 /**
  * When a print job is active, the app will poll the printer to retrieve the job status. This is the polling interval.
