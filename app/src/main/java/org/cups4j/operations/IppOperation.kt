@@ -128,7 +128,6 @@ abstract class IppOperation(val context: Context) {
             connection.connectTimeout = 10000
             connection.doInput = true
             connection.doOutput = true
-            connection.setChunkedStreamingMode(0)
             connection.setRequestProperty("Content-Type", IPP_MIME_TYPE)
 
             if (url.protocol == "https") {
