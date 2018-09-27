@@ -151,7 +151,11 @@ class MdnsServices {
             }
         } catch (e: Exception) {
             println(e.toString())
-            Timber.e(e, "There was an error when trying to process a datagram packet: $packet")
+            // Don't report this weird issue (https://github.com/BenoitDuffez/AndroidCupsPrint/issues/72)
+            when (e.message?.contains("DNSIncoming corrupted message")) {
+                null, false -> Timber.e(e, "There was an error when trying to process a datagram packet: $packet")
+                else -> Timber.e("There was an error when trying to process a datagram packet: $packet")
+            }
         }
     }
 
