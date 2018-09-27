@@ -10,6 +10,7 @@ import android.widget.Toast
 import io.github.benoitduffez.cupsprint.AppExecutors
 import io.github.benoitduffez.cupsprint.R
 import org.cups4j.CupsClient
+import org.cups4j.CupsPrinter
 import org.cups4j.JobStateEnum
 import org.koin.android.ext.android.inject
 import timber.log.Timber
@@ -302,11 +303,15 @@ class CupsService : PrintService() {
     @Throws(Exception::class)
     internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, fd: ParcelFileDescriptor) {
         val client = CupsClient(this, clientURL)
-        val printer = client.getPrinter(printerURL) ?: throw NullPrinterException()
+        val printer = client.getPrinter(printerURL)?.let { printer ->
+            val cupsPrinter = CupsPrinter(printerURL, printer.name, true)
+            cupsPrinter.location = printer.location
+            cupsPrinter
+        }
 
         val doc = ParcelFileDescriptor.AutoCloseInputStream(fd)
         val job = org.cups4j.PrintJob.Builder(doc).build()
-        val result = printer.print(job, this)
+        val result = printer?.print(job, this) ?: throw NullPrinterException()
         jobs[jobId] = result.jobId
     }
 

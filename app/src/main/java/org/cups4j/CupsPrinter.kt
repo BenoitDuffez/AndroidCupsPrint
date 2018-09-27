@@ -47,7 +47,7 @@ class CupsPrinter(
          * For a printer http://localhost:631/printers/printername 'printername' will
          * be returned.
          */
-        private val name: String,
+        val name: String,
 
         /**
          * Is this the default printer
