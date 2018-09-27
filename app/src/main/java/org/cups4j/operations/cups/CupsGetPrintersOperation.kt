@@ -38,16 +38,22 @@ class CupsGetPrintersOperation(context: Context) : IppOperation(context) {
     }
 
     @Throws(Exception::class)
-    fun getPrinters(url: URL, path: String, name: String? = null): List<CupsPrinter> {
+    fun getPrinters(url: URL, path: String, firstName: String? = null, limit: Int? = null): List<CupsPrinter> {
         val printers = ArrayList<CupsPrinter>()
 
         val map = HashMap<String, String>()
         map["requested-attributes"] = "copies-supported page-ranges-supported printer-name printer-info printer-location printer-make-and-model printer-uri-supported"
 
-        // When a name is given, search only for this printer
-        if (name != null) {
-            map["first-printer-name"] = name
-            map["limit"] = "1"
+        // When a firstName is given, the returned list starts with this printer
+        if (firstName != null) {
+            map["first-printer-name"] = firstName
+        }
+
+        // When a limit is given, this is the maximum length of the returned list
+        if (limit != null) {
+            if (limit >= 1) {
+                map["limit"] = limit.toString()
+            }
         }
 
         val result = request(URL(url.toString() + path), map)

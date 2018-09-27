@@ -64,11 +64,11 @@ class CupsClient @JvmOverloads constructor(
 
     // add default printer if available
     @Throws(Exception::class)
-    fun getPrinters(name: String? = null): List<CupsPrinter> {
+    fun getPrinters(firstName: String? = null, limit: Int? = null): List<CupsPrinter> {
         val cupsGetPrintersOperation = CupsGetPrintersOperation(context)
         val printers: List<CupsPrinter>
         try {
-            printers = cupsGetPrintersOperation.getPrinters(url, path, name)
+            printers = cupsGetPrintersOperation.getPrinters(url, path, firstName, limit)
         } finally {
             serverCerts = cupsGetPrintersOperation.serverCerts
             lastResponseCode = cupsGetPrintersOperation.lastResponseCode
@@ -100,7 +100,7 @@ class CupsClient @JvmOverloads constructor(
             name = name.substring(pos + 1)
         }
 
-        val printers = getPrinters(name)
+        val printers = getPrinters(name, 1)
 
         Timber.d("getPrinter: Found ${printers.size} possible CupsPrinters")
         for (p in printers) {
