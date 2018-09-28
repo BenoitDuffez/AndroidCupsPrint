@@ -6,14 +6,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
 import android.view.View
-import android.widget.EditText
-import android.widget.Toast
 import io.github.benoitduffez.cupsprint.AppExecutors
 import io.github.benoitduffez.cupsprint.R
+import kotlinx.android.synthetic.main.add_printers.*
 import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 import java.util.regex.Pattern
 
@@ -21,34 +21,32 @@ import java.util.regex.Pattern
  * Called when the system needs to manually add a printer
  */
 class AddPrintersActivity : Activity() {
-    private var mUrl: EditText? = null
-    private var mName: EditText? = null
-    private var mServerIp: EditText? = null
     private val executors: AppExecutors by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.add_printers)
-        mServerIp = findViewById<View>(R.id.add_server_ip) as EditText
-        mUrl = findViewById<View>(R.id.add_url) as EditText
-        mName = findViewById<View>(R.id.add_name) as EditText
     }
 
     /**
      * Called when the button will be clicked
-     *
-     * @param button The add button
      */
-    fun addPrinter(button: View) {
-        val url = mUrl!!.text.toString()
-        val name = mName!!.text.toString()
+    fun addPrinter(@Suppress("UNUSED_PARAMETER") button: View) {
+        val url = add_url.text.toString()
+        val name = add_name.text.toString()
 
         if (TextUtils.isEmpty(name)) {
-            Toast.makeText(this, R.string.err_add_printer_empty_name, Toast.LENGTH_LONG).show()
+            add_name.error = getString(R.string.err_add_printer_empty_name)
             return
         }
         if (TextUtils.isEmpty(url)) {
-            Toast.makeText(this, R.string.err_add_printer_empty_url, Toast.LENGTH_LONG).show()
+            add_url.error = getString(R.string.err_add_printer_empty_url)
+            return
+        }
+        try {
+            URI(url)
+        } catch (e: Exception) {
+            add_url.error = e.localizedMessage
             return
         }
 
@@ -67,7 +65,7 @@ class AddPrintersActivity : Activity() {
         Handler().postDelayed({ finish() }, 200)
     }
 
-    fun searchPrinters(button: View) {
+    fun searchPrinters(@Suppress("UNUSED_PARAMETER") button: View) {
         executors.networkIO.execute {
             searchPrinters("http")
             searchPrinters("https")
@@ -82,7 +80,7 @@ class AddPrintersActivity : Activity() {
     private fun searchPrinters(scheme: String) {
         var urlConnection: HttpURLConnection? = null
         val sb = StringBuilder()
-        var server = mServerIp!!.text.toString()
+        var server = add_server_ip.text.toString()
         if (!server.contains(":")) {
             server += ":631"
         }

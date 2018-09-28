@@ -1,6 +1,7 @@
 package io.github.benoitduffez.cupsprint.printservice
 
 import android.os.Handler
+import android.os.ParcelFileDescriptor
 import android.print.PrintJobId
 import android.printservice.PrintJob
 import android.printservice.PrintService
@@ -9,12 +10,12 @@ import android.widget.Toast
 import io.github.benoitduffez.cupsprint.AppExecutors
 import io.github.benoitduffez.cupsprint.R
 import org.cups4j.CupsClient
+import org.cups4j.CupsPrinter
 import org.cups4j.JobStateEnum
 import org.koin.android.ext.android.inject
 import timber.log.Timber
-import java.io.FileDescriptor
-import java.io.FileInputStream
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.net.MalformedURLException
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -102,7 +103,7 @@ class CupsService : PrintService() {
     }
 
     override fun onPrintJobQueued(printJob: PrintJob) {
-        startPolling(printJob)
+        printJob.start()
         val jobInfo = printJob.info
         val printerId = jobInfo.printerId
         if (printerId == null) {
@@ -124,21 +125,29 @@ class CupsService : PrintService() {
                 Toast.makeText(this, R.string.err_document_fd_null, Toast.LENGTH_LONG).show()
                 return
             }
-            val fd = data.fileDescriptor
             val jobId = printJob.id
 
             // Send print job
             executors.networkIO.execute {
                 try {
-                    printDocument(jobId, clientURL, printerURL, fd)
+                    printDocument(jobId, clientURL, printerURL, data)
                     executors.mainThread.execute { onPrintJobSent(printJob) }
                 } catch (e: Exception) {
-                    executors.mainThread.execute { handleJobException(jobId, e) }
+                    executors.mainThread.execute { handleJobException(printJob, e) }
+                } finally {
+                    // Close the file descriptor, after printing
+                    try {
+                        data.close()
+                    } catch (e: IOException) {
+                        Timber.e("Job document data (file descriptor) couldn't close.")
+                    }
                 }
             }
         } catch (e: MalformedURLException) {
+            printJob.fail(getString(R.string.print_job_queue_fail_malformed_url, printJob))
             Timber.e("Couldn't queue print job: $printJob")
         } catch (e: URISyntaxException) {
+            printJob.fail(getString(R.string.print_job_queue_fail_uri_syntax, url))
             Timber.e("Couldn't parse URI: $url")
         }
     }
@@ -147,15 +156,24 @@ class CupsService : PrintService() {
      * Called from the UI thread.
      * Handle the exception (e.g. log or send it to crashlytics?), and inform the user of what happened
      *
-     * @param jobId The print job
+     * @param printJob The print job
      * @param e     The exception that occurred
      */
-    private fun handleJobException(jobId: PrintJobId, e: Exception) {
+    private fun handleJobException(printJob: PrintJob, e: Exception) {
         when (e) {
-            is SocketTimeoutException -> Toast.makeText(this, R.string.err_job_socket_timeout, Toast.LENGTH_LONG).show()
-            is NullPrinterException -> Toast.makeText(this, R.string.err_printer_null_when_printing, Toast.LENGTH_LONG).show()
+            is SocketTimeoutException -> {
+                printJob.fail(getString(R.string.err_job_socket_timeout))
+                Toast.makeText(this, R.string.err_job_socket_timeout, Toast.LENGTH_LONG).show()
+            }
+            is NullPrinterException -> {
+                printJob.fail(getString(R.string.err_printer_null_when_printing))
+                Toast.makeText(this, R.string.err_printer_null_when_printing, Toast.LENGTH_LONG).show()
+            }
             else -> {
-                Toast.makeText(this, getString(R.string.err_job_exception, jobId.toString(), e.localizedMessage), Toast.LENGTH_LONG).show()
+                val jobId = printJob.id
+                val errorMsg = getString(R.string.err_job_exception, jobId.toString(), e.localizedMessage)
+                printJob.fail(errorMsg)
+                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
                 if (e is SSLException && e.message?.contains("I/O error during system call, Broken pipe") == true) {
                     // Don't send this crash report: https://github.com/BenoitDuffez/AndroidCupsPrint/issues/70
                     Timber.e("Couldn't query job $jobId")
@@ -278,15 +296,20 @@ class CupsService : PrintService() {
      *
      * @param clientURL  The client URL
      * @param printerURL The printer URL
-     * @param fd         The document to print, as a [FileDescriptor]
+     * @param fd         The document to print, as a [ParcelFileDescriptor]
      */
     @Throws(Exception::class)
-    internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, fd: FileDescriptor) {
+    internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, fd: ParcelFileDescriptor) {
         val client = CupsClient(this, clientURL)
-        val printer = client.getPrinter(printerURL) ?: throw NullPrinterException()
+        val printer = client.getPrinter(printerURL)?.let { printer ->
+            val cupsPrinter = CupsPrinter(printerURL, printer.name, true)
+            cupsPrinter.location = printer.location
+            cupsPrinter
+        }
 
-        val job = org.cups4j.PrintJob.Builder(FileInputStream(fd)).build()
-        val result = printer.print(job, this)
+        val doc = ParcelFileDescriptor.AutoCloseInputStream(fd)
+        val job = org.cups4j.PrintJob.Builder(doc).build()
+        val result = printer?.print(job, this) ?: throw NullPrinterException()
         jobs[jobId] = result.jobId
     }
 
@@ -296,7 +319,7 @@ class CupsService : PrintService() {
      * @param printJob The print job
      */
     private fun onPrintJobSent(printJob: PrintJob) {
-        printJob.start()
+        startPolling(printJob)
     }
 
     private class NullPrinterException internal constructor() : Exception("Printer is null when trying to print: printer no longer available?")

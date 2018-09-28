@@ -47,7 +47,7 @@ class CupsPrinter(
          * For a printer http://localhost:631/printers/printername 'printername' will
          * be returned.
          */
-        private val name: String,
+        val name: String,
 
         /**
          * Is this the default printer
@@ -75,7 +75,7 @@ class CupsPrinter(
         var ippJobID = -1
         val document = printJob.document
         var userName = printJob.userName
-        val jobName = printJob.jobName
+        val jobName = printJob.jobName ?: "Unknown"
         val copies = printJob.copies
         val pageRanges = printJob.pageRanges
 

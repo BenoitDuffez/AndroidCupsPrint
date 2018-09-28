@@ -2,15 +2,12 @@ package io.github.benoitduffez.cupsprint.app
 
 import android.app.Activity
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
-
-import java.security.cert.X509Certificate
-
 import io.github.benoitduffez.cupsprint.HttpConnectionManagement
 import io.github.benoitduffez.cupsprint.R
+import kotlinx.android.synthetic.main.untrusted_cert.*
+import java.security.cert.X509Certificate
 
 /**
  * Show an untrusted cert info + two buttons to accept or refuse to trust said cert
@@ -30,11 +27,9 @@ class UntrustedCertActivity : Activity() {
         sb.append("\nValidity: not after ").append(cert.notAfter.toString())
         sb.append("\nSubject: ").append(cert.subjectX500Principal.name)
         sb.append("\nKey algo: ").append(cert.sigAlgName)
+        untrusted_certinfo.text = sb
 
-        val certInfo = findViewById<View>(R.id.untrusted_certinfo) as TextView
-        certInfo.text = sb
-
-        findViewById<View>(R.id.untrusted_trust_button).setOnClickListener {
+        untrusted_trust_button.setOnClickListener {
             if (HttpConnectionManagement.saveCertificates(this, arrayOf(cert))) {
                 Toast.makeText(this@UntrustedCertActivity, R.string.untrusted_trusted, Toast.LENGTH_LONG).show()
             } else {
@@ -43,7 +38,7 @@ class UntrustedCertActivity : Activity() {
             finish()
         }
 
-        findViewById<View>(R.id.untrusted_abort_button).setOnClickListener { finish() }
+        untrusted_abort_button.setOnClickListener { finish() }
     }
 
     companion object {

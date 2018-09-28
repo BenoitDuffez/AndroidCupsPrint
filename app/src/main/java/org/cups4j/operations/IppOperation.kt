@@ -162,7 +162,8 @@ abstract class IppOperation(val context: Context) {
             ippResult.httpStatusResponse = connection.responseMessage
         } catch (e: Exception) {
             lastResponseCode = connection.responseCode
-            Timber.e("Caught exception while connecting to printer $url: ${e.localizedMessage}")
+            Timber.e("Caught exception while connecting to printer $url: HTTP ${connection.responseCode} ${connection.responseMessage}")
+            Timber.e("Exception: ${e.message} - $e")
             throw e
         } finally {
             if (connection is HttpsURLConnection) {

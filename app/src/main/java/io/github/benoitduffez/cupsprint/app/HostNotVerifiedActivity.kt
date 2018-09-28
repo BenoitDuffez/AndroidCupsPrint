@@ -3,11 +3,9 @@ package io.github.benoitduffez.cupsprint.app
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-
 import io.github.benoitduffez.cupsprint.R
+import kotlinx.android.synthetic.main.host_not_verified.*
 
 /**
  * Ask for host trust when it couldn't be verified
@@ -20,12 +18,11 @@ class HostNotVerifiedActivity : Activity() {
         setContentView(R.layout.host_not_verified)
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        val title = findViewById<View>(R.id.host_not_verified_title) as TextView
         unverifiedHostname = intent.getStringExtra(KEY_HOST)
-        title.text = getString(R.string.host_not_verified_title, unverifiedHostname)
+        host_not_verified_title.text = getString(R.string.host_not_verified_title, unverifiedHostname)
 
-        findViewById<View>(R.id.host_not_verified_trust_button).setOnClickListener { validateTrust(true) }
-        findViewById<View>(R.id.host_not_verified_abort_button).setOnClickListener { validateTrust(false) }
+        host_not_verified_trust_button.setOnClickListener { validateTrust(true) }
+        host_not_verified_abort_button.setOnClickListener { validateTrust(false) }
     }
 
     /**
@@ -33,7 +30,7 @@ class HostNotVerifiedActivity : Activity() {
      *
      * @param trusted Whether the host should be trusted or not
      */
-    internal fun validateTrust(trusted: Boolean) {
+    private fun validateTrust(trusted: Boolean) {
         val prefs = getSharedPreferences(HOSTS_FILE, Context.MODE_PRIVATE).edit()
         prefs.putBoolean(unverifiedHostname, trusted)
         prefs.apply()

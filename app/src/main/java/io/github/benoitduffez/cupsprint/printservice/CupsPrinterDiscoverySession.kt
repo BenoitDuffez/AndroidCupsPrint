@@ -47,7 +47,7 @@ import javax.net.ssl.SSLPeerUnverifiedException
  * CUPS printer discovery class
  */
 internal class CupsPrinterDiscoverySession(private val printService: PrintService) : PrinterDiscoverySession() {
-    var responseCode: Int = 0
+    private var responseCode: Int = 0
     private var serverCerts: Array<X509Certificate>? = null // If the server sends a non-trusted cert, it will be stored here
     private var unverifiedHost: String? = null // If the SSL hostname cannot be verified, this will be the hostname
     private val appExecutors: AppExecutors by printService.inject()
@@ -306,22 +306,34 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
     private fun scanPrinters(): Map<String, String> {
         Timber.d("Scanning for printers using mDNS, and add manual printers...")
 
-        //TODO: check for errors
         val printers = HashMap<String, String>()
-        var url: String?
-        var name: String?
+        scanMDnsPrinters(printers)
+        addManualPrinters(printers)
 
-        // Add the printers found by mDNS
+        return printers
+    }
+
+    /**
+     * Perform mDNS scan and add valid printers
+     */
+    private fun scanMDnsPrinters(printers: HashMap<String, String>) {
         val mdns = MdnsServices()
         val result = mdns.scan()
-        for (rec in result.printers!!) {
-            url = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
-            printers[url] = rec.nickname
+        result.printers?.forEach { rec ->
+            val mDnsUrl = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
+            printers[mDnsUrl] = rec.nickname
+            Timber.d("mDNS scan found printer ${rec.nickname} at URL: $mDnsUrl")
         }
+    }
 
-        // Add the printers manually added
+    /**
+     * Add the printers that were manually entered from the app launcher activity
+     */
+    private fun addManualPrinters(printers: HashMap<String, String>) {
         val prefs = printService.getSharedPreferences(AddPrintersActivity.SHARED_PREFS_MANUAL_PRINTERS, Context.MODE_PRIVATE)
         val numPrinters = prefs.getInt(AddPrintersActivity.PREF_NUM_PRINTERS, 0)
+        var name: String?
+        var url: String?
         for (i in 0 until numPrinters) {
             url = prefs.getString(AddPrintersActivity.PREF_URL + i, null)
             name = prefs.getString(AddPrintersActivity.PREF_NAME + i, null)
@@ -337,13 +349,12 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
 
                     // Now, add printer
                     printers[url] = name
+                    Timber.d("Manually added $name at URL: $url")
                 } catch (e: URISyntaxException) {
                     Timber.e(e, "Unable to parse manually-entered URI: $url")
                 }
             }
         }
-
-        return printers
     }
 
     override fun onStopPrinterDiscovery() {
