@@ -111,6 +111,12 @@ class MdnsServices {
                 if (info.type != service) {
                     continue
                 }
+
+                // CupsPrinters always have the PropertyStrings "printer-type"
+                // This ipp printer attribute is a special attribute at cups server
+                info.getPropertyString("printer-type") ?: continue
+
+                // Read the printer name out of the rendezvous point (RP)
                 var rp: String = info.getPropertyString("rp") ?: continue
                 val rps = rp.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 try {
@@ -120,6 +126,7 @@ class MdnsServices {
                     Timber.e(e, "There was an error when trying to process rp in DNS answers")
                 }
 
+                // Make a getPrinterRec and add it to list
                 Timber.d("process: qualified name: ${info.qualifiedName}")
                 val key = info.key
                 if (key != null) {
