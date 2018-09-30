@@ -47,4 +47,6 @@
     <string name="err_404">Le nom de l\'imprimante n\'a pas été trouvé sur le serveur (HTTP 404). Veuillez vérifier son nom.</string>
     <string name="manage_printers_none">Il n\'y a aucune imprimante ajoutée manuellement. Vous pouvez en ajouter une dans l\'appli Paramètres, dans la section Impression.</string>
     <string name="manage_printers_help">Voici la liste des imprimantes ajoutées manuellement. Cliquez sur l\'une pour la supprimer (pas de confirmation !)</string>
+    <string name="print_job_queue_fail_malformed_url">Impossible de mettre l\'impression en file: %1$s</string>
+    <string name="print_job_queue_fail_uri_syntax">Impossible de déchiffrer l\'adresse : %1$s</string>
 </resources>

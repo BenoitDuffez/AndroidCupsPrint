@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
 import android.view.View
-import android.widget.Toast
 import io.github.benoitduffez.cupsprint.AppExecutors
 import io.github.benoitduffez.cupsprint.R
 import kotlinx.android.synthetic.main.add_printers.*
@@ -14,6 +13,7 @@ import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 import java.util.regex.Pattern
 
@@ -36,11 +36,17 @@ class AddPrintersActivity : Activity() {
         val name = add_name.text.toString()
 
         if (TextUtils.isEmpty(name)) {
-            Toast.makeText(this, R.string.err_add_printer_empty_name, Toast.LENGTH_LONG).show()
+            add_name.error = getString(R.string.err_add_printer_empty_name)
             return
         }
         if (TextUtils.isEmpty(url)) {
-            Toast.makeText(this, R.string.err_add_printer_empty_url, Toast.LENGTH_LONG).show()
+            add_url.error = getString(R.string.err_add_printer_empty_url)
+            return
+        }
+        try {
+            URI(url)
+        } catch (e: Exception) {
+            add_url.error = e.localizedMessage
             return
         }
 
