@@ -238,13 +238,24 @@ class CupsService : PrintService() {
                 executors.mainThread.execute { onJobStateUpdate(printJob, jobState) }
             } catch (e: Exception) {
                 executors.mainThread.execute {
+                    jobs.remove(printJob.id)
                     Timber.e("Couldn't get job: $jobId state because: $e")
 
                     when {
                         (e is SocketException || e is SocketTimeoutException)
-                                && e.message?.contains("ECONNRESET") == true -> Toast.makeText(this@CupsService, getString(R.string.err_job_econnreset, jobId), Toast.LENGTH_LONG).show()
-                        e is FileNotFoundException -> Toast.makeText(this@CupsService, getString(R.string.err_job_not_found, jobId), Toast.LENGTH_LONG).show()
-                        else -> Timber.e(e)
+                                && e.message?.contains("ECONNRESET") == true -> {
+                            printJob.fail(getString(R.string.err_job_econnreset, jobId))
+                            Toast.makeText(this@CupsService, getString(R.string.err_job_econnreset, jobId), Toast.LENGTH_LONG).show()
+                        }
+                        e is FileNotFoundException -> {
+                            printJob.fail(getString(R.string.err_job_not_found, jobId))
+                            Toast.makeText(this@CupsService, getString(R.string.err_job_not_found, jobId), Toast.LENGTH_LONG).show()
+                        }
+                        e is NullPointerException -> printJob.complete()
+                        else -> {
+                            printJob.fail(e.localizedMessage)
+                            Timber.e(e)
+                        }
                     }
                 }
             }
