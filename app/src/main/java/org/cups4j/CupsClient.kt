@@ -33,7 +33,7 @@ import org.cups4j.operations.ipp.IppGetJobAttributesOperation
 import org.cups4j.operations.ipp.IppGetJobsOperation
 import org.cups4j.operations.ipp.IppHoldJobOperation
 import org.cups4j.operations.ipp.IppReleaseJobOperation
-
+import timber.log.Timber
 import java.net.URL
 import java.security.cert.X509Certificate
 import timber.log.Timber
