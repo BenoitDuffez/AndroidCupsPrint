@@ -111,7 +111,7 @@ class AddPrintersActivity : Activity() {
          * 6: Current state
          * pattern matching fields:                       1          2                  3               4                5              6
          */
-        val p = Pattern.compile("<TR><TD><A HREF=\"([^\"]+)\">([^<]+)</A></TD><TD>([^<]+)</TD><TD>([^<]+)</TD><TD>([^<]+)</TD><TD>([^<]+)</TD></TR>\n")
+        val p = Pattern.compile("<TR><TD><A HREF=\"([^\"]+)\">([^<]*)</A></TD><TD>([^<]*)</TD><TD>([^<]*)</TD><TD>([^<]*)</TD><TD>([^<]*)</TD></TR>\n")
         val matcher = p.matcher(sb)
         var url: String
         var name: String
