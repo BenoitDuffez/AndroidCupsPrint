@@ -1,6 +1,6 @@
 ext {
     versions = [
-            koin: "1.0.0-beta-7"
+            koin: "1.0.0"
     ]
 }
 
@@ -68,7 +68,7 @@ android {
 
 dependencies {
     implementation 'javax.jmdns:jmdns:3.4.1'
-    implementation 'androidx.appcompat:appcompat:1.0.0-rc02'
+    implementation "androidx.appcompat:appcompat:1.0.0"
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true
@@ -84,7 +84,9 @@ dependencies {
 
     // Koin DI
     implementation "org.koin:koin-core:${versions.koin}"
+    implementation "org.koin:koin-core-ext:${versions.koin}"
     implementation "org.koin:koin-android:${versions.koin}"
+
     apply plugin: 'kotlin-android-extensions'
 }
 
