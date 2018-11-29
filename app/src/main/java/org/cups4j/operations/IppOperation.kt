@@ -30,6 +30,7 @@ import ch.ethz.vppserver.ippclient.IppTag
 import ch.ethz.vppserver.schema.ippclient.Attribute
 import io.github.benoitduffez.cupsprint.HttpConnectionManagement
 import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory
+import timber.log.Timber
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException

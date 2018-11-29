@@ -18,7 +18,7 @@ program; if not, see <http://www.gnu.org/licenses/>.
 
 class EnumItem {
     var name: String
-    lateinit var description: String
+    var description: String
 
     constructor(name: String) {
         this.name = name
