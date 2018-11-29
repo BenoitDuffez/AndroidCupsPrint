@@ -30,7 +30,6 @@ import ch.ethz.vppserver.ippclient.IppTag
 import ch.ethz.vppserver.schema.ippclient.Attribute
 import io.github.benoitduffez.cupsprint.HttpConnectionManagement
 import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory
-import timber.log.Timber
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -53,8 +52,8 @@ abstract class IppOperation(val context: Context) {
     var lastResponseCode: Int = 0
         private set
     private val aborted: AtomicBoolean = AtomicBoolean(false)
-    @Volatile private var threadRef: Thread? = null
-
+    @Volatile
+    private var threadRef: Thread? = null
 
     /**
      * Gets the IPP header
@@ -122,7 +121,9 @@ abstract class IppOperation(val context: Context) {
      */
     @Throws(Exception::class)
     private fun sendRequest(url: URL, ippBuf: ByteBuffer, documentStream: InputStream? = null): IppResult? {
-        if (isAborted()){ return null }
+        if (isAborted()) {
+            return null
+        }
 
         val ippResult: IppResult
         val connection = url.openConnection() as HttpURLConnection
@@ -161,20 +162,26 @@ abstract class IppOperation(val context: Context) {
             // Send the data
             copy(inputStream, connection.outputStream)
 
-            if (isAborted()){ return null }
+            if (isAborted()) {
+                return null
+            }
 
             // Read response
             val result = readInputStream(connection.inputStream)
             lastResponseCode = connection.responseCode
 
-            if (isAborted()){ return null }
+            if (isAborted()) {
+                return null
+            }
 
             // Prepare IPP result
             val ippResponse = IppResponse()
             ippResult = ippResponse.getResponse(ByteBuffer.wrap(result))
             ippResult.httpStatusResponse = connection.responseMessage
         } catch (e: Exception) {
-            if (isAborted()){ return null }
+            if (isAborted()) {
+                return null
+            }
             lastResponseCode = connection.responseCode
             Timber.e("Caught exception while connecting to printer $url: HTTP ${connection.responseCode} ${connection.responseMessage}")
             Timber.e("Exception: ${e.message} - $e")
