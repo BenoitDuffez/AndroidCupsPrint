@@ -96,7 +96,9 @@ class MdnsServices {
                 val record = iterator.next()
                 if (record is DNSRecord.Service) {
                     info = record.getServiceInfo()
-                    services[info.key] = arrayOf(hosts[info.server]!!, info.port.toString())
+                    val server = hosts[info.server] ?: continue
+                    val port = info.port.toString()
+                    services[info.key] = arrayOf(server, port)
                     iterator.remove()
                 }
             }
