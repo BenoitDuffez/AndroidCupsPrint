@@ -49,4 +49,5 @@
     <string name="manage_printers_help">Voici la liste des imprimantes ajoutées manuellement. Cliquez sur l\'une pour la supprimer (pas de confirmation !)</string>
     <string name="print_job_queue_fail_malformed_url">Impossible de mettre l\'impression en file: %1$s</string>
     <string name="print_job_queue_fail_uri_syntax">Impossible de déchiffrer l\'adresse : %1$s</string>
+    <string name="cleartext_error_android_9">À compter d\'Android 9.0, les connexions HTTP sans sécurité sont interdites. Merci de passer votre serveur CUPS/votre imprimante en SSL/TLS.</string>
 </resources>

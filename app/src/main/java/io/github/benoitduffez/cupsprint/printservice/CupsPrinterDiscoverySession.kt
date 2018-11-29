@@ -446,6 +446,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             exception is SocketTimeoutException -> Toast.makeText(printService, R.string.err_printer_socket_timeout, Toast.LENGTH_LONG).show()
             exception is UnknownHostException -> Toast.makeText(printService, R.string.err_printer_unknown_host, Toast.LENGTH_LONG).show()
             exception is ConnectException && exception.getLocalizedMessage().contains("ENETUNREACH") -> Toast.makeText(printService, R.string.err_printer_network_unreachable, Toast.LENGTH_LONG).show()
+            exception is IOException && exception.localizedMessage.contains("Cleartext HTTP traffic") -> Toast.makeText(printService, R.string.cleartext_error_android_9, Toast.LENGTH_LONG).show()
             else -> return handleHttpError(exception, printerId)
         }
         return false
