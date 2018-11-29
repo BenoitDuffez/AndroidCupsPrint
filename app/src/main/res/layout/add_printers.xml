@@ -1,51 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:padding="16dp">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_autodetect"/>
+        android:text="@string/add_autodetect" />
 
     <EditText
         android:id="@+id/add_server_ip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints="textUri"
         android:hint="@string/add_server_ip"
-        android:inputType="textUri|number"/>
+        android:inputType="textUri"
+        android:maxLines="1"
+        tools:targetApi="o" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
         android:onClick="searchPrinters"
-        android:text="@string/add_search_button"/>
+        android:text="@string/add_search_button" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_full_manual"/>
+        android:text="@string/add_full_manual" />
 
     <EditText
         android:id="@+id/add_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints="textUri"
         android:hint="@string/add_url"
-        android:inputType="textUri"/>
+        android:inputType="textUri"
+        android:maxLines="1"
+        tools:targetApi="o" />
 
     <EditText
         android:id="@+id/add_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/add_name"/>
+        android:autofillHints="text"
+        android:hint="@string/add_name"
+        android:inputType="text"
+        android:maxLines="1"
+        tools:targetApi="o" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="addPrinter"
-        android:text="@string/add_button"/>
+        android:text="@string/add_button" />
 
 </LinearLayout>

@@ -60,5 +60,8 @@
     <string name="print_service_vendor">Generic CUPS client</string>
     <string name="manage_printers_none">There are no manually entered printers. You can add one from the Settings app, in the Printing section.</string>
     <string name="manage_printers_help">Here are the manually added printers. Click on one item to remove it (no confirmation!)</string>
+    <string name="print_job_queue_fail_malformed_url">Couldn\'t queue print job: %1$s</string>
+    <string name="print_job_queue_fail_uri_syntax">Couldn\'t parse URI: %1$s</string>
+    <string name="cleartext_error_android_9">Clear text traffic is no longer allowed in Android 9.0. Please enable SSL/TLS on the CUPS server/printer.</string>
 
 </resources>

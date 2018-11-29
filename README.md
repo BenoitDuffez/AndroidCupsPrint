@@ -19,7 +19,7 @@ This app was modified in several ways:
 * project structure converted to gradle format
 * added support for Android PrintService so that it can print documents straight from almost all apps
 * removed all legacy code that allowed printing without the use of Android PrintService (this is removed because of `minSdkVersion=19`, meaning all targets of this app are `PrintService`-compliant)
-* fixed SSL code to properly handle serlf-signed certificates (as it is likely the case with home printers)
+* fixed SSL code to properly handle self-signed certificates (as it is likely the case with home printers)
 * removed jars and added source code to be compatible with an f-droid.org publication
  
 ### Print Service
@@ -89,5 +89,5 @@ other dealings in the software.
 ## External libraries
 
 * A modified version of cups4j 0.63. The original source code and further details about cups4j may be found at http://www.cups4j.org/ (licensed under the LGPL license)
-* JmDNS This is licensed under the Apache Licence
+* JmDNS This is licensed under the Apache License
 

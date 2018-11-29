@@ -49,5 +49,7 @@
     <string name="err_404">Der Druckername wurde auf dem Server nicht gefunden (HTTP 404). Bitte überprüfen Sie den Namen.</string>
     <string name="manage_printers_none">Es sind keine manuell eingegebenen Drucker vorhanden. Sie können eine aus der App \"Einstellungen\" im Bereich \"Drucken\" hinzufügen.</string>
     <string name="manage_printers_help">Hier sind die manuell hinzugefügten Drucker. Klicken Sie auf ein Element, um es zu entfernen (keine Bestätigung!)</string>
+    <string name="print_job_queue_fail_malformed_url">Der Auftrag konnte nicht zur Warteschlange hinzugefügt werden: %1$s</string>
+    <string name="print_job_queue_fail_uri_syntax">Die URI konnte nicht verarbeitet werden: %1$s</string>
 
 </resources>

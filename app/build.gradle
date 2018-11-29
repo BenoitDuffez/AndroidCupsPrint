@@ -1,8 +1,14 @@
+ext {
+    versions = [
+            koin: "1.0.0"
+    ]
+}
+
 def keystoreProperties = new Properties()
 try {
     def keystorePropertiesFile = rootProject.file("signing.properties")
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-} catch (FileNotFoundException e) {
+} catch (FileNotFoundException ignored) {
     println 'signing.properties file was not found, no release builds will be available'
     // Put dummy values so that the debug builds work
     keystoreProperties['storeFile'] = rootProject.file('build.gradle') // bogus file, I know
@@ -10,17 +16,20 @@ try {
     keystoreProperties['storePassword'] = ''
 }
 
+apply from: 'versioning.gradle'
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'io.fabric'
 apply plugin: 'com.github.triplet.play'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    mavenCentral()
 }
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 28
+    buildToolsVersion '28.0.2'
 
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
@@ -30,10 +39,10 @@ android {
     defaultConfig {
         applicationId "io.github.benoitduffez.cupsprint"
         minSdkVersion 19
-        targetSdkVersion 25
-        versionCode 9
-        versionName "1.4.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        targetSdkVersion 28
+        versionCode buildVersionCode()
+        versionName version
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -58,18 +67,27 @@ android {
 }
 
 dependencies {
-    compile 'javax.jmdns:jmdns:3.4.1'
-    compile 'com.android.support:appcompat-v7:25.3.0'
+    implementation 'javax.jmdns:jmdns:3.4.1'
+    implementation "androidx.appcompat:appcompat:1.0.0"
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
-        transitive = true;
+    implementation('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
+        transitive = true
     }
 
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testCompile 'junit:junit:4.12'
-    androidTestCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'junit:junit:4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    // Koin DI
+    implementation "org.koin:koin-core:${versions.koin}"
+    implementation "org.koin:koin-core-ext:${versions.koin}"
+    implementation "org.koin:koin-android:${versions.koin}"
+
+    apply plugin: 'kotlin-android-extensions'
 }
 
 apply plugin: 'jacoco'
@@ -92,6 +110,11 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
 }
 
 play {
-    track = 'beta'
+    def envTrack = System.getenv('PLAY_STORE_RELEASE_CHANNEL')
+    if ("production" == envTrack || "beta" == envTrack || "alpha" == envTrack || "rollout" == envTrack) {
+        track = envTrack
+    } else {
+        println "The PLAY_STORE_RELEASE_CHANNEL environment variable is invalid, it was ignored"
+    }
     jsonFile = rootProject.file('GooglePlayAPI.json')
 }
