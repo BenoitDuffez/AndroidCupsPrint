@@ -42,6 +42,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.ByteBuffer
 import java.security.cert.X509Certificate
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.HttpsURLConnection
 
 abstract class IppOperation(val context: Context) {
@@ -51,6 +52,9 @@ abstract class IppOperation(val context: Context) {
         private set // store the certificates sent by the server if it's not trusted
     var lastResponseCode: Int = 0
         private set
+    private val aborted: AtomicBoolean = AtomicBoolean(false)
+    @Volatile
+    private var threadRef: Thread? = null
 
     /**
      * Gets the IPP header
@@ -118,11 +122,18 @@ abstract class IppOperation(val context: Context) {
      */
     @Throws(Exception::class)
     private fun sendRequest(url: URL, ippBuf: ByteBuffer, documentStream: InputStream? = null): IppResult? {
+        if (isAborted()) {
+            return null
+        }
+
         val ippResult: IppResult
         val connection = url.openConnection() as HttpURLConnection
         lastResponseCode = 0
 
         try {
+            // Set the thread reference for Interruption in abort()
+            threadRef = Thread.currentThread()
+
             connection.requestMethod = "POST"
             connection.readTimeout = 10000
             connection.connectTimeout = 10000
@@ -152,15 +163,26 @@ abstract class IppOperation(val context: Context) {
             // Send the data
             copy(inputStream, connection.outputStream)
 
+            if (isAborted()) {
+                return null
+            }
+
             // Read response
             val result = readInputStream(connection.inputStream)
             lastResponseCode = connection.responseCode
+
+            if (isAborted()) {
+                return null
+            }
 
             // Prepare IPP result
             val ippResponse = IppResponse()
             ippResult = ippResponse.getResponse(ByteBuffer.wrap(result))
             ippResult.httpStatusResponse = connection.responseMessage
         } catch (e: Exception) {
+            if (isAborted()) {
+                return null
+            }
             lastResponseCode = connection.responseCode
             Timber.e("Caught exception while connecting to printer $url: HTTP ${connection.responseCode} ${connection.responseMessage}")
             Timber.e("Exception: ${e.message} - $e")
@@ -173,9 +195,32 @@ abstract class IppOperation(val context: Context) {
                 }
             }
             connection.disconnect()
+
+            // Clear the interrupted status and the thread reference
+            Thread.interrupted()
+            threadRef = null
         }
 
         return ippResult
+    }
+
+    /**
+     * Abort the IppOperation and stops the transfer directly
+     */
+    fun abort() {
+        if (this.aborted.compareAndSet(false, true)) {
+            // Interrupt the thread reference
+            threadRef?.interrupt()
+        }
+    }
+
+    /**
+     * Tests whether this IppOperation has been aborted.
+     *
+     * @return true if this IppOperation has been aborted; false otherwise.
+     */
+    fun isAborted(): Boolean {
+        return this.aborted.get()
     }
 
     /**
@@ -192,7 +237,7 @@ abstract class IppOperation(val context: Context) {
         var nRead: Int
         val data = ByteArray(16384)
 
-        while (true) {
+        while (!this.aborted.get()) {
             nRead = `is`.read(data, 0, data.size)
             if (nRead == -1) {
                 break
@@ -225,7 +270,7 @@ abstract class IppOperation(val context: Context) {
             val bufSize = 0x1000 // 4K
             val buf = ByteArray(bufSize)
             var total: Long = 0
-            while (true) {
+            while (!Thread.interrupted()) {
                 val r = from.read(buf)
                 if (r == -1) {
                     break

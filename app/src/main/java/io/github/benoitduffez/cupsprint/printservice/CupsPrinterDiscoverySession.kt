@@ -23,6 +23,7 @@ import io.github.benoitduffez.cupsprint.detect.MdnsServices
 import io.github.benoitduffez.cupsprint.detect.PrinterRec
 import org.cups4j.CupsClient
 import org.cups4j.CupsPrinter
+import org.cups4j.operations.IppOperation
 import org.cups4j.operations.ipp.IppGetPrinterAttributesOperation
 import org.koin.android.ext.android.inject
 import timber.log.Timber
@@ -40,6 +41,7 @@ import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import java.util.ArrayList
 import java.util.HashMap
+import java.util.concurrent.ConcurrentHashMap
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLPeerUnverifiedException
 
@@ -51,6 +53,10 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
     private var serverCerts: Array<X509Certificate>? = null // If the server sends a non-trusted cert, it will be stored here
     private var unverifiedHost: String? = null // If the SSL hostname cannot be verified, this will be the hostname
     private val appExecutors: AppExecutors by printService.inject()
+    private var ippPrintersStateTracking = ConcurrentHashMap<PrinterId, IppOperation>(3, 0.9f, 4) // Threadsafe access for 4 threads to ippOperation in PrinterStateTracking
+    @Volatile private var mdnsPrinterDiscovery: MdnsServices? = null // Threadsafe access to mdnsService at PrinterDiscovery
+    @Volatile private var runningPrinterDiscovery: Boolean = false // Threadsafe state of PrinterDiscovery
+
 
     /**
      * Called when the framework wants to find/discover printers
@@ -59,11 +65,17 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      * @param priorityList The list of printers that the user selected sometime in the past, that need to be checked first
      */
     override fun onStartPrinterDiscovery(priorityList: List<PrinterId>) {
+        // ToDo: Use the priorityList
+
         appExecutors.networkIO.execute {
+            runningPrinterDiscovery = true
             val printers = scanPrinters()
-            appExecutors.mainThread.execute {
-                onPrintersDiscovered(printers)
+            if (runningPrinterDiscovery) {
+                appExecutors.mainThread.execute {
+                    onPrintersDiscovered(printers)
+                }
             }
+            runningPrinterDiscovery = false
         }
     }
 
@@ -141,8 +153,13 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             propertyMap["requested-attributes"] = TextUtils.join(" ", REQUIRED_ATTRIBUTES)
 
             val op = IppGetPrinterAttributesOperation(printService)
+            ippPrintersStateTracking[printerId] = op
             val builder = PrinterCapabilitiesInfo.Builder(printerId)
             val ippAttributes = op.request(printerURL, propertyMap)
+            if (op.isAborted()){
+                return null
+            }
+            ippPrintersStateTracking.remove(printerId)
             if (ippAttributes == null) {
                 Timber.e("Couldn't get 'requested-attributes' from printer: $url")
                 return null
@@ -318,7 +335,9 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
      */
     private fun scanMDnsPrinters(printers: HashMap<String, String>) {
         val mdns = MdnsServices()
+        mdnsPrinterDiscovery = mdns
         val result = mdns.scan()
+        mdnsPrinterDiscovery = null
         result.printers?.forEach { rec ->
             val mDnsUrl = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
             printers[mDnsUrl] = rec.nickname
@@ -358,7 +377,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
     }
 
     override fun onStopPrinterDiscovery() {
-        //TODO
+        runningPrinterDiscovery = false
+        mdnsPrinterDiscovery?.stop()
     }
 
     override fun onValidatePrinters(printerIds: List<PrinterId>) {
@@ -378,9 +398,13 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
 
             try {
                 val printerCapabilitiesInfo = checkPrinter(printerId.localId, printerId)
-                Timber.v("HTTP response code: $responseCode")
-                appExecutors.mainThread.execute {
-                    onPrinterChecked(printerId, printerCapabilitiesInfo)
+                if (ippPrintersStateTracking[printerId]?.isAborted() == true) {
+                    Timber.v("Checking Printer is aborted")
+                } else {
+                    Timber.v("HTTP response code: $responseCode")
+                    appExecutors.mainThread.execute {
+                        onPrinterChecked(printerId, printerCapabilitiesInfo)
+                    }
                 }
             } catch (e: Exception) {
                 appExecutors.mainThread.execute {
@@ -422,6 +446,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             exception is SocketTimeoutException -> Toast.makeText(printService, R.string.err_printer_socket_timeout, Toast.LENGTH_LONG).show()
             exception is UnknownHostException -> Toast.makeText(printService, R.string.err_printer_unknown_host, Toast.LENGTH_LONG).show()
             exception is ConnectException && exception.getLocalizedMessage().contains("ENETUNREACH") -> Toast.makeText(printService, R.string.err_printer_network_unreachable, Toast.LENGTH_LONG).show()
+            exception is IOException && exception.localizedMessage.contains("Cleartext HTTP traffic") -> Toast.makeText(printService, R.string.cleartext_error_android_9, Toast.LENGTH_LONG).show()
             else -> return handleHttpError(exception, printerId)
         }
         return false
@@ -469,7 +494,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
     }
 
     override fun onStopPrinterStateTracking(printerId: PrinterId) {
-        // TODO?
+        ippPrintersStateTracking[printerId]?.abort()
     }
 
     override fun onDestroy() {}

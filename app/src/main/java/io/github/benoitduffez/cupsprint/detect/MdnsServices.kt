@@ -21,7 +21,7 @@ private val FOOTER = byteArrayOf(0, 0, 12, 0, 1)
 private const val TIMEOUT = 1000
 
 class MdnsServices {
-    private var error = false
+    @Volatile private var error = false // Threadsafe state of error
 
     /**
      * @return the last exception that occurred while trying to connect to scanned hosts
@@ -96,7 +96,9 @@ class MdnsServices {
                 val record = iterator.next()
                 if (record is DNSRecord.Service) {
                     info = record.getServiceInfo()
-                    services[info.key] = arrayOf(hosts[info.server]!!, info.port.toString())
+                    val server = hosts[info.server] ?: continue
+                    val port = info.port.toString()
+                    services[info.key] = arrayOf(server, port)
                     iterator.remove()
                 }
             }
