@@ -41,7 +41,7 @@ fi
 
 # Merge and fix conflict
 echo "Merging develop into beta..."
-if grep -q "Already up-to-date" <<<$(git merge --no-edit develop); then
+if grep -q "Already up.to.date" <<<$(git merge --no-edit develop); then
     echo "No changes on develop: do not release"
     exit 1
 fi
