@@ -19,7 +19,6 @@ try {
 apply from: 'versioning.gradle'
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'io.fabric'
 apply plugin: 'com.github.triplet.play'
 
 repositories {
@@ -30,12 +29,10 @@ repositories {
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.2'
-
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
-
     defaultConfig {
         applicationId "io.github.benoitduffez.cupsprint"
         minSdkVersion 19
@@ -43,8 +40,8 @@ android {
         versionCode buildVersionCode()
         versionName version
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        dimension "type"
     }
-
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']
@@ -53,7 +50,6 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -64,16 +60,25 @@ android {
             testCoverageEnabled true
         }
     }
+    flavorDimensions "type"
+    productFlavors {
+        fdroid {
+            dimension "type"
+            ext.useFabric = false
+        }
+        playstore {
+            dimension "type"
+            ext.useFabric = true
+        }
+    }
 }
 
 dependencies {
     implementation 'javax.jmdns:jmdns:3.4.1'
-    implementation "androidx.appcompat:appcompat:1.0.0"
-
-    implementation('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    playstoreImplementation('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true
     }
-
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -81,12 +86,10 @@ dependencies {
     androidTestImplementation 'junit:junit:4.12'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.jakewharton.timber:timber:4.7.1'
-
     // Koin DI
     implementation "org.koin:koin-core:${versions.koin}"
     implementation "org.koin:koin-core-ext:${versions.koin}"
     implementation "org.koin:koin-android:${versions.koin}"
-
     apply plugin: 'kotlin-android-extensions'
 }
 
@@ -117,4 +120,10 @@ play {
         println "The PLAY_STORE_RELEASE_CHANNEL environment variable is invalid, it was ignored"
     }
     jsonFile = rootProject.file('GooglePlayAPI.json')
+}
+
+android.productFlavors.each {
+    flavor -> if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().contains(flavor.name) && flavor.ext.useFabric){
+        apply plugin: 'io.fabric'
+    }
 }
