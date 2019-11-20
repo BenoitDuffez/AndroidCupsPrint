@@ -50,10 +50,6 @@
             android:label="@string/host_not_verified_activity_title"
             android:theme="@style/AndroidCupsPrint.AlertDialog"/>
 
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="ab18fbc78d644944a4a41367f1098b1734a74f77"/>
-
         <activity
             android:name=".app.ManageManualPrintersActivity"
             android:theme="@style/AndroidCupsPrint">
