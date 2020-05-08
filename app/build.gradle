@@ -82,8 +82,8 @@ dependencies {
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13'
+    androidTestImplementation 'junit:junit:4.13'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.jakewharton.timber:timber:4.7.1'
     // Koin DI
@@ -91,6 +91,7 @@ dependencies {
     implementation "org.koin:koin-core-ext:${versions.koin}"
     implementation "org.koin:koin-android:${versions.koin}"
     apply plugin: 'kotlin-android-extensions'
+    implementation 'androidx.preference:preference:1.1.1'
 }
 
 apply plugin: 'jacoco'

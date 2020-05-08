@@ -1,7 +1,6 @@
 package io.github.benoitduffez.cupsprint.detect
 
-import java.util.ArrayList
-import java.util.Collections
+import java.util.*
 
 class PrinterResult internal constructor() {
     var printers: List<PrinterRec>? = null

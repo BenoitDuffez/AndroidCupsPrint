@@ -29,18 +29,10 @@ import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.net.ConnectException
-import java.net.HttpURLConnection
-import java.net.MalformedURLException
-import java.net.SocketTimeoutException
-import java.net.URI
-import java.net.URISyntaxException
-import java.net.URL
-import java.net.UnknownHostException
+import java.net.*
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLPeerUnverifiedException
@@ -445,8 +437,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             }
             exception is SocketTimeoutException -> Toast.makeText(printService, R.string.err_printer_socket_timeout, Toast.LENGTH_LONG).show()
             exception is UnknownHostException -> Toast.makeText(printService, R.string.err_printer_unknown_host, Toast.LENGTH_LONG).show()
-            exception is ConnectException && exception.getLocalizedMessage().contains("ENETUNREACH") -> Toast.makeText(printService, R.string.err_printer_network_unreachable, Toast.LENGTH_LONG).show()
-            exception is IOException && exception.localizedMessage.contains("Cleartext HTTP traffic") -> Toast.makeText(printService, R.string.cleartext_error_android_9, Toast.LENGTH_LONG).show()
+            exception is ConnectException && exception.getLocalizedMessage()?.contains("ENETUNREACH")?:false -> Toast.makeText(printService, R.string.err_printer_network_unreachable, Toast.LENGTH_LONG).show()
+            exception is IOException && exception.localizedMessage?.contains("Cleartext HTTP traffic")?:false -> Toast.makeText(printService, R.string.cleartext_error_android_9, Toast.LENGTH_LONG).show()
             else -> return handleHttpError(exception, printerId)
         }
         return false

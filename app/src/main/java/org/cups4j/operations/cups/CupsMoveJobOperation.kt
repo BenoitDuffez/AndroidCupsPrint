@@ -31,7 +31,7 @@ import org.cups4j.operations.IppOperation
 import java.io.UnsupportedEncodingException
 import java.net.URL
 import java.nio.ByteBuffer
-import java.util.HashMap
+import java.util.*
 
 class CupsMoveJobOperation(context: Context) : IppOperation(context) {
     init {
@@ -61,7 +61,7 @@ class CupsMoveJobOperation(context: Context) : IppOperation(context) {
         ippBuf = IppTag.getNameWithoutLanguage(ippBuf, "requesting-user-name", map["requesting-user-name"])
         ippBuf = IppTag.getUri(ippBuf, "job-printer-uri", map["target-printer-uri"])
         ippBuf = IppTag.getEnd(ippBuf)
-        ippBuf?.flip()
+        ippBuf.flip()
         return ippBuf
     }
 

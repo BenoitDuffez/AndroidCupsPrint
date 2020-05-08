@@ -28,8 +28,7 @@ import org.cups4j.CupsPrinter
 import org.cups4j.operations.IppOperation
 import timber.log.Timber
 import java.net.URL
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class CupsGetPrintersOperation(context: Context) : IppOperation(context) {
     init {

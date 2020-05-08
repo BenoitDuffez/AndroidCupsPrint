@@ -16,13 +16,8 @@ import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.net.MalformedURLException
-import java.net.SocketException
-import java.net.SocketTimeoutException
-import java.net.URI
-import java.net.URISyntaxException
-import java.net.URL
-import java.util.HashMap
+import java.net.*
+import java.util.*
 import javax.net.ssl.SSLException
 
 /**

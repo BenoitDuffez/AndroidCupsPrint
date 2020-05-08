@@ -31,8 +31,7 @@ import org.cups4j.operations.IppOperation
 import java.io.UnsupportedEncodingException
 import java.net.URL
 import java.nio.ByteBuffer
-import java.util.Date
-import java.util.HashMap
+import java.util.*
 
 class IppGetJobAttributesOperation(context: Context) : IppOperation(context) {
     init {
@@ -82,7 +81,7 @@ class IppGetJobAttributesOperation(context: Context) : IppOperation(context) {
             ippBuf = IppTag.getBoolean(ippBuf, "my-jobs", value)
         }
         ippBuf = IppTag.getEnd(ippBuf)
-        ippBuf?.flip()
+        ippBuf.flip()
         return ippBuf
     }
 

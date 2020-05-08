@@ -28,14 +28,10 @@ import android.content.Context
 import org.cups4j.operations.cups.CupsGetDefaultOperation
 import org.cups4j.operations.cups.CupsGetPrintersOperation
 import org.cups4j.operations.cups.CupsMoveJobOperation
-import org.cups4j.operations.ipp.IppCancelJobOperation
-import org.cups4j.operations.ipp.IppGetJobAttributesOperation
-import org.cups4j.operations.ipp.IppGetJobsOperation
-import org.cups4j.operations.ipp.IppHoldJobOperation
-import org.cups4j.operations.ipp.IppReleaseJobOperation
+import org.cups4j.operations.ipp.*
+import timber.log.Timber
 import java.net.URL
 import java.security.cert.X509Certificate
-import timber.log.Timber
 
 /**
  * Main Client for accessing CUPS features like

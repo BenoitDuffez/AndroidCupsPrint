@@ -21,7 +21,7 @@ package ch.ethz.vppserver.schema.ippclient
  * This file has been modified. It is not the original.
  * XML parsing annotations, etc. have been removed Jon Freeman - 2013 */
 
-import java.util.ArrayList
+import java.util.*
 
 class Attribute {
     var attributeValue: ArrayList<AttributeValue> = ArrayList()

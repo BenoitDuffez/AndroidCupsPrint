@@ -31,7 +31,7 @@ import org.cups4j.operations.IppOperation
 import java.io.UnsupportedEncodingException
 import java.net.URL
 import java.nio.ByteBuffer
-import java.util.HashMap
+import java.util.*
 
 class IppHoldJobOperation(context: Context) : IppOperation(context) {
     init {

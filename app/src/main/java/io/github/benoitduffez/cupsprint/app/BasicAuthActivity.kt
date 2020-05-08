@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import io.github.benoitduffez.cupsprint.R
 import kotlinx.android.synthetic.main.basic_auth.*
@@ -22,7 +21,7 @@ class BasicAuthActivity : Activity() {
         val prefs = getSharedPreferences(CREDENTIALS_FILE, Context.MODE_PRIVATE)
 
         val numCredentials = prefs.getInt(KEY_BASIC_AUTH_NUMBER, 0)
-        val foundId = findSavedCredentialsId(printersUrl, prefs)
+        val foundId = findSavedCredentialsId(printersUrl?:"", prefs)
         val targetId: Int
         if (foundId >= 0) {
             targetId = foundId

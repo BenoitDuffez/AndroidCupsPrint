@@ -23,7 +23,7 @@ import org.cups4j.operations.ipp.IppGetJobAttributesOperation
 import org.cups4j.operations.ipp.IppGetJobsOperation
 import org.cups4j.operations.ipp.IppPrintJobOperation
 import java.net.URL
-import java.util.HashMap
+import java.util.*
 
 /**
  * Represents a printer on your IPP server

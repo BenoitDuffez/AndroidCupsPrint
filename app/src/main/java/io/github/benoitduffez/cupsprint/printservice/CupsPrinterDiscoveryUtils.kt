@@ -2,7 +2,7 @@ package io.github.benoitduffez.cupsprint.printservice
 
 import android.print.PrintAttributes
 import ch.ethz.vppserver.schema.ippclient.AttributeValue
-import java.util.Locale
+import java.util.*
 import java.util.regex.Pattern
 
 /**
@@ -121,8 +121,8 @@ internal object CupsPrinterDiscoveryUtils {
                 val m = Pattern.compile("_((\\d*\\.?\\d+)x(\\d*\\.?\\d+)([a-z]+))$").matcher(value)
                 if (m.find()) {
                     try {
-                        var x = java.lang.Float.parseFloat(m.group(2))
-                        var y = java.lang.Float.parseFloat(m.group(3))
+                        var x = java.lang.Float.parseFloat(m.group(2)?:"0")
+                        var y = java.lang.Float.parseFloat(m.group(3)?:"0")
                         when (m.group(4)) {
                             "mm" -> {
                                 x /= 25.4f
@@ -137,7 +137,7 @@ internal object CupsPrinterDiscoveryUtils {
                             }
                             else -> return null
                         }
-                        return PrintAttributes.MediaSize(value, m.group(1), Math.round(x), Math.round(y))
+                        return PrintAttributes.MediaSize(value, m.group(1)?:"0", Math.round(x), Math.round(y))
                     } catch (ignored: NumberFormatException) {
                     }
                 }
