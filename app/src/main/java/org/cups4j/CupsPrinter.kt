@@ -78,6 +78,7 @@ class CupsPrinter(
         val jobName = printJob.jobName ?: "Unknown"
         val copies = printJob.copies
         val pageRanges = printJob.pageRanges
+        val duplex = printJob.duplex
 
         var attributes: MutableMap<String, String>? = printJob.attributes
 
@@ -117,9 +118,13 @@ class CupsPrinter(
             addAttribute(attributes, "job-attributes", rangesString.toString())
         }
 
-        if (printJob.isDuplex) {
-            addAttribute(attributes, "job-attributes", "sides:keyword:two-sided-long-edge")
-        }
+
+        addAttribute(attributes, "job-attributes", when (duplex) {
+            PrintJob.DUPLEX_LONG_EDGE -> "sides:keyword:two-sided-long-edge"
+            PrintJob.DUPLEX_SHORT_EDGE -> "sides:keyword:two-sided-short-edge"
+            else -> "sides:keyword:one-sided"
+        })
+
         val command = IppPrintJobOperation(context)
         val ippResult = command.request(printerURL, attributes, document)
         //    IppResultPrinter.print(ippResult);

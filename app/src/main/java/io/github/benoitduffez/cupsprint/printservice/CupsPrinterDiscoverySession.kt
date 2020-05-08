@@ -87,7 +87,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         val printersInfo = ArrayList<PrinterInfo>(printers.size)
         for (url in printers.keys) {
             val printerId = printService.generatePrinterId(url)
-            printersInfo.add(PrinterInfo.Builder(printerId, printers[url]!!, PrinterInfo.STATUS_IDLE).build())
+            printersInfo.add(PrinterInfo.Builder(printerId, printers[url] ?: error("Null printer"), PrinterInfo.STATUS_IDLE).build())
         }
 
         addPrinters(printersInfo)
@@ -159,6 +159,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
 
             var colorDefault = 0
             var colorMode = 0
+            var duplexDefault = 0
+            var duplexMode = 0
             var marginMilsTop = 0
             var marginMilsRight = 0
             var marginMilsBottom = 0
@@ -209,12 +211,38 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                         }
                     } else if ("print-color-mode-default" == attribute.name) {
                         var attributeValue: AttributeValue? = null
-                        if (!attribute.attributeValue.isEmpty()) {
+                        if (attribute.attributeValue.isNotEmpty()) {
                             attributeValue = attribute.attributeValue[0]
                         }
                         colorDefault = when {
                             attributeValue != null && "color" == attributeValue.value -> PrintAttributes.COLOR_MODE_COLOR
                             else -> PrintAttributes.COLOR_MODE_MONOCHROME
+                        }
+                    } else if ("sides-supported" == attribute.name) {
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            for (attributeValue in attribute.attributeValue) {
+                                val rawValue = attributeValue.value
+                                Timber.d("Duplex mode $rawValue")
+                                duplexMode = duplexMode or when (attributeValue.value) {
+                                    "one-sided" -> PrintAttributes.DUPLEX_MODE_NONE
+                                    "two-sided-long-edge" -> PrintAttributes.DUPLEX_MODE_LONG_EDGE
+                                    "two-sided-short-edge" -> PrintAttributes.DUPLEX_MODE_SHORT_EDGE
+                                    else -> 0
+                                }
+                            }
+                        }
+                    } else if ("sides-default" == attribute.name) {
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            var attributeValue: AttributeValue? = null
+                            if (attribute.attributeValue.isNotEmpty())
+                                attributeValue = attribute.attributeValue[0]
+                            val rawValue = attributeValue?.value
+                            Timber.d("Default duplex mode $rawValue")
+                            duplexDefault = when (attributeValue?.value) {
+                                "two-sided-long-edge" -> PrintAttributes.DUPLEX_MODE_LONG_EDGE
+                                "two-sided-short-edge" -> PrintAttributes.DUPLEX_MODE_SHORT_EDGE
+                                else -> PrintAttributes.DUPLEX_MODE_NONE
+                            }
                         }
                     } else if ("media-left-margin-supported" == attribute.name) {
                         marginMilsLeft = determineMarginFromAttribute(attribute)
@@ -253,7 +281,17 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                 colorDefault = PrintAttributes.COLOR_MODE_MONOCHROME
             }
 
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (duplexMode == 0)
+                    colorMode = PrintAttributes.DUPLEX_MODE_NONE
+
+                if (duplexDefault == 0)
+                    colorMode = PrintAttributes.DUPLEX_MODE_NONE
+            }
+
             builder.setColorModes(colorMode, colorDefault)
+            if (Build.VERSION.SDK_INT >= 23)
+                builder.setDuplexModes(duplexMode, duplexDefault)
             builder.setMinMargins(PrintAttributes.Margins(marginMilsLeft, marginMilsTop, marginMilsRight, marginMilsBottom))
             return builder.build()
         }
@@ -269,7 +307,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         var margin = Integer.MAX_VALUE
         for (value in attribute.attributeValue) {
             val valueMargin = (MM_IN_MILS * (value.value?.toInt() ?: 0) / 100).toInt()
-            margin = Math.min(margin, valueMargin)
+            margin = margin.coerceAtMost(valueMargin)
         }
         return margin
     }
@@ -501,6 +539,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                 "printer-resolution-supported",
                 "print-color-mode-default",
                 "print-color-mode-supported",
+                "sides-supported",
+                "sides-default",
                 "media-left-margin-supported",
                 "media-bottom-right-supported",
                 "media-top-margin-supported",

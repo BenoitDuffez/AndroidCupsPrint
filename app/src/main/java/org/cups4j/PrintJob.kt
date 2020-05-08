@@ -25,12 +25,19 @@ import java.io.InputStream
  * Print job class
  */
 class PrintJob internal constructor(builder: Builder) {
+
+    companion object {
+        const val DUPLEX_NONE = 0
+        const val DUPLEX_LONG_EDGE = 1
+        const val DUPLEX_SHORT_EDGE = 2
+    }
+
     val document: InputStream
     val copies: Int
     val pageRanges: String?
     val userName: String?
     val jobName: String?
-    var isDuplex = false
+    var duplex = DUPLEX_NONE
     var attributes: MutableMap<String, String>? = null
 
     init {
@@ -39,7 +46,7 @@ class PrintJob internal constructor(builder: Builder) {
         this.copies = builder.copies
         this.pageRanges = builder.pageRanges
         this.userName = builder.userName
-        this.isDuplex = builder.duplex
+        this.duplex = builder.duplex
         this.attributes = builder.attributes
     }
 
@@ -65,7 +72,7 @@ class PrintJob internal constructor(builder: Builder) {
         var pageRanges: String? = null
         var userName: String? = null
         var jobName: String? = null
-        var duplex = false
+        var duplex = DUPLEX_NONE
         var attributes: MutableMap<String, String>? = null
 
         /**
@@ -126,7 +133,7 @@ class PrintJob internal constructor(builder: Builder) {
          * @param duplex Duplex mode
          * @return Builder
          */
-        fun duplex(duplex: Boolean): Builder {
+        fun duplex(duplex: Int): Builder {
             this.duplex = duplex
             return this
         }
