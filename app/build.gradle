@@ -27,8 +27,8 @@ repositories {
 }
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.2'
+    compileSdkVersion 29
+    buildToolsVersion '28.0.3'
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
@@ -36,7 +36,7 @@ android {
     defaultConfig {
         applicationId "io.github.benoitduffez.cupsprint"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode buildVersionCode()
         versionName version
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -75,8 +75,8 @@ android {
 
 dependencies {
     implementation 'javax.jmdns:jmdns:3.4.1'
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    playstoreImplementation('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    playstoreImplementation('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {
         transitive = true
     }
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
@@ -99,17 +99,6 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
         xml.enabled = true
         html.enabled = true
     }
-
-    def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*']
-    def debugTree = fileTree(dir: "${buildDir}/intermediates/classes/debug", excludes: fileFilter)
-    def mainSrc = "${project.projectDir}/src/main/java"
-
-    sourceDirectories = files([mainSrc])
-    classDirectories = files([debugTree])
-    executionData = fileTree(dir: "$buildDir", includes: [
-            "jacoco/testDebugUnitTest.exec",
-            "outputs/code-coverage/connected/*coverage.ec"
-    ])
 }
 
 play {
