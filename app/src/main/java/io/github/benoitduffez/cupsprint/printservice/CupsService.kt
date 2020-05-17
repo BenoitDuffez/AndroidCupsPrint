@@ -47,7 +47,7 @@ class CupsService : PrintService() {
             return
         }
 
-        val url = printerId.localId
+        val url = printerId.localId.split('\\')[0]
 
         val id = printJob.id
         if (id == null) {
@@ -110,7 +110,12 @@ class CupsService : PrintService() {
             return
         }
 
-        val url = printerId.localId
+        val printer_desc = printerId.localId.split('\\')
+        val url = printer_desc[0]
+        val tray = when (printer_desc.size) {
+                2 ->  printer_desc[1]
+                else -> null
+        }
         try {
             val tmpUri = URI(url)
             val schemeHostPort = tmpUri.scheme + "://" + tmpUri.host + ":" + tmpUri.port
@@ -130,7 +135,7 @@ class CupsService : PrintService() {
             // Send print job
             executors.networkIO.execute {
                 try {
-                    printDocument(jobId, clientURL, printerURL, data, info)
+                    printDocument(jobId, clientURL, printerURL, tray, data, info)
                     executors.mainThread.execute { onPrintJobSent(printJob) }
                 } catch (e: Exception) {
                     executors.mainThread.execute { handleJobException(printJob, e) }
@@ -212,7 +217,7 @@ class CupsService : PrintService() {
             Timber.d("Tried to request a job status, but the printer ID is null")
             return false
         }
-        val url = printerId.localId
+        val url = printerId.localId.split('\\')[0]
 
         // Prepare job
         val clientURL: URL
@@ -311,7 +316,7 @@ class CupsService : PrintService() {
      * @param info       The print job's associated info
      */
     @Throws(Exception::class)
-    internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, fd: ParcelFileDescriptor, info: PrintJobInfo) {
+    internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, tray: String?, fd: ParcelFileDescriptor, info: PrintJobInfo) {
         val client = CupsClient(this, clientURL)
         val printer = client.getPrinter(printerURL)?.let { printer ->
             val cupsPrinter = CupsPrinter(printerURL, printer.name, true)
@@ -322,9 +327,9 @@ class CupsService : PrintService() {
         val doc = ParcelFileDescriptor.AutoCloseInputStream(fd)
         val attributes = info.attributes
 
-
         val builder = org.cups4j.PrintJob.Builder(doc)
         builder.copies(info.copies)
+        builder.tray(tray)
 
         val pages = info.pages
         if (pages != null && pages[0] != PageRange.ALL_PAGES) {

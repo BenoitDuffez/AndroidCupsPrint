@@ -85,14 +85,14 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         Toast.makeText(printService, toast, Toast.LENGTH_SHORT).show()
 
         val printersInfo = ArrayList<PrinterInfo>(printers.size)
-        for (url in printers.keys) {
-            val printerId = printService.generatePrinterId(url)
+        for (id in printers.keys) {
+            val printerId = printService.generatePrinterId(id)
             var new = true
 
             // Check if the "discovered" printer was already known
             for (printer in getPrinters())
             {
-                if (printer.id.localId == url)
+                if (printer.id.localId == id)
                 {
                     new = false
                     break
@@ -100,7 +100,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             }
 
             if (new)
-                printersInfo.add(PrinterInfo.Builder(printerId, printers[url] ?: error("Null printer"), PrinterInfo.STATUS_IDLE).build())
+                printersInfo.add(PrinterInfo.Builder(printerId, printers[id] ?: error("Null printer"), PrinterInfo.STATUS_IDLE).build())
         }
 
         addPrinters(printersInfo)
@@ -109,10 +109,10 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
     /**
      * Ran in the background thread, will check whether a printer is valid
      *
-     * @return The printer capabilities if the printer is available, null otherwise
+     * @return true if the printer is available, false otherwise
      */
     @Throws(Exception::class)
-    fun checkPrinter(url: String?, printerId: PrinterId): PrinterCapabilitiesInfo? {
+    fun getPrinter(url: String?): CupsPrinter? {
         if (url == null || !url.startsWith("http://") && !url.startsWith("https://")) {
             return null
         }
@@ -133,11 +133,11 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         }
 
         val client = CupsClient(printService, clientURL).setPath(path ?: "/")
-        val testPrinter: CupsPrinter?
+        val printer: CupsPrinter?
 
         // Check if we need to save the server certs if we don't trust the connection
         try {
-            testPrinter = client.getPrinter(printerURL)
+            printer = client.getPrinter(printerURL)
         } catch (e: SSLException) {
             serverCerts = client.serverCerts
             unverifiedHost = client.host
@@ -151,7 +151,20 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             throw e
         }
 
-        if (testPrinter == null) {
+        return printer
+    }
+
+    /**
+     * Ran in the background thread, will check whether a printer is valid
+     *
+     * @return The printer capabilities if the printer is available, null otherwise
+     */
+    @Throws(Exception::class)
+    fun getPrinterCapabilities(id: String, printerId: PrinterId): PrinterCapabilitiesInfo? {
+        val url = id.split('\\')[0]
+        val printerURL = URL(url)
+
+        if (getPrinter(url) == null) {
             Timber.e("Printer not responding. Printer on fire?")
         } else {
             val propertyMap = HashMap<String, String>()
@@ -353,7 +366,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                     printers.add(printer)
                 }
             }
-            Timber.d("onPrinterChecked: we had ${getPrinters().size}printers, we now have ${printers.size}")
+            Timber.d("onPrinterChecked: we had ${getPrinters().size} printers, we now have ${printers.size}")
             addPrinters(printers)
         }
     }
@@ -382,9 +395,23 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         val result = mdns.scan()
         mdnsPrinterDiscovery = null
         result.printers?.forEach { rec ->
-            val mDnsUrl = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
-            printers[mDnsUrl] = rec.nickname
-            Timber.d("mDNS scan found printer ${rec.nickname} at URL: $mDnsUrl")
+            val url = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
+            val printer = getPrinter(url)
+
+            if (printer == null) {
+                Timber.e("Printer not responding. Printer on fire?")
+            } else {
+                if (printer.trays.size <= 1) {
+                    printers[url] = rec.nickname
+                    Timber.d("mDNS scan found printer ${rec.nickname} at URL: $url")
+                } else {
+                    for (tray in printer.trays) {
+                        val nickname = "%s [%s]".format(rec.nickname, tray.replace('-', ' ').capitalize())
+                        printers[url + "\\" + tray] = nickname
+                        Timber.d("mDNS scan found tray $nickname at URL: $url")
+                    }
+                }
+            }
         }
     }
 
@@ -440,7 +467,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             Timber.i("Checking printer status: $printerId")
 
             try {
-                val printerCapabilitiesInfo = checkPrinter(printerId.localId, printerId)
+                val printerCapabilitiesInfo = getPrinterCapabilities(printerId.localId, printerId)
                 if (ippPrintersStateTracking[printerId]?.isAborted() == true) {
                     Timber.v("Checking Printer is aborted")
                 } else {
@@ -508,7 +535,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             HttpURLConnection.HTTP_NOT_FOUND -> Toast.makeText(printService, R.string.err_404, Toast.LENGTH_LONG).show()
             HttpURLConnection.HTTP_BAD_REQUEST -> Toast.makeText(printService, R.string.err_400, Toast.LENGTH_LONG).show()
             HttpURLConnection.HTTP_UNAUTHORIZED -> try {
-                val printerUri = URI(printerId.localId)
+                val url = printerId.localId.split('\\')[0]
+                val printerUri = URI(url)
                 val printersUrl = printerUri.scheme + "://" + printerUri.host + ":" + printerUri.port + "/printers/"
                 val dialog = Intent(printService, BasicAuthActivity::class.java)
                 dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl)

@@ -34,6 +34,7 @@ class PrintJob internal constructor(builder: Builder) {
 
     val document: InputStream
     val copies: Int
+    var tray: String?
     val pageRanges: String?
     val userName: String?
     val jobName: String?
@@ -44,6 +45,7 @@ class PrintJob internal constructor(builder: Builder) {
         this.document = builder.document
         this.jobName = builder.jobName
         this.copies = builder.copies
+        this.tray = builder.tray
         this.pageRanges = builder.pageRanges
         this.userName = builder.userName
         this.duplex = builder.duplex
@@ -69,6 +71,7 @@ class PrintJob internal constructor(builder: Builder) {
     class Builder {
         var document: InputStream
         var copies = 1
+        var tray: String? = null
         var pageRanges: String? = null
         var userName: String? = null
         var jobName: String? = null
@@ -158,6 +161,11 @@ class PrintJob internal constructor(builder: Builder) {
          */
         fun attributes(attributes: MutableMap<String, String>): Builder {
             this.attributes = attributes
+            return this
+        }
+
+        fun tray(tray: String?): Builder {
+            this.tray = tray
             return this
         }
 

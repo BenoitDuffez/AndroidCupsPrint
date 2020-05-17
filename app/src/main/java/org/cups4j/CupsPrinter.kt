@@ -52,7 +52,12 @@ class CupsPrinter(
         /**
          * Is this the default printer
          */
-        var isDefault: Boolean) {
+        var isDefault: Boolean,
+
+        /**
+         * Trays available in this printer
+         */
+        val trays: ArrayList<String> = ArrayList<String>()) {
     /**
      * Description attribute for this printer
      */
@@ -118,12 +123,14 @@ class CupsPrinter(
             addAttribute(attributes, "job-attributes", rangesString.toString())
         }
 
-
         addAttribute(attributes, "job-attributes", when (duplex) {
             PrintJob.DUPLEX_LONG_EDGE -> "sides:keyword:two-sided-long-edge"
             PrintJob.DUPLEX_SHORT_EDGE -> "sides:keyword:two-sided-short-edge"
             else -> "sides:keyword:one-sided"
         })
+
+        if (printJob.tray != null)
+            addAttribute(attributes, "media-source", "media-source:keyword:" + printJob.tray)
 
         val command = IppPrintJobOperation(context)
         val ippResult = command.request(printerURL, attributes, document)
