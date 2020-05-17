@@ -87,7 +87,20 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         val printersInfo = ArrayList<PrinterInfo>(printers.size)
         for (url in printers.keys) {
             val printerId = printService.generatePrinterId(url)
-            printersInfo.add(PrinterInfo.Builder(printerId, printers[url] ?: error("Null printer"), PrinterInfo.STATUS_IDLE).build())
+            var new = true
+
+            // Check if the "discovered" printer was already known
+            for (printer in getPrinters())
+            {
+                if (printer.id.localId == url)
+                {
+                    new = false
+                    break
+                }
+            }
+
+            if (new)
+                printersInfo.add(PrinterInfo.Builder(printerId, printers[url] ?: error("Null printer"), PrinterInfo.STATUS_IDLE).build())
         }
 
         addPrinters(printersInfo)
