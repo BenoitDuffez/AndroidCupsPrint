@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Impresión Android CUPS </string>
+    <string name="activity_add_label">Añade una impresora CUPS</string>
+    <string name="add_autodetect">Puede detectar automáticamente las impresoras en su servidor introduciendo su IP o nombre de host a continuación</string>
+    <string name="add_full_manual">Como alternativa, puede introducir la URI completa de la impresora en los campos de abajo</string>
+    <string name="add_button">Añadir impresora</string>
+    <string name="add_name">Nombre de impresora</string>
+    <string name="add_search_button">Buscar impresoras</cuerda>
+    <string name="add_server_ip">Dirección IP o nombre de host</string>
+    <string name="add_url">http://serveur-cups.domaine:631/printers/Nombre_de_impresora</string>
+    <plurals name="printer_discovery_result">
+        <item quantity="zero">No se encontraron impresoras</item>
+        <item quantity="one">Encontrada %d impresora</item>
+        <item quantity="other">Encontradas %d impresora</item>
+    </plurals>
+    <string name="printer_not_responding">La impresora no responde. Por favor, asegúrate de que esté encendido y disponible en %1$s</string>
+    <string name="err_document_fd_null">Imposible leer el documento a imprimir</string>
+    <string name="err_add_printer_empty_name">El nombre de la impresora no puede estar vacío</string>
+    <string name="err_add_printer_empty_url">La URL de la impresora no puede estar vacía</string>
+    <string name="basic_auth_button">Autenticar</string>
+    <string name="basic_auth_info">Su servidor ha solicitado una autenticación básica, por eso necesita las credenciales. Por favor, introdúzcalos abajo:</string>
+    <string name="basic_auth_login">Nombre de usuario</string>
+    <string name="basic_auth_password">Contraseña</string>
+    <string name="basic_auth_title">Autenticación HTTP básica</string>
+    <string name="err_http_upgrade">Este host rechaza las conexiones HTTP, por favor use el acceso HTTPS</string>
+    <string name="host_not_verified_abort_button">Abortar</string>
+    <string name="host_not_verified_activity_title">Anfitrión no verificado</string>
+    <string name="host_not_verified_info">Este host presentó un certificado SSL para el cual su dispositivo no pudo verificar el nombre del host. Todas las impresoras ubicadas en este anfitrión serán rechazadas hasta que usted acepte explícitamente este anfitrión. Por favor, indique si desea confiar en este anfitrión:</string>
+    <string name="host_not_verified_title">Host %1$s no verificado</string>
+    <string name="host_not_verified_trust_button">Confiar host</string>
+    <string name="untrusted_abort_button">Abortar la conexión</string>
+    <string name="untrusted_couldnt_trust">No podemos guardar el certificado del servidor. Por favor, compruebe los registros de la aplicación y envíe una solicitud de fallo al desarrollador.</string>
+    <string name="untrusted_info">Su servidor envió un certificado no confiable por su dispositivo. Por favor, revise los detalles del certificado a continuación, y elija si confía o no en él:</string>
+    <string name="untrusted_title">Conexión SSL no fiable</string>
+    <string name="untrusted_trust_button">Aceptar la conexión</string>
+    <string name="untrusted_trusted">Certificados añadidos a la lista de confianza. Por favor, intente imprimir de nuevo.</string>
+    <string name="err_printer_null_when_printing">No puedo encontrar la impresora, ¿está disponible?</string>
+    <string name="err_job_econnreset">Imposible comprobar el estado del trabajo de impresión #%1$d porque la conexión con el servidor CUPS fue interrumpida</string>
+    <string name="err_job_exception">Imposible manejar la impresión: %1$s (%2$s)</string>
+    <string name="err_job_not_found">Imposible encontrar la tarea #%1$d, ¿desea terminada?</string>
+    <string name="err_job_socket_timeout">Imposible imprimir el documento: la conexión expiró. Por favor, compruebe su conexión de red.</string>
+    <string name="err_printer_network_unreachable">Imposible consultar el estado de la impresora: red no encontrada. Por favor, compruebe su conexión de red.</string>
+    <string name="err_printer_socket_timeout">Imposible consultar el estado de la impresora: conexión expirada. Por favor, compruebe su conexión de red.</string>
+    <string name="err_printer_unknown_host">Imposible consultar el estado de la impresora: host desconocido. Por favor, compruebe su conexión de red.</string>
+    <string name="print_service_vendor">Cliente genérico CUPS</string>
+    <string name="err_400">El servidor CUPS indicó que enviamos una solicitud HTTP errónea. Esto se debe a una mala configuración del servidor o a una mala dirección URL. Por favor, compruebe ambos.</string>
+    <string name="err_404">El nombre de la impresora no se encontró en el servidor (HTTP 404). Por favor, compruebe el nombre de la impresora.</string>
+    <string name="manage_printers_none">No hay impresoras añadidas manualmente. Puedes añadir uno en los Ajustes la aplicación, en la sección de Impresión.</string>
+    <string name="manage_printers_help">Aquí está la lista de impresoras añadidas manualmente. Haga clic en uno de ellos para borrarlo (¡sin confirmación!)</string>
+    <string name="print_job_queue_fail_malformed_url">Imposible poner en cola la impresión: %1$s</string>
+    <string name="print_job_queue_fail_uri_syntax">Imposible descifrar la dirección: %1$s</string>
+    <string name="cleartext_error_android_9">Desde Android 9.0, las conexiones HTTP no seguras están prohibidas. Por favor, pase su servidor/impresora CUPS a SSL/TLS.</string>
+</resources>
