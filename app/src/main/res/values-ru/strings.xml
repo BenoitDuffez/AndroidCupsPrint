@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Android CUPS Print</string>
+    <string name="add_url">http://server.tld:631/printers/Printer_Name</string>
+    <string name="add_name">Имя принтера</string>
+    <string name="add_button">Добавить принтер</string>
+    <string name="add_search_button">Поиск принтеров</string>
+    <string name="activity_add_label">Добавить CUPS принтер</string>
+    <string name="add_full_manual">В качестве альтернативы можно ввести полный URI и имя принтера в поля ниже</string>
+    <string name="add_server_ip">IP-адрес сервера или имя хоста</string>
+    <string name="add_autodetect">Вы можете либо автоматически определить принтеры с вашего сервера, введя его IP-адрес или введя имя хоста ниже</string>
+    <plurals name="printer_discovery_result">
+        <item quantity="zero">Поиск не нашел принтер</item>
+        <item quantity="one">Найден %d принтер</item>
+        <item quantity="other">Найдено %d принтеров</item>
+    </plurals>
+    <string name="printer_not_responding">Принтер не отвечает. Пожалуйста, проверьте, включен и доступен ли он по адресу %1$s</string>
+    <string name="err_document_fd_null">Невозможно прочитать документ для печати</string>
+    <string name="err_add_printer_empty_name">Имя принтера не может быть пустым</string>
+    <string name="err_add_printer_empty_url">URL-адрес принтера не может быть пустым</string>
+    <string name="untrusted_title">Ненадежное SSL-соединение</string>
+    <string name="untrusted_info">Ваш сервер отправил сертификат, которому не доверяет ваше устройство. Пожалуйста, просмотрите информацию о сертификате ниже и выберите, согласны ли вы доверять ему или нет:</string>
+    <string name="untrusted_certinfo"
+            translatable="false">
+        Issuer: CN=test-server\n
+        Validity\n
+        Not Before: Aug 21 19:36:21 2016 GMT\n
+        Not After : Aug 19 19:36:21 2026 GMT\n
+        Subject: CN=test-server\n
+        Subject Public Key Info:\n
+        Public Key Algorithm: rsaEncryption\n
+        Public-Key: (2048 bit)\n
+    </string>
+    <string name="untrusted_trust_button">Доверенное соединение</string>
+    <string name="untrusted_abort_button">Прервать соединение</string>
+    <string name="untrusted_trusted">Сертификаты добавлены в список доверенных. Пожалуйста, повторите попытку с этим принтером.</string>
+    <string name="untrusted_couldnt_trust">Не удалось сохранить сертификаты сервера. Пожалуйста, просмотрите журналы приложения и отправьте запрос об ошибке разработчику.</string>
+    <string name="basic_auth_title">HTTP Basic Auth</string>
+    <string name="basic_auth_info">Ваш сервер отправил базовый запрос auth, но нам нужно, чтобы вы предоставили учетные данные. Пожалуйста, заполните их ниже:</string>
+    <string name="basic_auth_login">Имя пользователя</string>
+    <string name="basic_auth_password">Пароль</string>
+    <string name="basic_auth_button">Сохранить учетные данные</string>
+    <string name="host_not_verified_title">Имя хоста %1$s не проверено</string>
+    <string name="host_not_verified_info">Этот хост представил сертификат SSL, для которого ваше устройство не смогло проверить имя хоста. Все принтеры, обслуживаемые этим хостом, будут отключены до тех пор, пока вы явно не начнете доверять ему. Пожалуйста, сообщите, хотите ли вы доверять этому узлу или нет:</string>
+    <string name="host_not_verified_trust_button">Доверенный хост</string>
+    <string name="host_not_verified_abort_button">Прервать</string>
+    <string name="host_not_verified_activity_title">Хост не проверен</string>
+    <string name="err_http_upgrade">Этот хост отказывает в обычном HTTP, пожалуйста, используйте HTTPS доступ</string>
+    <string name="err_printer_null_when_printing">Не могу найти принтер, есть ли он в наличии?</string>
+    <string name="err_printer_socket_timeout">Не удалось запросить состояние принтера: таймаут сокета. Пожалуйста, проверьте подключение к сети.</string>
+    <string name="err_printer_unknown_host">Не удалось запросить состояние принтера: неизвестный хост. Пожалуйста, проверьте подключение к сети.</string>
+    <string name="err_printer_network_unreachable">Не удалось запросить состояние принтера: сеть недоступна. Пожалуйста, проверьте подключение к сети.</string>
+    <string name="err_400">Сервер CUPS указал, что мы отправили плохой запрос. Это либо неправильная конфигурация сервера, либо неверный URL. Пожалуйста, проверьте оба варианта.</string>
+    <string name="err_404">Имя принтера не найдено на сервере (HTTP 404). Пожалуйста, проверьте его имя.</string>
+    <string name="err_job_econnreset">Не удалось проверить статус задания #%1$d, потому что соединение с сервером CUPS было сброшено</string>
+    <string name="err_job_not_found">Не могу найти задание #%1$d, оно уже окончено?</string>
+    <string name="err_job_socket_timeout">Не удалось распечатать документ: таймаут сокета. Пожалуйста, проверьте подключение к сети.</string>
+    <string name="err_job_exception">Не удалось обработать задание: %1$s (%2$s)</string>
+    <string name="print_service_vendor">Общий клиент CUPS</string>
+    <string name="manage_printers_none">Принтеры, введенные вручную, отсутствуют. Их можно добавить в приложении "Настройки" в разделе "Печать".</string>
+    <string name="manage_printers_help">Вот принтеры, добавленные вручную. Нажмите на один элемент, чтобы удалить его (без подтверждения!)</string>
+    <string name="print_job_queue_fail_malformed_url">Не удалось поставить задание на печать в очередь: %1$s</string>
+    <string name="print_job_queue_fail_uri_syntax">Не удалось обработать URI: %1$s</string>
+    <string name="cleartext_error_android_9">Трафик с чистым текстом больше не разрешен в Android 9.0. Пожалуйста, включите SSL/TLS на сервере/принтере CUPS.</string>
+
+</resources>
