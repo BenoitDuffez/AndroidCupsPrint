@@ -16,7 +16,7 @@ received a copy of the GNU Lesser General Public License along with this
 program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-import java.util.LinkedHashMap
+import java.util.*
 
 class EnumItemMap(internal var tag: String, internal var tagName: String, internal var description: String)
     : LinkedHashMap<Int, EnumItem>()

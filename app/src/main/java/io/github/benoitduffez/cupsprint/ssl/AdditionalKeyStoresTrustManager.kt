@@ -3,8 +3,7 @@ package io.github.benoitduffez.cupsprint.ssl
 import java.security.KeyStore
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
-import java.util.ArrayList
-import java.util.Arrays
+import java.util.*
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
 

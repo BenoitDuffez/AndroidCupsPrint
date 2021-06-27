@@ -29,18 +29,12 @@ package org.cups4j.operations.ipp
 
 import android.content.Context
 import ch.ethz.vppserver.ippclient.IppTag
-import org.cups4j.CupsClient
-import org.cups4j.CupsPrinter
-import org.cups4j.JobStateEnum
-import org.cups4j.PrintJobAttributes
-import org.cups4j.WhichJobsEnum
+import org.cups4j.*
 import org.cups4j.operations.IppOperation
 import java.io.UnsupportedEncodingException
 import java.net.URL
 import java.nio.ByteBuffer
-import java.util.ArrayList
-import java.util.Date
-import java.util.HashMap
+import java.util.*
 
 class IppGetJobsOperation(context: Context) : IppOperation(context) {
     init {
@@ -86,7 +80,7 @@ class IppGetJobsOperation(context: Context) : IppOperation(context) {
         }
 
         ippBuf = IppTag.getEnd(ippBuf)
-        ippBuf?.flip()
+        ippBuf.flip()
         return ippBuf
     }
 

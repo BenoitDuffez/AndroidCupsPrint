@@ -24,16 +24,14 @@ package org.cups4j.operations.ipp
  */
 
 import android.content.Context
+import ch.ethz.vppserver.ippclient.IppTag
 import org.cups4j.CupsClient
 import org.cups4j.PrintRequestResult
 import org.cups4j.operations.IppOperation
-
 import java.io.UnsupportedEncodingException
 import java.net.URL
 import java.nio.ByteBuffer
-import java.util.HashMap
-
-import ch.ethz.vppserver.ippclient.IppTag
+import java.util.*
 
 class IppCancelJobOperation(context: Context) : IppOperation(context) {
     init {
@@ -66,7 +64,7 @@ class IppCancelJobOperation(context: Context) : IppOperation(context) {
         }
 
         ippBuf = IppTag.getEnd(ippBuf)
-        ippBuf?.flip()
+        ippBuf.flip()
         return ippBuf
     }
 

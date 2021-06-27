@@ -19,7 +19,7 @@ package org.cups4j
  */
 
 import java.net.URL
-import java.util.Date
+import java.util.*
 
 /**
  * Holds print job attributes

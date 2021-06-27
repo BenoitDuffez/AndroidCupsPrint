@@ -23,7 +23,7 @@ import org.cups4j.operations.ipp.IppGetJobAttributesOperation
 import org.cups4j.operations.ipp.IppGetJobsOperation
 import org.cups4j.operations.ipp.IppPrintJobOperation
 import java.net.URL
-import java.util.HashMap
+import java.util.*
 
 /**
  * Represents a printer on your IPP server
@@ -52,7 +52,12 @@ class CupsPrinter(
         /**
          * Is this the default printer
          */
-        var isDefault: Boolean) {
+        var isDefault: Boolean,
+
+        /**
+         * Trays available in this printer
+         */
+        val trays: ArrayList<String> = ArrayList<String>()) {
     /**
      * Description attribute for this printer
      */
@@ -78,6 +83,7 @@ class CupsPrinter(
         val jobName = printJob.jobName ?: "Unknown"
         val copies = printJob.copies
         val pageRanges = printJob.pageRanges
+        val duplex = printJob.duplex
 
         var attributes: MutableMap<String, String>? = printJob.attributes
 
@@ -117,9 +123,15 @@ class CupsPrinter(
             addAttribute(attributes, "job-attributes", rangesString.toString())
         }
 
-        if (printJob.isDuplex) {
-            addAttribute(attributes, "job-attributes", "sides:keyword:two-sided-long-edge")
-        }
+        addAttribute(attributes, "job-attributes", when (duplex) {
+            PrintJob.DUPLEX_LONG_EDGE -> "sides:keyword:two-sided-long-edge"
+            PrintJob.DUPLEX_SHORT_EDGE -> "sides:keyword:two-sided-short-edge"
+            else -> "sides:keyword:one-sided"
+        })
+
+        if (printJob.tray != null)
+            addAttribute(attributes, "media-source", "media-source:keyword:" + printJob.tray)
+
         val command = IppPrintJobOperation(context)
         val ippResult = command.request(printerURL, attributes, document)
         //    IppResultPrinter.print(ippResult);

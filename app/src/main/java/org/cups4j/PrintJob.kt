@@ -25,21 +25,30 @@ import java.io.InputStream
  * Print job class
  */
 class PrintJob internal constructor(builder: Builder) {
+
+    companion object {
+        const val DUPLEX_NONE = 0
+        const val DUPLEX_LONG_EDGE = 1
+        const val DUPLEX_SHORT_EDGE = 2
+    }
+
     val document: InputStream
     val copies: Int
+    var tray: String?
     val pageRanges: String?
     val userName: String?
     val jobName: String?
-    var isDuplex = false
+    var duplex = DUPLEX_NONE
     var attributes: MutableMap<String, String>? = null
 
     init {
         this.document = builder.document
         this.jobName = builder.jobName
         this.copies = builder.copies
+        this.tray = builder.tray
         this.pageRanges = builder.pageRanges
         this.userName = builder.userName
-        this.isDuplex = builder.duplex
+        this.duplex = builder.duplex
         this.attributes = builder.attributes
     }
 
@@ -62,10 +71,11 @@ class PrintJob internal constructor(builder: Builder) {
     class Builder {
         var document: InputStream
         var copies = 1
+        var tray: String? = null
         var pageRanges: String? = null
         var userName: String? = null
         var jobName: String? = null
-        var duplex = false
+        var duplex = DUPLEX_NONE
         var attributes: MutableMap<String, String>? = null
 
         /**
@@ -126,7 +136,7 @@ class PrintJob internal constructor(builder: Builder) {
          * @param duplex Duplex mode
          * @return Builder
          */
-        fun duplex(duplex: Boolean): Builder {
+        fun duplex(duplex: Int): Builder {
             this.duplex = duplex
             return this
         }
@@ -151,6 +161,11 @@ class PrintJob internal constructor(builder: Builder) {
          */
         fun attributes(attributes: MutableMap<String, String>): Builder {
             this.attributes = attributes
+            return this
+        }
+
+        fun tray(tray: String?): Builder {
+            this.tray = tray
             return this
         }
 

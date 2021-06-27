@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import io.github.benoitduffez.cupsprint.R
 import kotlinx.android.synthetic.main.activity_manage_manual_printers.*
 import kotlinx.android.synthetic.main.manage_printers_list_item.view.*
-import java.util.ArrayList
+import java.util.*
 
 class ManageManualPrintersActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

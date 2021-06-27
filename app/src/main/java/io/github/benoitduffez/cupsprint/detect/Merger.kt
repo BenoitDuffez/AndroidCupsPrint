@@ -1,7 +1,7 @@
 package io.github.benoitduffez.cupsprint.detect
 
 import timber.log.Timber
-import java.util.ArrayList
+import java.util.*
 
 internal class Merger {
     fun merge(httpRecs: List<PrinterRec>, httpsRecs: MutableList<PrinterRec>) {

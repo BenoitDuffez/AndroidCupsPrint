@@ -3,13 +3,8 @@ package io.github.benoitduffez.cupsprint.ssl
 import java.io.IOException
 import java.net.InetAddress
 import java.net.Socket
-import java.security.KeyManagementException
-import java.security.KeyStore
-import java.security.KeyStoreException
-import java.security.NoSuchAlgorithmException
-import java.security.UnrecoverableKeyException
+import java.security.*
 import java.security.cert.X509Certificate
-
 import javax.net.ssl.KeyManager
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory

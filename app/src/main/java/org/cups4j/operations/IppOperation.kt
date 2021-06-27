@@ -31,13 +31,7 @@ import ch.ethz.vppserver.schema.ippclient.Attribute
 import io.github.benoitduffez.cupsprint.HttpConnectionManagement
 import io.github.benoitduffez.cupsprint.ssl.AdditionalKeyStoresSSLSocketFactory
 import timber.log.Timber
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.SequenceInputStream
-import java.io.UnsupportedEncodingException
+import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.ByteBuffer
@@ -107,7 +101,7 @@ abstract class IppOperation(val context: Context) {
         }
 
         ippBuf = IppTag.getEnd(ippBuf)
-        ippBuf?.flip()
+        ippBuf.flip()
         return ippBuf
     }
 

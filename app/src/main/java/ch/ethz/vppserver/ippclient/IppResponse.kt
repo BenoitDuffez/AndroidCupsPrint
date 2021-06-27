@@ -6,7 +6,7 @@ import ch.ethz.vppserver.schema.ippclient.AttributeValue
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.SocketChannel
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Copyright (C) 2008 ITS of ETH Zurich, Switzerland, Sarah Windler Burri
@@ -156,7 +156,7 @@ class IppResponse {
                         continue@loop
                     }
                     0x13 -> {
-                        setNoValueAttribute(tag)
+                        setNoValueAttribute()
                         continue@loop
                     }
                     0x21 -> {
@@ -304,7 +304,7 @@ class IppResponse {
 
     /**
      *
-     * @param channel
+     * @param buffer
      * @return
      * @throws IOException
      */
@@ -319,16 +319,14 @@ class IppResponse {
 
         val result = IppResult()
         result.buf = buffer.array()
-        var ippHeaderResponse = false
 
         // be careful: HTTP and IPP could be transmitted in different set of
         // buffers.
         // see RFC2910, http://www.ietf.org/rfc/rfc2910, page 19
         // read IPP header
-        if (!ippHeaderResponse && buffer.hasRemaining()) {
+        if (buffer.hasRemaining()) {
             _buf = buffer
             result.ippStatusResponse = ippHeader
-            ippHeaderResponse = true
         }
 
         _buf = buffer
@@ -588,9 +586,8 @@ class IppResponse {
 
     /**
      *
-     * @param tag
      */
-    private fun setNoValueAttribute(tag: Int) {
+    private fun setNoValueAttribute() {
         val length = _buf!!.short
         if (length.toInt() != 0 && _buf!!.remaining() >= length) {
             setAttributeName(length)

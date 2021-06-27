@@ -1,8 +1,12 @@
 package io.github.benoitduffez.cupsprint.printservice
 
+import android.os.Build
 import android.os.Handler
 import android.os.ParcelFileDescriptor
+import android.print.PageRange
+import android.print.PrintAttributes
 import android.print.PrintJobId
+import android.print.PrintJobInfo
 import android.printservice.PrintJob
 import android.printservice.PrintService
 import android.printservice.PrinterDiscoverySession
@@ -16,13 +20,8 @@ import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.net.MalformedURLException
-import java.net.SocketException
-import java.net.SocketTimeoutException
-import java.net.URI
-import java.net.URISyntaxException
-import java.net.URL
-import java.util.HashMap
+import java.net.*
+import java.util.*
 import javax.net.ssl.SSLException
 
 /**
@@ -48,7 +47,7 @@ class CupsService : PrintService() {
             return
         }
 
-        val url = printerId.localId
+        val url = printerId.localId.split('\\')[0]
 
         val id = printJob.id
         if (id == null) {
@@ -111,7 +110,12 @@ class CupsService : PrintService() {
             return
         }
 
-        val url = printerId.localId
+        val printer_desc = printerId.localId.split('\\')
+        val url = printer_desc[0]
+        val tray = when (printer_desc.size) {
+                2 ->  printer_desc[1]
+                else -> null
+        }
         try {
             val tmpUri = URI(url)
             val schemeHostPort = tmpUri.scheme + "://" + tmpUri.host + ":" + tmpUri.port
@@ -125,12 +129,13 @@ class CupsService : PrintService() {
                 Toast.makeText(this, R.string.err_document_fd_null, Toast.LENGTH_LONG).show()
                 return
             }
+            val info = printJob.info
             val jobId = printJob.id
 
             // Send print job
             executors.networkIO.execute {
                 try {
-                    printDocument(jobId, clientURL, printerURL, data)
+                    printDocument(jobId, clientURL, printerURL, tray, data, info)
                     executors.mainThread.execute { onPrintJobSent(printJob) }
                 } catch (e: Exception) {
                     executors.mainThread.execute { handleJobException(printJob, e) }
@@ -212,7 +217,7 @@ class CupsService : PrintService() {
             Timber.d("Tried to request a job status, but the printer ID is null")
             return false
         }
-        val url = printerId.localId
+        val url = printerId.localId.split('\\')[0]
 
         // Prepare job
         val clientURL: URL
@@ -308,9 +313,10 @@ class CupsService : PrintService() {
      * @param clientURL  The client URL
      * @param printerURL The printer URL
      * @param fd         The document to print, as a [ParcelFileDescriptor]
+     * @param info       The print job's associated info
      */
     @Throws(Exception::class)
-    internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, fd: ParcelFileDescriptor) {
+    internal fun printDocument(jobId: PrintJobId, clientURL: URL, printerURL: URL, tray: String?, fd: ParcelFileDescriptor, info: PrintJobInfo) {
         val client = CupsClient(this, clientURL)
         val printer = client.getPrinter(printerURL)?.let { printer ->
             val cupsPrinter = CupsPrinter(printerURL, printer.name, true)
@@ -319,7 +325,34 @@ class CupsService : PrintService() {
         }
 
         val doc = ParcelFileDescriptor.AutoCloseInputStream(fd)
-        val job = org.cups4j.PrintJob.Builder(doc).build()
+        val attributes = info.attributes
+
+        val builder = org.cups4j.PrintJob.Builder(doc)
+        builder.copies(info.copies)
+        builder.tray(tray)
+
+        val pages = info.pages
+        if (pages != null && pages[0] != PageRange.ALL_PAGES) {
+            val ranges = ArrayList<String>()
+            var start:Int
+            var end:Int
+            for (range in pages) {
+                start = range.start
+                end = range.end
+                ranges.add(StringBuilder("$start-$end").toString())
+            }
+            builder.pageRanges(ranges.joinToString(","))
+        }
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            builder.duplex(when (attributes.duplexMode) {
+                PrintAttributes.DUPLEX_MODE_LONG_EDGE -> org.cups4j.PrintJob.DUPLEX_LONG_EDGE
+                PrintAttributes.DUPLEX_MODE_SHORT_EDGE -> org.cups4j.PrintJob.DUPLEX_SHORT_EDGE
+                else -> org.cups4j.PrintJob.DUPLEX_NONE
+            })
+        }
+
+        val job = builder.build()
         val result = printer?.print(job, this) ?: throw NullPrinterException()
         jobs[jobId] = result.jobId
     }

@@ -1,11 +1,10 @@
 package io.github.benoitduffez.cupsprint.ssl
 
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import android.security.KeyChain
 import android.security.KeyChainException
 import android.text.TextUtils
-import io.github.benoitduffez.cupsprint.CupsPrintApp
 import timber.log.Timber
 import java.net.Socket
 import java.security.Principal

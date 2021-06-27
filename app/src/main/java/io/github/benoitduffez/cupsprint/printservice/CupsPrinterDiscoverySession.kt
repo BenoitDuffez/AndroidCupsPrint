@@ -29,18 +29,10 @@ import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.net.ConnectException
-import java.net.HttpURLConnection
-import java.net.MalformedURLException
-import java.net.SocketTimeoutException
-import java.net.URI
-import java.net.URISyntaxException
-import java.net.URL
-import java.net.UnknownHostException
+import java.net.*
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLPeerUnverifiedException
@@ -93,9 +85,22 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         Toast.makeText(printService, toast, Toast.LENGTH_SHORT).show()
 
         val printersInfo = ArrayList<PrinterInfo>(printers.size)
-        for (url in printers.keys) {
-            val printerId = printService.generatePrinterId(url)
-            printersInfo.add(PrinterInfo.Builder(printerId, printers[url]!!, PrinterInfo.STATUS_IDLE).build())
+        for (id in printers.keys) {
+            val printerId = printService.generatePrinterId(id)
+            var new = true
+
+            // Check if the "discovered" printer was already known
+            for (printer in getPrinters())
+            {
+                if (printer.id.localId == id)
+                {
+                    new = false
+                    break
+                }
+            }
+
+            if (new)
+                printersInfo.add(PrinterInfo.Builder(printerId, printers[id] ?: error("Null printer"), PrinterInfo.STATUS_IDLE).build())
         }
 
         addPrinters(printersInfo)
@@ -104,10 +109,10 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
     /**
      * Ran in the background thread, will check whether a printer is valid
      *
-     * @return The printer capabilities if the printer is available, null otherwise
+     * @return true if the printer is available, false otherwise
      */
     @Throws(Exception::class)
-    fun checkPrinter(url: String?, printerId: PrinterId): PrinterCapabilitiesInfo? {
+    fun getPrinter(url: String?): CupsPrinter? {
         if (url == null || !url.startsWith("http://") && !url.startsWith("https://")) {
             return null
         }
@@ -128,11 +133,11 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         }
 
         val client = CupsClient(printService, clientURL).setPath(path ?: "/")
-        val testPrinter: CupsPrinter?
+        val printer: CupsPrinter?
 
         // Check if we need to save the server certs if we don't trust the connection
         try {
-            testPrinter = client.getPrinter(printerURL)
+            printer = client.getPrinter(printerURL)
         } catch (e: SSLException) {
             serverCerts = client.serverCerts
             unverifiedHost = client.host
@@ -146,7 +151,20 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             throw e
         }
 
-        if (testPrinter == null) {
+        return printer
+    }
+
+    /**
+     * Ran in the background thread, will check whether a printer is valid
+     *
+     * @return The printer capabilities if the printer is available, null otherwise
+     */
+    @Throws(Exception::class)
+    fun getPrinterCapabilities(id: String, printerId: PrinterId): PrinterCapabilitiesInfo? {
+        val url = id.split('\\')[0]
+        val printerURL = URL(url)
+
+        if (getPrinter(url) == null) {
             Timber.e("Printer not responding. Printer on fire?")
         } else {
             val propertyMap = HashMap<String, String>()
@@ -167,6 +185,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
 
             var colorDefault = 0
             var colorMode = 0
+            var duplexDefault = 0
+            var duplexMode = 0
             var marginMilsTop = 0
             var marginMilsRight = 0
             var marginMilsBottom = 0
@@ -217,12 +237,38 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                         }
                     } else if ("print-color-mode-default" == attribute.name) {
                         var attributeValue: AttributeValue? = null
-                        if (!attribute.attributeValue.isEmpty()) {
+                        if (attribute.attributeValue.isNotEmpty()) {
                             attributeValue = attribute.attributeValue[0]
                         }
                         colorDefault = when {
                             attributeValue != null && "color" == attributeValue.value -> PrintAttributes.COLOR_MODE_COLOR
                             else -> PrintAttributes.COLOR_MODE_MONOCHROME
+                        }
+                    } else if ("sides-supported" == attribute.name) {
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            for (attributeValue in attribute.attributeValue) {
+                                val rawValue = attributeValue.value
+                                Timber.d("Duplex mode $rawValue")
+                                duplexMode = duplexMode or when (attributeValue.value) {
+                                    "one-sided" -> PrintAttributes.DUPLEX_MODE_NONE
+                                    "two-sided-long-edge" -> PrintAttributes.DUPLEX_MODE_LONG_EDGE
+                                    "two-sided-short-edge" -> PrintAttributes.DUPLEX_MODE_SHORT_EDGE
+                                    else -> 0
+                                }
+                            }
+                        }
+                    } else if ("sides-default" == attribute.name) {
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            var attributeValue: AttributeValue? = null
+                            if (attribute.attributeValue.isNotEmpty())
+                                attributeValue = attribute.attributeValue[0]
+                            val rawValue = attributeValue?.value
+                            Timber.d("Default duplex mode $rawValue")
+                            duplexDefault = when (attributeValue?.value) {
+                                "two-sided-long-edge" -> PrintAttributes.DUPLEX_MODE_LONG_EDGE
+                                "two-sided-short-edge" -> PrintAttributes.DUPLEX_MODE_SHORT_EDGE
+                                else -> PrintAttributes.DUPLEX_MODE_NONE
+                            }
                         }
                     } else if ("media-left-margin-supported" == attribute.name) {
                         marginMilsLeft = determineMarginFromAttribute(attribute)
@@ -261,7 +307,17 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                 colorDefault = PrintAttributes.COLOR_MODE_MONOCHROME
             }
 
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (duplexMode == 0)
+                    colorMode = PrintAttributes.DUPLEX_MODE_NONE
+
+                if (duplexDefault == 0)
+                    colorMode = PrintAttributes.DUPLEX_MODE_NONE
+            }
+
             builder.setColorModes(colorMode, colorDefault)
+            if (Build.VERSION.SDK_INT >= 23)
+                builder.setDuplexModes(duplexMode, duplexDefault)
             builder.setMinMargins(PrintAttributes.Margins(marginMilsLeft, marginMilsTop, marginMilsRight, marginMilsBottom))
             return builder.build()
         }
@@ -277,7 +333,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         var margin = Integer.MAX_VALUE
         for (value in attribute.attributeValue) {
             val valueMargin = (MM_IN_MILS * (value.value?.toInt() ?: 0) / 100).toInt()
-            margin = Math.min(margin, valueMargin)
+            margin = margin.coerceAtMost(valueMargin)
         }
         return margin
     }
@@ -310,7 +366,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                     printers.add(printer)
                 }
             }
-            Timber.d("onPrinterChecked: we had ${getPrinters().size}printers, we now have ${printers.size}")
+            Timber.d("onPrinterChecked: we had ${getPrinters().size} printers, we now have ${printers.size}")
             addPrinters(printers)
         }
     }
@@ -339,9 +395,23 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
         val result = mdns.scan()
         mdnsPrinterDiscovery = null
         result.printers?.forEach { rec ->
-            val mDnsUrl = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
-            printers[mDnsUrl] = rec.nickname
-            Timber.d("mDNS scan found printer ${rec.nickname} at URL: $mDnsUrl")
+            val url = rec.protocol + "://" + rec.host + ":" + rec.port + "/printers/" + rec.queue
+            val printer = getPrinter(url)
+
+            if (printer == null) {
+                Timber.e("Printer not responding. Printer on fire?")
+            } else {
+                if (printer.trays.size <= 1) {
+                    printers[url] = rec.nickname
+                    Timber.d("mDNS scan found printer ${rec.nickname} at URL: $url")
+                } else {
+                    for (tray in printer.trays) {
+                        val nickname = "%s [%s]".format(rec.nickname, tray.replace('-', ' ').capitalize())
+                        printers[url + "\\" + tray] = nickname
+                        Timber.d("mDNS scan found tray $nickname at URL: $url")
+                    }
+                }
+            }
         }
     }
 
@@ -397,7 +467,7 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             Timber.i("Checking printer status: $printerId")
 
             try {
-                val printerCapabilitiesInfo = checkPrinter(printerId.localId, printerId)
+                val printerCapabilitiesInfo = getPrinterCapabilities(printerId.localId, printerId)
                 if (ippPrintersStateTracking[printerId]?.isAborted() == true) {
                     Timber.v("Checking Printer is aborted")
                 } else {
@@ -445,8 +515,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             }
             exception is SocketTimeoutException -> Toast.makeText(printService, R.string.err_printer_socket_timeout, Toast.LENGTH_LONG).show()
             exception is UnknownHostException -> Toast.makeText(printService, R.string.err_printer_unknown_host, Toast.LENGTH_LONG).show()
-            exception is ConnectException && exception.getLocalizedMessage().contains("ENETUNREACH") -> Toast.makeText(printService, R.string.err_printer_network_unreachable, Toast.LENGTH_LONG).show()
-            exception is IOException && exception.localizedMessage.contains("Cleartext HTTP traffic") -> Toast.makeText(printService, R.string.cleartext_error_android_9, Toast.LENGTH_LONG).show()
+            exception is ConnectException && exception.getLocalizedMessage()?.contains("ENETUNREACH")?:false -> Toast.makeText(printService, R.string.err_printer_network_unreachable, Toast.LENGTH_LONG).show()
+            exception is IOException && exception.localizedMessage?.contains("Cleartext HTTP traffic")?:false -> Toast.makeText(printService, R.string.cleartext_error_android_9, Toast.LENGTH_LONG).show()
             else -> return handleHttpError(exception, printerId)
         }
         return false
@@ -465,7 +535,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
             HttpURLConnection.HTTP_NOT_FOUND -> Toast.makeText(printService, R.string.err_404, Toast.LENGTH_LONG).show()
             HttpURLConnection.HTTP_BAD_REQUEST -> Toast.makeText(printService, R.string.err_400, Toast.LENGTH_LONG).show()
             HttpURLConnection.HTTP_UNAUTHORIZED -> try {
-                val printerUri = URI(printerId.localId)
+                val url = printerId.localId.split('\\')[0]
+                val printerUri = URI(url)
                 val printersUrl = printerUri.scheme + "://" + printerUri.host + ":" + printerUri.port + "/printers/"
                 val dialog = Intent(printService, BasicAuthActivity::class.java)
                 dialog.putExtra(BasicAuthActivity.KEY_BASIC_AUTH_PRINTERS_URL, printersUrl)
@@ -509,6 +580,8 @@ internal class CupsPrinterDiscoverySession(private val printService: PrintServic
                 "printer-resolution-supported",
                 "print-color-mode-default",
                 "print-color-mode-supported",
+                "sides-supported",
+                "sides-default",
                 "media-left-margin-supported",
                 "media-bottom-right-supported",
                 "media-top-margin-supported",

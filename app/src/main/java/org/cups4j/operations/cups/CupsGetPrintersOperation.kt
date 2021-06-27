@@ -28,8 +28,7 @@ import org.cups4j.CupsPrinter
 import org.cups4j.operations.IppOperation
 import timber.log.Timber
 import java.net.URL
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class CupsGetPrintersOperation(context: Context) : IppOperation(context) {
     init {
@@ -42,7 +41,7 @@ class CupsGetPrintersOperation(context: Context) : IppOperation(context) {
         val printers = ArrayList<CupsPrinter>()
 
         val map = HashMap<String, String>()
-        map["requested-attributes"] = "copies-supported page-ranges-supported printer-name printer-info printer-location printer-make-and-model printer-uri-supported"
+        map["requested-attributes"] = "copies-supported page-ranges-supported printer-name printer-info printer-location printer-make-and-model printer-uri-supported media-source-supported"
 
         // When a firstName is given, the returned list starts with this printer
         if (firstName != null) {
@@ -70,6 +69,7 @@ class CupsGetPrintersOperation(context: Context) : IppOperation(context) {
                 var printerName: String? = null
                 var printerLocation: String? = null
                 var printerDescription: String? = null
+                val trays = ArrayList<String>()
                 for (attr in group.attribute) {
                     when (attr.name) {
                         "printer-uri-supported" -> printerURI = attr.attributeValue[0].value!!.replace("ipps?://".toRegex(), url.protocol + "://")
@@ -79,6 +79,11 @@ class CupsGetPrintersOperation(context: Context) : IppOperation(context) {
                         }
                         "printer-info" -> if (attr.attributeValue.size > 0) {
                             printerDescription = attr.attributeValue[0].value
+                        }
+                        "media-source-supported" -> for (attributeValue in attr.attributeValue) {
+                            val tray = attributeValue.value
+                            if (tray != null)
+                                trays.add(tray)
                         }
                     }
                 }
@@ -93,7 +98,7 @@ class CupsGetPrintersOperation(context: Context) : IppOperation(context) {
                     throw Exception(t)
                 }
 
-                printer = CupsPrinter(printerUrl, printerName ?: DEFAULT_PRINTER_NAME, false)
+                printer = CupsPrinter(printerUrl, printerName ?: DEFAULT_PRINTER_NAME, false, trays)
                 printer.location = printerLocation
                 printer.description = printerDescription
                 printers.add(printer)

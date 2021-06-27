@@ -26,9 +26,8 @@ package org.cups4j.operations.cups
 import android.content.Context
 import org.cups4j.CupsPrinter
 import org.cups4j.operations.IppOperation
-
 import java.net.URL
-import java.util.HashMap
+import java.util.*
 
 const val DEFAULT_PRINTER_NAME = "Unknown printer"
 

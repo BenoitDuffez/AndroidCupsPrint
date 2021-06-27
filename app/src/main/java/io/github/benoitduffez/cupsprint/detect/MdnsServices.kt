@@ -6,9 +6,7 @@ import java.net.InetAddress
 import java.net.MulticastSocket
 import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
-import java.util.ArrayList
-import java.util.HashMap
-
+import java.util.*
 import javax.jmdns.ServiceInfo
 import javax.jmdns.impl.DNSIncoming
 import javax.jmdns.impl.DNSRecord
