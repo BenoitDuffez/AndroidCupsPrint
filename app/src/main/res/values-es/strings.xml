@@ -6,7 +6,7 @@
     <string name="add_full_manual">Como alternativa, puede introducir la URI completa de la impresora en los campos de abajo</string>
     <string name="add_button">Añadir impresora</string>
     <string name="add_name">Nombre de impresora</string>
-    <string name="add_search_button">Buscar impresoras</cuerda>
+    <string name="add_search_button">Buscar impresoras</string>
     <string name="add_server_ip">Dirección IP o nombre de host</string>
     <string name="add_url">http://serveur-cups.domaine:631/printers/Nombre_de_impresora</string>
     <plurals name="printer_discovery_result">
