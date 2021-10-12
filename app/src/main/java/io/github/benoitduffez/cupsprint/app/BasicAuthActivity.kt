@@ -22,7 +22,7 @@ class BasicAuthActivity : Activity() {
         val prefs = getSharedPreferences(CREDENTIALS_FILE, Context.MODE_PRIVATE)
 
         val numCredentials = prefs.getInt(KEY_BASIC_AUTH_NUMBER, 0)
-        val foundId = findSavedCredentialsId(printersUrl, prefs)
+        val foundId = findSavedCredentialsId(printersUrl!!, prefs)
         val targetId: Int
         if (foundId >= 0) {
             targetId = foundId
